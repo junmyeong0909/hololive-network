@@ -3,11 +3,9 @@ import * as d3 from 'd3';
 import { AnimatePresence } from 'framer-motion';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import MemberTooltip from './MemberTooltip.jsx';
+import { asset } from '../../lib/asset.js';
 
 const NODE_RADIUS = 24;
-
-// 하위 경로(GitHub Pages 등)에 배포돼도 정적 파일을 찾을 수 있도록 base 경로를 붙여줌
-const asset = (path) => `${import.meta.env.BASE_URL}${String(path).replace(/^\//, '')}`;
 
 // 교류 점수: 참여 인원이 많을수록 쌍당 기여도가 낮아짐 (2인 = 10, 5인 = 4 ...)
 const BASE_SCORE = 20;

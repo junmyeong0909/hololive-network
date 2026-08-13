@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ExternalLink, Radio, Music2, MessageCircle } from 'lucide-react';
+import MemberAvatar from '../MemberAvatar.jsx';
 
 const TYPE_META = {
   tweet: { icon: MessageCircle, label: '트윗' },
@@ -31,12 +32,7 @@ export default function NotificationCard({ notification, member, index }) {
       transition={{ delay: index * 0.03, duration: 0.25 }}
       className="group flex gap-3 rounded-2xl border border-stage-border bg-stage-700/60 p-3 transition-colors hover:border-sky-400/50 hover:bg-stage-600/60"
     >
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-display font-semibold text-slate-900"
-        style={{ backgroundColor: member?.color ?? '#8d87ad' }}
-      >
-        {member?.initials ?? '?'}
-      </div>
+      <MemberAvatar member={member} className="h-10 w-10" />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">

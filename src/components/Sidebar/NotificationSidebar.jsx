@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, X, MessageCircle, Radio, Music2 } from 'lucide-react';
 import NotificationCard from './NotificationCard.jsx';
+import MemberAvatar from '../MemberAvatar.jsx';
 
 const TABS = [
   { id: 'all', label: '전체', icon: Bell },
@@ -30,12 +31,7 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
       {selectedMember && (
         <div className="mx-4 mb-3 flex items-center justify-between gap-2 rounded-xl border border-stage-border bg-stage-700/60 px-3 py-2">
           <div className="flex min-w-0 items-center gap-2">
-            <span
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-display font-semibold text-slate-900"
-              style={{ backgroundColor: selectedMember.color }}
-            >
-              {selectedMember.initials}
-            </span>
+            <MemberAvatar member={selectedMember} className="h-6 w-6" textClassName="text-[10px]" />
             <span className="truncate text-xs text-ink-300">
               <span className="font-semibold text-ink-100">{selectedMember.name}</span> 알림만 보는 중
             </span>

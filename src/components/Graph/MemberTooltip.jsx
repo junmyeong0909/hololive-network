@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { X, Users, Music2 } from 'lucide-react';
+import MemberAvatar from '../MemberAvatar.jsx';
 
 export default function MemberTooltip({ member, connections, x, y, onClose }) {
   if (!member) return null;
@@ -24,12 +25,7 @@ export default function MemberTooltip({ member, connections, x, y, onClose }) {
       </button>
 
       <div className="flex items-center gap-2.5">
-        <div
-          className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-display font-semibold text-slate-900"
-          style={{ backgroundColor: member.color }}
-        >
-          {member.initials}
-        </div>
+        <MemberAvatar member={member} className="h-9 w-9" />
         <div>
           <p className="text-sm font-semibold text-ink-100">{member.name}</p>
           <p className="text-[11px] text-ink-500">{member.unit}</p>
