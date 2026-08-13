@@ -347,7 +347,7 @@ export default function NetworkGraph({ members, interactions, notifications, sel
         <p className="text-xs text-ink-500">노드를 드래그하거나 스크롤로 확대·축소해보세요 · 가까울수록 최근 교류가 많아요</p>
       </div>
 
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1.5">
+      <div className="absolute bottom-9 right-4 flex flex-col gap-1.5">
         <button onClick={() => handleZoom(1.3)} className="rounded-lg border border-stage-border bg-stage-700/80 p-2 text-ink-300 hover:text-ink-100">
           <ZoomIn size={16} />
         </button>
@@ -358,6 +358,11 @@ export default function NetworkGraph({ members, interactions, notifications, sel
           <Maximize2 size={16} />
         </button>
       </div>
+
+      {/* 버전 표시 */}
+      <span className="pointer-events-none absolute bottom-2.5 right-4 select-none font-display text-[10px] tabular-nums text-ink-500/50">
+        v{__APP_VERSION__}
+      </span>
 
       <AnimatePresence>
         {tooltip && (
