@@ -1,0 +1,49 @@
+{
+  "members": [
+    { "id": "sora", "name": "토키노 소라", "nameEn": "Tokino Sora", "unit": "0기생", "color": "#4fc3f7", "initials": "ソラ" },
+    { "id": "suisei", "name": "호시마치 스이세이", "nameEn": "Hoshimachi Suisei", "unit": "0기생", "color": "#00e5ff", "initials": "スイ" },
+    { "id": "fubuki", "name": "시라카미 후부키", "nameEn": "Shirakami Fubuki", "unit": "1기생", "color": "#e3e1f5", "initials": "フブ" },
+    { "id": "mio", "name": "오오카미 미오", "nameEn": "Ookami Mio", "unit": "1기생", "color": "#9a94b8", "initials": "ミオ" },
+    { "id": "pekora", "name": "우사다 페코라", "nameEn": "Usada Pekora", "unit": "3기생", "color": "#7fd0ff", "initials": "ペコ" },
+    { "id": "okayu", "name": "네코마타 오카유", "nameEn": "Nekomata Okayu", "unit": "4기생", "color": "#ff9e4a", "initials": "オカ" },
+    { "id": "lamy", "name": "유쿠하나 라미", "nameEn": "Yukuhana Lamy", "unit": "5기생", "color": "#b39ddb", "initials": "ラミ" },
+    { "id": "iroha", "name": "카자마 이로하", "nameEn": "Kazama Iroha", "unit": "holoX", "color": "#7c5cff", "initials": "イロ" },
+    { "id": "raden", "name": "주후우테이 라덴", "nameEn": "Juufuutei Raden", "unit": "ReGLOSS", "color": "#ff4fa3", "initials": "ラデ" },
+    { "id": "kanade", "name": "오토노세 카나데", "nameEn": "Otonose Kanade", "unit": "ReGLOSS", "color": "#ffd54f", "initials": "カナ" }
+  ],
+  "edges": [
+    { "source": "sora", "target": "suisei", "collabCount": 9, "coverCount": 4 },
+    { "source": "sora", "target": "fubuki", "collabCount": 6, "coverCount": 1 },
+    { "source": "fubuki", "target": "mio", "collabCount": 8, "coverCount": 2 },
+    { "source": "mio", "target": "okayu", "collabCount": 7, "coverCount": 3 },
+    { "source": "okayu", "target": "pekora", "collabCount": 5, "coverCount": 0 },
+    { "source": "pekora", "target": "suisei", "collabCount": 3, "coverCount": 1 },
+    { "source": "suisei", "target": "lamy", "collabCount": 4, "coverCount": 2 },
+    { "source": "lamy", "target": "okayu", "collabCount": 6, "coverCount": 1 },
+    { "source": "iroha", "target": "raden", "collabCount": 8, "coverCount": 5 },
+    { "source": "raden", "target": "kanade", "collabCount": 7, "coverCount": 4 },
+    { "source": "kanade", "target": "iroha", "collabCount": 6, "coverCount": 3 },
+    { "source": "iroha", "target": "sora", "collabCount": 2, "coverCount": 0 },
+    { "source": "raden", "target": "okayu", "collabCount": 2, "coverCount": 1 },
+    { "source": "mio", "target": "sora", "collabCount": 3, "coverCount": 0 },
+    { "source": "kanade", "target": "lamy", "collabCount": 1, "coverCount": 0 },
+    { "source": "fubuki", "target": "pekora", "collabCount": 2, "coverCount": 0 }
+  ],
+  "notifications": [
+    { "id": "n1", "memberId": "suisei", "type": "live", "title": "정기 가창 방송 예고", "snippet": "이번 주 정기 라이브 방송 일정 공지", "timestamp": "2026-08-14T09:20:00+09:00", "url": "https://www.youtube.com/@HoshimachiSuisei" },
+    { "id": "n2", "memberId": "pekora", "type": "live", "title": "신작 게임 첫 플레이 방송", "snippet": "신작 어드벤처 게임 공략 방송 시작", "timestamp": "2026-08-14T08:50:00+09:00", "url": "https://www.youtube.com/@usadapekora" },
+    { "id": "n3", "memberId": "raden", "type": "cover", "title": "커버곡 '夜行' 공개", "snippet": "신규 커버 음원 뮤직비디오 업로드", "timestamp": "2026-08-14T07:30:00+09:00", "url": "https://www.youtube.com/@JuufuuteiRaden" },
+    { "id": "n4", "memberId": "okayu", "type": "tweet", "title": "방송 후기 트윗", "snippet": "오늘 방송 다시보기 링크 공지", "timestamp": "2026-08-14T06:40:00+09:00", "url": "https://x.com/nekomataokayu" },
+    { "id": "n5", "memberId": "iroha", "type": "live", "title": "ASMR 잡담 방송", "snippet": "심야 잡담 및 리스너 사연 소개", "timestamp": "2026-08-13T23:10:00+09:00", "url": "https://www.youtube.com/@KazamaIroha" },
+    { "id": "n6", "memberId": "sora", "type": "tweet", "title": "다음 방송 예고 트윗", "snippet": "내일 방송 시간 변경 안내", "timestamp": "2026-08-13T21:05:00+09:00", "url": "https://x.com/tokino_sora" },
+    { "id": "n7", "memberId": "kanade", "type": "cover", "title": "합동 커버곡 참여", "snippet": "ReGLOSS 유닛 합동 커버 음원 공개", "timestamp": "2026-08-13T19:45:00+09:00", "url": "https://www.youtube.com/@OtonoseKanade" },
+    { "id": "n8", "memberId": "fubuki", "type": "live", "title": "협동 게임 방송", "snippet": "동료와 함께하는 협동 플레이 방송", "timestamp": "2026-08-13T18:30:00+09:00", "url": "https://www.youtube.com/@ShirakamiFubuki" },
+    { "id": "n9", "memberId": "mio", "type": "tweet", "title": "근황 트윗", "snippet": "최근 활동 근황 공유", "timestamp": "2026-08-13T15:20:00+09:00", "url": "https://x.com/ookami_mio" },
+    { "id": "n10", "memberId": "lamy", "type": "live", "title": "노래방 방송", "snippet": "신청곡 위주 노래방 방송 진행", "timestamp": "2026-08-13T13:00:00+09:00", "url": "https://www.youtube.com/@YukuhanaLamy" },
+    { "id": "n11", "memberId": "pekora", "type": "cover", "title": "솔로 커버곡 공개", "snippet": "신규 솔로 커버 뮤직비디오 업로드", "timestamp": "2026-08-13T11:15:00+09:00", "url": "https://www.youtube.com/@usadapekora" },
+    { "id": "n12", "memberId": "raden", "type": "tweet", "title": "굿즈 발매 안내 트윗", "snippet": "신규 굿즈 발매 일정 공지", "timestamp": "2026-08-13T10:00:00+09:00", "url": "https://x.com/juufuuteiraden" },
+    { "id": "n13", "memberId": "suisei", "type": "cover", "title": "신곡 뮤직비디오 공개", "snippet": "오리지널 신곡 뮤직비디오 업로드", "timestamp": "2026-08-12T20:30:00+09:00", "url": "https://www.youtube.com/@HoshimachiSuisei" },
+    { "id": "n14", "memberId": "okayu", "type": "live", "title": "합동 방송 예고", "snippet": "동료와 함께하는 합방 일정 공지", "timestamp": "2026-08-12T18:00:00+09:00", "url": "https://www.youtube.com/@nekomataokayu" },
+    { "id": "n15", "memberId": "iroha", "type": "tweet", "title": "촬영 비하인드 트윗", "snippet": "최근 촬영 비하인드 사진 공유", "timestamp": "2026-08-12T16:40:00+09:00", "url": "https://x.com/kazamairoha" }
+  ]
+}
