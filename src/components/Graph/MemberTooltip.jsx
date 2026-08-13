@@ -25,7 +25,7 @@ export default function MemberTooltip({ member, connections, x, y, onClose }) {
 
       <div className="flex items-center gap-2.5">
         <div
-          className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-display font-semibold text-stage-900"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-display font-semibold text-slate-900"
           style={{ backgroundColor: member.color }}
         >
           {member.initials}

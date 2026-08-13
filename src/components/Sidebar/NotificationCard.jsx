@@ -29,10 +29,10 @@ export default function NotificationCard({ notification, member, index }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.25 }}
-      className="group flex gap-3 rounded-2xl border border-stage-border bg-stage-700/60 p-3 transition-colors hover:border-white/20 hover:bg-stage-600/60"
+      className="group flex gap-3 rounded-2xl border border-stage-border bg-stage-700/60 p-3 transition-colors hover:border-sky-400/50 hover:bg-stage-600/60"
     >
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-display font-semibold text-stage-900"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-display font-semibold text-slate-900"
         style={{ backgroundColor: member?.color ?? '#8d87ad' }}
       >
         {member?.initials ?? '?'}

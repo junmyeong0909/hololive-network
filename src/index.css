@@ -10,12 +10,13 @@ body,
 
 body {
   font-family: 'Inter', sans-serif;
-  color: #f4f2ff;
+  color: #173247;
   background:
-    radial-gradient(60% 50% at 15% 0%, rgba(124, 92, 255, 0.16), transparent 60%),
-    radial-gradient(50% 40% at 85% 10%, rgba(0, 224, 208, 0.10), transparent 60%),
-    #0b0a14;
+    radial-gradient(60% 50% at 15% 0%, rgba(56, 189, 248, 0.16), transparent 60%),
+    radial-gradient(50% 40% at 85% 10%, rgba(14, 165, 233, 0.12), transparent 60%),
+    #eaf6fd;
   overflow: hidden;
+  position: relative;
 }
 
 /* 얇은 커스텀 스크롤바 - 사이드바 피드용 */
@@ -26,11 +27,11 @@ body {
   background: transparent;
 }
 .feed-scroll::-webkit-scrollbar-thumb {
-  background: #2c2748;
+  background: #a9d6ef;
   border-radius: 999px;
 }
 .feed-scroll::-webkit-scrollbar-thumb:hover {
-  background: #3a3460;
+  background: #8cc8e8;
 }
 
 .text-glow {

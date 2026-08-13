@@ -6,7 +6,12 @@ import data from './data/hololiveData.json';
 
 export default function App() {
   const [mobileFeedOpen, setMobileFeedOpen] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState(null);
   const membersById = Object.fromEntries(data.members.map((m) => [m.id, m]));
+  const selectedMember = selectedMemberId ? membersById[selectedMemberId] : null;
+  const feedNotifications = selectedMemberId
+    ? data.notifications.filter((n) => n.memberId === selectedMemberId)
+    : data.notifications;
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden font-body text-ink-100">
@@ -19,25 +24,33 @@ export default function App() {
           >
             <Menu size={20} />
           </button>
-          <Sparkles size={18} className="text-[#7c5cff]" />
+          <Sparkles size={18} className="text-sky-500" />
           <span className="font-display text-lg font-bold tracking-tight">HOLONET</span>
           <span className="hidden text-xs text-ink-500 sm:inline">홀로라이브 알림 &amp; 교류 네트워크</span>
         </div>
         <span className="rounded-full border border-stage-border px-2.5 py-1 text-[11px] text-ink-500">
-          멤버 {data.members.length}명 · 교류 {data.edges.length}건
+          멤버 {data.members.length}명 · 교류 기록 {data.interactions.length}건
         </span>
       </header>
 
       {/* 본문: 사이드바 + 그래프 */}
       <div className="flex min-h-0 flex-1">
         <NotificationSidebar
-          notifications={data.notifications}
+          notifications={feedNotifications}
           membersById={membersById}
           isOpen={mobileFeedOpen}
           onClose={() => setMobileFeedOpen(false)}
+          selectedMember={selectedMember}
+          onClearSelection={() => setSelectedMemberId(null)}
         />
         <main className="relative min-w-0 flex-1 bg-stage-900">
-          <NetworkGraph members={data.members} edges={data.edges} notifications={data.notifications} />
+          <NetworkGraph
+            members={data.members}
+            interactions={data.interactions}
+            notifications={data.notifications}
+            selectedMemberId={selectedMemberId}
+            onSelectMember={setSelectedMemberId}
+          />
         </main>
       </div>
     </div>

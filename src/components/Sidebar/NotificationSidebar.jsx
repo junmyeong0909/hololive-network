@@ -10,7 +10,7 @@ const TABS = [
   { id: 'cover', label: '커버', icon: Music2 },
 ];
 
-export default function NotificationSidebar({ notifications, membersById, isOpen, onClose }) {
+export default function NotificationSidebar({ notifications, membersById, isOpen, onClose, selectedMember, onClearSelection }) {
   const [activeTab, setActiveTab] = useState('all');
 
   const filtered = useMemo(() => {
@@ -27,6 +27,28 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
         </button>
       </div>
 
+      {selectedMember && (
+        <div className="mx-4 mb-3 flex items-center justify-between gap-2 rounded-xl border border-stage-border bg-stage-700/60 px-3 py-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <span
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-display font-semibold text-slate-900"
+              style={{ backgroundColor: selectedMember.color }}
+            >
+              {selectedMember.initials}
+            </span>
+            <span className="truncate text-xs text-ink-300">
+              <span className="font-semibold text-ink-100">{selectedMember.name}</span> 알림만 보는 중
+            </span>
+          </div>
+          <button
+            onClick={onClearSelection}
+            className="shrink-0 rounded-full p-1 text-ink-500 hover:bg-stage-600 hover:text-ink-100"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       <div className="flex gap-1.5 px-4 pb-3">
         {TABS.map((tab) => {
           const Icon = tab.icon;
@@ -37,7 +59,7 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 active
-                  ? 'bg-white text-stage-900'
+                  ? 'bg-sky-500 text-white'
                   : 'bg-stage-700 text-ink-300 hover:bg-stage-600'
               }`}
             >
