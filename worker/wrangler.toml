@@ -1,0 +1,9 @@
+name = "holonet-feed"
+main = "src/index.js"
+compatibility_date = "2026-08-14"
+
+# HOLODEX_API_KEY는 여기 적지 말 것. 아래 명령으로 등록한다:
+#   wrangler secret put HOLODEX_API_KEY
+
+[observability]
+enabled = true
