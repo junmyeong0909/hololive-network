@@ -47,17 +47,43 @@ async function holodex(path, apiKey) {
   return res.json();
 }
 
-/** Holodex 영상 하나를 우리 알림 스키마로 변환. 우리 멤버가 아니면 null. */
+// 상시 대기방(FreeChat)은 영구히 upcoming 상태라 예정 탭을 도배한다. 제외.
+const EXCLUDED_TOPICS = new Set(['freechat', 'freetalk']);
+
+// 음악 판정. Holodex topic_id는 singing / music_cover / original_song / karaoke 등
+// 표기가 여러 가지라 정확한 목록 대신 패턴으로 잡는다.
+const MUSIC_TOPIC = /sing|music|cover|karaoke|song/i;
+
+// 기술적인 topic_id를 사람이 읽을 만하게
+const TOPIC_LABEL = {
+  singing: '노래',
+  music_cover: '커버',
+  original_song: '오리지널 곡',
+  karaoke: '노래방',
+  asmr: 'ASMR',
+  talk: '잡담',
+  minecraft: '마인크래프트',
+  apex: 'APEX',
+};
+
+function prettyTopic(topicId) {
+  if (!topicId) return '';
+  return TOPIC_LABEL[topicId] ?? String(topicId).replace(/_/g, ' ');
+}
+
+/** Holodex 영상 하나를 우리 알림 스키마로 변환. 제외 대상이면 null. */
 function toNotification(v) {
   const channelId = v.channel?.id ?? v.channel_id;
   const memberId = MEMBER_BY_CHANNEL[channelId];
   if (!memberId) return null;
 
+  const topicId = v.topic_id ?? '';
+  if (EXCLUDED_TOPICS.has(topicId.toLowerCase())) return null;
+
   // Holodex status: live | upcoming | past | new | missing
   const status = v.status === 'live' || v.status === 'upcoming' ? v.status : 'past';
 
-  // 음악 여부는 topic_id로 판별 (커버 + 오리지널 신곡)
-  const isMusic = v.topic_id === 'singing' || v.topic_id === 'music_cover' || v.topic_id === 'original_song';
+  const isMusic = MUSIC_TOPIC.test(topicId);
   const type = isMusic ? 'music' : v.type === 'stream' ? 'stream' : 'video';
 
   // 라이브/예정은 시작(예정) 시각, 지난 건 공개 시각
@@ -69,7 +95,7 @@ function toNotification(v) {
     type,
     status,
     title: v.title ?? '',
-    snippet: v.topic_id ?? v.channel?.english_name ?? v.channel?.name ?? '',
+    snippet: prettyTopic(topicId) || v.channel?.english_name || v.channel?.name || '',
     timestamp,
     url: `https://www.youtube.com/watch?v=${v.id}`,
     thumbnail: `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`,
@@ -105,6 +131,15 @@ async function buildFeed(apiKey, debug) {
     diagnostics.liveRaw = live.length;
     diagnostics.pastRaw = past.length;
     diagnostics.mappedChannels = CHANNEL_IDS.length;
+    // 무엇이 왜 걸러졌는지 (FreeChat 필터가 먹는지 확인용)
+    const all = [...live, ...past];
+    diagnostics.excludedByTopic = all.filter((v) =>
+      EXCLUDED_TOPICS.has(String(v.topic_id ?? '').toLowerCase())
+    ).length;
+    diagnostics.notOurMember = all.filter(
+      (v) => !MEMBER_BY_CHANNEL[v.channel?.id ?? v.channel_id]
+    ).length;
+    diagnostics.topicsSeen = [...new Set(all.map((v) => v.topic_id).filter(Boolean))];
   }
 
   // id 기준 중복 제거 (라이브 목록과 지난 목록이 겹칠 수 있음)
