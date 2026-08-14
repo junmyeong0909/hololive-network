@@ -4,7 +4,8 @@
  * 동시에 Worker가 쓸 엔드포인트들의 응답 형태를 검증해서 출력한다.
  *
  * 사용법:
- *   HOLODEX_API_KEY=xxxxx node scripts/holodex-setup.mjs
+ *   npm run setup:channels
+ *   → 키를 물어본다. 환경변수 HOLODEX_API_KEY가 있으면 그걸 쓴다.
  *
  * 키는 저장되지 않는다. 결과 JSON에는 공개 채널 ID만 들어간다.
  */
@@ -12,6 +13,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import readline from 'node:readline';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -19,12 +21,29 @@ const DATA_PATH = resolve(ROOT, 'src/data/hololiveData.json');
 const OUT_PATH = resolve(ROOT, 'src/data/channelIds.json');
 
 const API = 'https://holodex.net/api/v2';
-const KEY = process.env.HOLODEX_API_KEY;
 
-if (!KEY) {
-  console.error('HOLODEX_API_KEY 환경변수가 없습니다.\n예) HOLODEX_API_KEY=xxxxx node scripts/holodex-setup.mjs');
-  process.exit(1);
+/** 입력이 화면에 보이지 않게 키를 물어본다. */
+function askHidden(question) {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
+    // 입력한 글자를 * 로 가린다
+    rl._writeToOutput = function (chunk) {
+      if (rl.stdoutMuted && chunk !== question) rl.output.write('*');
+      else rl.output.write(chunk);
+    };
+    rl.question(question, (answer) => {
+      rl.stdoutMuted = false;
+      rl.output.write('\n');
+      rl.close();
+      // Windows에서 stdin이 열린 채로 종료하면 libuv 어설션이 발생한다
+      process.stdin.pause();
+      resolve(answer.trim());
+    });
+    rl.stdoutMuted = true;
+  });
 }
+
+let KEY = process.env.HOLODEX_API_KEY;
 
 async function api(path) {
   const res = await fetch(`${API}${path}`, { headers: { 'X-APIKEY': KEY } });
@@ -51,6 +70,14 @@ async function fetchAllHololiveChannels() {
 }
 
 async function main() {
+  if (!KEY) {
+    KEY = await askHidden('Holodex API 키를 붙여넣고 Enter: ');
+  }
+  if (!KEY) {
+    console.error('키가 입력되지 않았습니다.');
+    process.exit(1);
+  }
+
   const data = JSON.parse(readFileSync(DATA_PATH, 'utf-8'));
   const members = data.members;
 
@@ -129,5 +156,9 @@ async function main() {
 
 main().catch((e) => {
   console.error('\n실패:', e.message);
-  process.exit(1);
+  if (String(e.message).includes('403')) {
+    console.error('키가 올바른지 확인하세요. holodex.net → Account Settings에서 재발급할 수 있습니다.');
+  }
+  // process.exit()를 쓰면 Windows에서 stdin 정리 전에 종료돼 크래시가 난다
+  process.exitCode = 1;
 });
