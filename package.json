@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "setup:channels": "node scripts/holodex-setup.mjs"
+    "setup:channels": "node scripts/holodex-setup.mjs",
+    "setup:songs": "node scripts/fetch-member-songs.mjs"
   },
   "dependencies": {
     "d3": "^7.9.0",

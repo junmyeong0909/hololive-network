@@ -2,21 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * 테마 토큰. Tailwind가 rgb(var(--x) / <alpha-value>)로 참조하므로
+ * 값은 반드시 "R G B" 형태여야 한다.
+ */
+:root {
+  --stage-900: 234 246 253;
+  --stage-800: 225 242 252;
+  --stage-700: 211 236 250;
+  --stage-600: 194 228 246;
+  --stage-border: 183 221 241;
+
+  /* 밝은 배경에서 WCAG AA(4.5:1)를 넘도록 잡은 값 */
+  --ink-100: 23 50 71;
+  --ink-300: 51 85 107;
+  --ink-500: 71 99 117;
+
+  /* 그래프(SVG)에서 쓰는 색 */
+  --graph-link: 14 165 233;
+  --graph-node-bg: 255 255 255;
+  --page-glow-a: 56 189 248;
+  --page-glow-b: 14 165 233;
+  --watermark-opacity: 0.15;
+}
+
+.dark {
+  --stage-900: 10 20 32;
+  --stage-800: 15 28 43;
+  --stage-700: 22 40 58;
+  --stage-600: 30 52 72;
+  --stage-border: 36 64 90;
+
+  --ink-100: 232 244 251;
+  --ink-300: 168 196 216;
+  --ink-500: 117 146 168;
+
+  --graph-link: 56 189 248;
+  --graph-node-bg: 15 28 43;
+  --page-glow-a: 14 165 233;
+  --page-glow-b: 56 189 248;
+  /* 어두운 배경에서는 로고가 더 도드라져서 낮춘다 */
+  --watermark-opacity: 0.1;
+}
+
 html,
 body,
 #root {
   height: 100%;
 }
 
+/* 테마 전환 순간에만 붙는다. useTheme.js 참고. */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
 body {
   font-family: 'Inter', sans-serif;
-  color: #173247;
+  color: rgb(var(--ink-100));
   background:
-    radial-gradient(60% 50% at 15% 0%, rgba(56, 189, 248, 0.16), transparent 60%),
-    radial-gradient(50% 40% at 85% 10%, rgba(14, 165, 233, 0.12), transparent 60%),
-    #eaf6fd;
+    radial-gradient(60% 50% at 15% 0%, rgb(var(--page-glow-a) / 0.16), transparent 60%),
+    radial-gradient(50% 40% at 85% 10%, rgb(var(--page-glow-b) / 0.12), transparent 60%),
+    rgb(var(--stage-900));
   overflow: hidden;
-  position: relative;
 }
 
 /* 얇은 커스텀 스크롤바 - 사이드바 피드용 */
@@ -27,11 +76,31 @@ body {
   background: transparent;
 }
 .feed-scroll::-webkit-scrollbar-thumb {
-  background: #a9d6ef;
+  background: rgb(var(--stage-border));
   border-radius: 999px;
 }
 .feed-scroll::-webkit-scrollbar-thumb:hover {
-  background: #8cc8e8;
+  background: rgb(var(--ink-500) / 0.6);
+}
+
+/*
+ * 그래프는 D3가 그리므로 색을 인라인 속성으로 박으면 테마 전환에 반응하지 않는다.
+ * 색만 CSS로 빼서 변수로 처리한다. (굵기/투명도 등 데이터에 따라 달라지는 값은 인라인 유지)
+ */
+.links line {
+  stroke: rgb(var(--graph-link));
+}
+
+.node text.label {
+  fill: rgb(var(--ink-100));
+}
+
+.node circle.node-bg {
+  fill: rgb(var(--graph-node-bg));
+}
+
+image.watermark {
+  opacity: var(--watermark-opacity);
 }
 
 .text-glow {

@@ -77,7 +77,7 @@ export default function NotificationCard({ notification, member, index }) {
 
         <div className="mt-1.5 flex items-center justify-between">
           {status === 'live' && (
-            <span className="flex items-center gap-1 text-[11px] font-medium text-red-500">
+            <span className="flex items-center gap-1 text-[11px] font-medium text-red-700 dark:text-red-400">
               <Eye size={11} />
               {notification.liveViewers != null
                 ? `${notification.liveViewers.toLocaleString('ko-KR')}명 시청 중`
@@ -85,7 +85,7 @@ export default function NotificationCard({ notification, member, index }) {
             </span>
           )}
           {status === 'upcoming' && (
-            <span className="flex items-center gap-1 text-[11px] font-medium text-sky-600">
+            <span className="flex items-center gap-1 text-[11px] font-medium text-sky-700 dark:text-sky-400">
               <Clock size={11} /> {timeUntil(notification.timestamp)}
             </span>
           )}

@@ -119,7 +119,7 @@ export default function NetworkGraph({ members, interactions, notifications, sel
       .attr('height', markHeight)
       // 원본은 팔레트 PNG에 알파가 없어 흰 배경이 사각형으로 드러났다.
       // scripts/make-logo-transparent.mjs로 tRNS를 넣어 누끼를 딴 파일을 쓴다.
-      .attr('opacity', 0.15)
+      // opacity는 테마별로 달라서 index.css에서 지정한다.
       .style('pointer-events', 'none');
 
     const linkLayer = root.append('g').attr('class', 'links');
@@ -129,7 +129,7 @@ export default function NetworkGraph({ members, interactions, notifications, sel
       .selectAll('line')
       .data(links)
       .join('line')
-      .attr('stroke', '#0ea5e9')
+      // stroke 색은 index.css(.links line)에서 테마 변수로 지정한다
       .attr('stroke-width', (d) => strokeScale(d.score))
       .attr('stroke-opacity', (d) => opacityScale(d.score))
       .attr('stroke-linecap', 'round');
@@ -143,9 +143,10 @@ export default function NetworkGraph({ members, interactions, notifications, sel
 
     nodeSel
       .append('circle')
-      .attr('class', 'node-ring')
+      // 사진이 있는 노드의 바탕색은 테마에 따라 달라지므로 CSS(.node-bg)에 맡긴다
+      .attr('class', (d) => (d.profileImg ? 'node-ring node-bg' : 'node-ring'))
       .attr('r', (d) => d.r)
-      .attr('fill', (d) => (d.profileImg ? '#ffffff' : d.color))
+      .attr('fill', (d) => (d.profileImg ? null : d.color))
       .attr('fill-opacity', (d) => (d.profileImg ? 1 : 0.18))
       .attr('stroke', (d) => d.color)
       .attr('stroke-width', 2.5);
@@ -194,7 +195,7 @@ export default function NetworkGraph({ members, interactions, notifications, sel
       .attr('y', (d) => d.r + 16)
       .attr('font-size', 11.5)
       .attr('font-weight', 500)
-      .attr('fill', '#173247')
+      // fill은 index.css(.node text.label)에서 테마 변수로 지정한다
       .style('pointer-events', 'none');
 
     function applyHighlight(selectedId) {

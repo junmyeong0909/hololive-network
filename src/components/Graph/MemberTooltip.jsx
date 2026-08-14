@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Users, Music2 } from 'lucide-react';
+import { X, Users, Music2, ExternalLink } from 'lucide-react';
 import MemberAvatar from '../MemberAvatar.jsx';
 
 const MARGIN = 8;
@@ -48,13 +48,36 @@ export default function MemberTooltip({ member, connections, x, y, onClose }) {
         <X size={14} />
       </button>
 
-      <div className="flex items-center gap-2.5">
-        <MemberAvatar member={member} className="h-9 w-9" />
-        <div>
-          <p className="text-sm font-semibold text-ink-100">{member.name}</p>
-          <p className="text-[11px] text-ink-500">{member.unit}</p>
+      {/* 헤더 전체가 유튜브 채널로 가는 링크. 채널 ID가 없으면 링크 없이 표시만 한다. */}
+      {member.youtubeChannelId ? (
+        <a
+          href={`https://www.youtube.com/channel/${member.youtubeChannelId}`}
+          target="_blank"
+          rel="noreferrer"
+          title={`${member.name} 채널 열기`}
+          className="group -m-1.5 flex items-center gap-2.5 rounded-xl p-1.5 pr-7 transition-colors hover:bg-stage-700/70"
+        >
+          <MemberAvatar member={member} className="h-9 w-9" />
+          <div className="min-w-0">
+            <p className="flex items-center gap-1 truncate text-sm font-semibold text-ink-100">
+              {member.name}
+              <ExternalLink
+                size={11}
+                className="shrink-0 text-ink-500 opacity-0 transition-opacity group-hover:opacity-100"
+              />
+            </p>
+            <p className="truncate text-[11px] text-ink-500">{member.unit}</p>
+          </div>
+        </a>
+      ) : (
+        <div className="flex items-center gap-2.5">
+          <MemberAvatar member={member} className="h-9 w-9" />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-ink-100">{member.name}</p>
+            <p className="truncate text-[11px] text-ink-500">{member.unit}</p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-3 border-t border-stage-border pt-3">
         <p className="mb-2 flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-ink-500">

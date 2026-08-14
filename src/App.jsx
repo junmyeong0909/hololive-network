@@ -1,21 +1,44 @@
-import { useState } from 'react';
-import { Menu, Sparkles } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Menu, Sparkles, Moon, Sun } from 'lucide-react';
 import NotificationSidebar from './components/Sidebar/NotificationSidebar.jsx';
 import NetworkGraph from './components/Graph/NetworkGraph.jsx';
 import { useNotifications } from './hooks/useNotifications.js';
+import { useTheme } from './hooks/useTheme.js';
 import data from './data/hololiveData.json';
+import channelIds from './data/channelIds.json';
+import memberSongs from './data/memberSongs.json';
 
 export default function App() {
   const [mobileFeedOpen, setMobileFeedOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState(null);
+  const { theme, toggle } = useTheme();
 
   const { notifications, isStale, source } = useNotifications(data.notifications);
 
-  const membersById = Object.fromEntries(data.members.map((m) => [m.id, m]));
+  // 채널 ID는 스크립트로 생성되는 별도 파일이라 여기서 합쳐준다 (툴팁의 채널 링크용)
+  const members = useMemo(
+    () => data.members.map((m) => ({ ...m, youtubeChannelId: channelIds[m.id] })),
+    []
+  );
+  const membersById = useMemo(() => Object.fromEntries(members.map((m) => [m.id, m])), [members]);
+
+  /**
+   * 실시간 피드 + 곡 아카이브를 합친다.
+   * 실시간 피드에는 최근 활동만 담기므로, 활동이 뜸한 멤버를 클릭하면
+   * 피드가 비어버린다. 아카이브를 함께 넣어 그런 경우를 없앤다.
+   * 같은 영상이 양쪽에 있으면 실시간 쪽을 남긴다(라이브 상태 등 최신 정보 유지).
+   */
+  const allNotifications = useMemo(() => {
+    const seen = new Set(notifications.map((n) => n.id));
+    return [...notifications, ...memberSongs.filter((s) => !seen.has(s.id))];
+  }, [notifications]);
+
   const selectedMember = selectedMemberId ? membersById[selectedMemberId] : null;
   const feedNotifications = selectedMemberId
-    ? notifications.filter((n) => n.memberId === selectedMemberId)
-    : notifications;
+    ? allNotifications.filter((n) => n.memberId === selectedMemberId)
+    : allNotifications;
+
+  const isDark = theme === 'dark';
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden font-body text-ink-100">
@@ -32,20 +55,30 @@ export default function App() {
           <span className="font-display text-lg font-bold tracking-tight">HOLONET</span>
           <span className="hidden text-xs text-ink-500 sm:inline">홀로라이브 알림 &amp; 교류 네트워크</span>
         </div>
+
         <div className="flex items-center gap-2">
           {source === 'dummy' && (
-            <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-2.5 py-1 text-[11px] font-medium text-amber-600">
+            <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-2.5 py-1 text-[11px] font-medium text-amber-600 dark:text-amber-300">
               샘플 데이터
             </span>
           )}
           {isStale && (
-            <span className="rounded-full border border-red-400/50 bg-red-400/10 px-2.5 py-1 text-[11px] font-medium text-red-600">
+            <span className="rounded-full border border-red-400/50 bg-red-400/10 px-2.5 py-1 text-[11px] font-medium text-red-600 dark:text-red-300">
               갱신 실패
             </span>
           )}
           <span className="hidden rounded-full border border-stage-border px-2.5 py-1 text-[11px] text-ink-500 sm:inline">
-            멤버 {data.members.length}명 · 교류 기록 {data.interactions.length}건
+            멤버 {members.length}명 · 교류 기록 {data.interactions.length}건
           </span>
+
+          <button
+            onClick={toggle}
+            title={isDark ? '밝은 테마로' : '어두운 테마로'}
+            aria-label={isDark ? '밝은 테마로 전환' : '어두운 테마로 전환'}
+            className="rounded-lg border border-stage-border p-1.5 text-ink-300 transition-colors hover:bg-stage-700 hover:text-ink-100"
+          >
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
         </div>
       </header>
 
@@ -61,9 +94,8 @@ export default function App() {
         />
         <main className="relative min-w-0 flex-1 bg-stage-900">
           <NetworkGraph
-            members={data.members}
+            members={members}
             interactions={data.interactions}
-            notifications={data.notifications}
             selectedMemberId={selectedMemberId}
             onSelectMember={setSelectedMemberId}
           />

@@ -10,6 +10,19 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      // React가 그리기 전에 테마를 적용해 밝은 화면이 번쩍이는 걸 막는다.
+      // useTheme.js와 같은 규칙: 저장된 선택 > OS 설정
+      (function () {
+        try {
+          var saved = localStorage.getItem('holonet-theme');
+          var dark = saved
+            ? saved === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="bg-stage-900">
     <div id="root"></div>
