@@ -26,9 +26,19 @@
     { "id": "nene", "name": "모모스즈 네네", "nameEn": "Momosuzu Nene", "unit": "5기생", "color": "#f48fb1", "initials": "ネネ", "profileImg": "/profile_img/nene.jpg" },
     { "id": "botan", "name": "시시로 보탄", "nameEn": "Shishiro Botan", "unit": "5기생", "color": "#66bb6a", "initials": "ボタ", "profileImg": "/profile_img/botan.jpg" },
     { "id": "polka", "name": "오마루 포르카", "nameEn": "Omaru Polka", "unit": "5기생", "color": "#8e24aa", "initials": "ポル", "profileImg": "/profile_img/polka.jpg" },
+    { "id": "laplus", "name": "라플러스 다크니스", "nameEn": "La+ Darknesss", "unit": "holoX", "color": "#9575cd", "initials": "ラプ", "profileImg": "/profile_img/laplus.jpg" },
+    { "id": "lui", "name": "타카네 루이", "nameEn": "Takane Lui", "unit": "holoX", "color": "#8d6e63", "initials": "ルイ", "profileImg": "/profile_img/lui.jpg" },
+    { "id": "koyori", "name": "하쿠이 코요리", "nameEn": "Hakui Koyori", "unit": "holoX", "color": "#f06292", "initials": "コヨ", "profileImg": "/profile_img/koyori.jpg" },
     { "id": "iroha", "name": "카자마 이로하", "nameEn": "Kazama Iroha", "unit": "holoX", "color": "#7c5cff", "initials": "イロ", "profileImg": "/profile_img/iroha.jpg" },
     { "id": "raden", "name": "주후우테이 라덴", "nameEn": "Juufuutei Raden", "unit": "ReGLOSS", "color": "#ff4fa3", "initials": "ラデ", "profileImg": "/profile_img/raden.jpg" },
-    { "id": "kanade", "name": "오토노세 카나데", "nameEn": "Otonose Kanade", "unit": "ReGLOSS", "color": "#ffd54f", "initials": "カナ", "profileImg": "/profile_img/kanade.jpg" }
+    { "id": "kanade", "name": "오토노세 카나데", "nameEn": "Otonose Kanade", "unit": "ReGLOSS", "color": "#ffd54f", "initials": "カナ", "profileImg": "/profile_img/kanade.jpg" },
+    { "id": "ririka", "name": "이치조 리리카", "nameEn": "Ichijou Ririka", "unit": "ReGLOSS", "color": "#ffb300", "initials": "リリ", "profileImg": "/profile_img/ririka.jpg" },
+    { "id": "hajime", "name": "토도로키 하지메", "nameEn": "Todoroki Hajime", "unit": "ReGLOSS", "color": "#4dd0e1", "initials": "ハジ", "profileImg": "/profile_img/hajime.jpg" },
+    { "id": "riona", "name": "이사키 리오나", "nameEn": "Isaki Riona", "unit": "FLOW GLOW", "color": "#ff80ab", "initials": "リオ", "profileImg": "/profile_img/riona.jpg" },
+    { "id": "niko", "name": "코가네이 니코", "nameEn": "Koganei Niko", "unit": "FLOW GLOW", "color": "#ff7043", "initials": "ニコ", "profileImg": "/profile_img/niko.jpg" },
+    { "id": "su", "name": "미즈미야 스", "nameEn": "Mizumiya Su", "unit": "FLOW GLOW", "color": "#90caf9", "initials": "スウ", "profileImg": "/profile_img/su.jpg" },
+    { "id": "chihaya", "name": "린도 치하야", "nameEn": "Rindo Chihaya", "unit": "FLOW GLOW", "color": "#26a69a", "initials": "チハ", "profileImg": "/profile_img/chihaya.jpg" },
+    { "id": "vivi", "name": "키키라라 비비", "nameEn": "Kikirara Vivi", "unit": "FLOW GLOW", "color": "#ab47bc", "initials": "ヴィ", "profileImg": "/profile_img/vivi.jpg" }
   ],
   "interactions": [
     { "id": "i1", "type": "collab", "participants": ["sora", "suisei"], "count": 9, "lastDate": "2026-08-09" },

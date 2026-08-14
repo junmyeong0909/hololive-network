@@ -67,7 +67,10 @@ export default function NotificationCard({ notification, member, index }) {
           )}
         </div>
 
-        <p className="mt-0.5 truncate text-sm font-medium text-ink-300">{notification.title}</p>
+        {/* 방송 제목은 길어서 한 줄로 자르면 대부분 읽을 수 없다. 2줄까지 접어서 보여준다. */}
+        <p className="mt-0.5 line-clamp-2 break-words text-sm font-medium leading-snug text-ink-300">
+          {notification.title}
+        </p>
         {notification.snippet && (
           <p className="mt-0.5 truncate text-xs text-ink-500">{notification.snippet}</p>
         )}

@@ -101,7 +101,7 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
         })}
       </div>
 
-      <div className="feed-scroll flex-1 space-y-2 overflow-y-auto px-4 pb-4">
+      <div className="feed-scroll flex-1 space-y-2 overflow-y-auto overflow-x-hidden px-4 pb-4">
         <AnimatePresence mode="popLayout">
           {filtered.map((n, i) => (
             <NotificationCard key={n.id} notification={n} member={membersById[n.memberId]} index={i} />
