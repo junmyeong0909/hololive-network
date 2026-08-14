@@ -1,18 +1,42 @@
+import { useLayoutEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Users, Music2 } from 'lucide-react';
 import MemberAvatar from '../MemberAvatar.jsx';
 
+const MARGIN = 8;
+
 export default function MemberTooltip({ member, connections, x, y, onClose }) {
+  const ref = useRef(null);
+  const [pos, setPos] = useState({ left: x, top: y });
+
+  // 실제 렌더된 크기와 그래프 영역 크기를 재서 밖으로 나가지 않게 보정한다.
+  // window 기준으로 계산하면 사이드바 폭만큼 어긋나고 아래쪽도 넘친다.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const parent = el.offsetParent;
+    const maxW = parent?.clientWidth ?? window.innerWidth;
+    const maxH = parent?.clientHeight ?? window.innerHeight;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+
+    // 오른쪽에 자리가 없으면 노드 왼쪽으로 뒤집는다
+    let left = x + w + MARGIN > maxW ? x - w - 48 : x;
+    left = Math.max(MARGIN, Math.min(left, maxW - w - MARGIN));
+    const top = Math.max(MARGIN, Math.min(y, maxH - h - MARGIN));
+
+    // 같은 값이면 새 객체를 만들지 않는다 (무한 리렌더 방지)
+    setPos((prev) => (prev.left === left && prev.top === top ? prev : { left, top }));
+  }, [x, y, member?.id, connections?.length]);
+
   if (!member) return null;
 
-  // 화면 밖으로 나가지 않도록 위치 보정
-  const style = {
-    left: Math.max(12, Math.min(x, window.innerWidth - 300)),
-    top: Math.max(12, y),
-  };
+  const style = { left: pos.left, top: pos.top };
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, scale: 0.95, y: -6 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}

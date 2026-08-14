@@ -117,7 +117,9 @@ export default function NetworkGraph({ members, interactions, notifications, sel
       .attr('y', height / 2 - markHeight / 2)
       .attr('width', markWidth)
       .attr('height', markHeight)
-      .attr('opacity', 0.08)
+      // 원본은 팔레트 PNG에 알파가 없어 흰 배경이 사각형으로 드러났다.
+      // scripts/make-logo-transparent.mjs로 tRNS를 넣어 누끼를 딴 파일을 쓴다.
+      .attr('opacity', 0.15)
       .style('pointer-events', 'none');
 
     const linkLayer = root.append('g').attr('class', 'links');
@@ -218,6 +220,30 @@ export default function NetworkGraph({ members, interactions, notifications, sel
     applyHighlightRef.current = applyHighlight;
     applyHighlight(selectedIdRef.current);
 
+    /** 노드의 월드 좌표를 현재 카메라 변환으로 화면 좌표로 옮긴다. */
+    function tooltipAnchor(d) {
+      const t = d3.zoomTransform(svgEl);
+      return { x: t.applyX(d.x) + d.r * t.k + 16, y: t.applyY(d.y) - d.r * t.k };
+    }
+
+    /**
+     * 선택된 노드를 따라 툴팁 위치를 갱신한다.
+     * 시뮬레이션 tick뿐 아니라 줌·팬에서도 호출해야 한다.
+     * (tick만 쓰면 시뮬레이션이 멈춘 뒤 툴팁이 그 자리에 굳어버린다)
+     */
+    function syncTooltipPosition() {
+      const id = selectedIdRef.current;
+      if (!id) return;
+      const d = nodes.find((n) => n.id === id);
+      if (!d || d.x == null) return;
+      const { x, y } = tooltipAnchor(d);
+      setTooltip((prev) => {
+        if (!prev) return prev;
+        if (prev.x === x && prev.y === y) return prev; // 불필요한 리렌더 방지
+        return { ...prev, x, y };
+      });
+    }
+
     nodeSel.on('click', (event, d) => {
       event.stopPropagation();
       const isSame = selectedIdRef.current === d.id;
@@ -229,14 +255,8 @@ export default function NetworkGraph({ members, interactions, notifications, sel
         setTooltip(null);
         return;
       }
-      const rect = container.getBoundingClientRect();
-      const nodeRect = event.currentTarget.getBoundingClientRect();
-      setTooltip({
-        member: d,
-        connections: buildConnections(d.id, rawCounts),
-        x: nodeRect.left - rect.left + nodeRect.width / 2 + 16,
-        y: nodeRect.top - rect.top,
-      });
+      const { x, y } = tooltipAnchor(d);
+      setTooltip({ member: d, connections: buildConnections(d.id, rawCounts), x, y });
     });
 
     svg.on('click', () => {
@@ -274,23 +294,7 @@ export default function NetworkGraph({ members, interactions, notifications, sel
         .attr('y2', (d) => d.target.y);
       nodeSel.attr('transform', (d) => `translate(${d.x},${d.y})`);
 
-      // 툴팁이 열려 있으면 선택 노드를 따라 위치 갱신
-      if (selectedIdRef.current) {
-        const d = nodes.find((n) => n.id === selectedIdRef.current);
-        if (d) {
-          const rect = container.getBoundingClientRect();
-          const t = d3.zoomTransform(svgEl);
-          setTooltip((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  x: t.applyX(d.x) + d.r * t.k + 16,
-                  y: t.applyY(d.y) - d.r,
-                }
-              : prev
-          );
-        }
-      }
+      syncTooltipPosition();
     });
 
     // 드래그
@@ -318,6 +322,8 @@ export default function NetworkGraph({ members, interactions, notifications, sel
       .scaleExtent([0.4, 2.5])
       .on('zoom', (event) => {
         root.attr('transform', event.transform);
+        // 시뮬레이션이 멈춘 뒤에도 툴팁이 노드를 따라오도록
+        syncTooltipPosition();
       });
     svg.call(zoom);
     zoomRef.current = zoom;
