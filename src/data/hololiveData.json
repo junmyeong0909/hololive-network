@@ -62,21 +62,23 @@
     { "id": "i29", "type": "cover", "participants": ["iroha", "raden", "kanade"], "count": 1, "lastDate": "2026-07-15" },
     { "id": "i30", "type": "collab", "participants": ["mio", "okayu", "lamy", "pekora"], "count": 1, "lastDate": "2026-06-08" }
   ],
+  "_notificationsNote": "3단계에서 Holodex 실데이터로 교체됨. 지금은 UI 확인용 더미.",
   "notifications": [
-    { "id": "n1", "memberId": "suisei", "type": "live", "title": "정기 가창 방송 예고", "snippet": "이번 주 정기 라이브 방송 일정 공지", "timestamp": "2026-08-14T09:20:00+09:00", "url": "https://www.youtube.com/@HoshimachiSuisei" },
-    { "id": "n2", "memberId": "pekora", "type": "live", "title": "신작 게임 첫 플레이 방송", "snippet": "신작 어드벤처 게임 공략 방송 시작", "timestamp": "2026-08-14T08:50:00+09:00", "url": "https://www.youtube.com/@usadapekora" },
-    { "id": "n3", "memberId": "raden", "type": "cover", "title": "커버곡 '夜行' 공개", "snippet": "신규 커버 음원 뮤직비디오 업로드", "timestamp": "2026-08-14T07:30:00+09:00", "url": "https://www.youtube.com/@JuufuuteiRaden" },
-    { "id": "n4", "memberId": "okayu", "type": "tweet", "title": "방송 후기 트윗", "snippet": "오늘 방송 다시보기 링크 공지", "timestamp": "2026-08-14T06:40:00+09:00", "url": "https://x.com/nekomataokayu" },
-    { "id": "n5", "memberId": "iroha", "type": "live", "title": "ASMR 잡담 방송", "snippet": "심야 잡담 및 리스너 사연 소개", "timestamp": "2026-08-13T23:10:00+09:00", "url": "https://www.youtube.com/@KazamaIroha" },
-    { "id": "n6", "memberId": "sora", "type": "tweet", "title": "다음 방송 예고 트윗", "snippet": "내일 방송 시간 변경 안내", "timestamp": "2026-08-13T21:05:00+09:00", "url": "https://x.com/tokino_sora" },
-    { "id": "n7", "memberId": "kanade", "type": "cover", "title": "합동 커버곡 참여", "snippet": "ReGLOSS 유닛 합동 커버 음원 공개", "timestamp": "2026-08-13T19:45:00+09:00", "url": "https://www.youtube.com/@OtonoseKanade" },
-    { "id": "n8", "memberId": "fubuki", "type": "live", "title": "협동 게임 방송", "snippet": "동료와 함께하는 협동 플레이 방송", "timestamp": "2026-08-13T18:30:00+09:00", "url": "https://www.youtube.com/@ShirakamiFubuki" },
-    { "id": "n9", "memberId": "mio", "type": "tweet", "title": "근황 트윗", "snippet": "최근 활동 근황 공유", "timestamp": "2026-08-13T15:20:00+09:00", "url": "https://x.com/ookami_mio" },
-    { "id": "n10", "memberId": "lamy", "type": "live", "title": "노래방 방송", "snippet": "신청곡 위주 노래방 방송 진행", "timestamp": "2026-08-13T13:00:00+09:00", "url": "https://www.youtube.com/@YukuhanaLamy" },
-    { "id": "n11", "memberId": "pekora", "type": "cover", "title": "솔로 커버곡 공개", "snippet": "신규 솔로 커버 뮤직비디오 업로드", "timestamp": "2026-08-13T11:15:00+09:00", "url": "https://www.youtube.com/@usadapekora" },
-    { "id": "n12", "memberId": "raden", "type": "tweet", "title": "굿즈 발매 안내 트윗", "snippet": "신규 굿즈 발매 일정 공지", "timestamp": "2026-08-13T10:00:00+09:00", "url": "https://x.com/juufuuteiraden" },
-    { "id": "n13", "memberId": "suisei", "type": "cover", "title": "신곡 뮤직비디오 공개", "snippet": "오리지널 신곡 뮤직비디오 업로드", "timestamp": "2026-08-12T20:30:00+09:00", "url": "https://www.youtube.com/@HoshimachiSuisei" },
-    { "id": "n14", "memberId": "okayu", "type": "live", "title": "합동 방송 예고", "snippet": "동료와 함께하는 합방 일정 공지", "timestamp": "2026-08-12T18:00:00+09:00", "url": "https://www.youtube.com/@nekomataokayu" },
-    { "id": "n15", "memberId": "iroha", "type": "tweet", "title": "촬영 비하인드 트윗", "snippet": "최근 촬영 비하인드 사진 공유", "timestamp": "2026-08-12T16:40:00+09:00", "url": "https://x.com/kazamairoha" }
+    { "id": "n1", "memberId": "pekora", "type": "stream", "status": "live", "title": "신작 게임 첫 플레이", "snippet": "신작 어드벤처 공략", "timestamp": "2026-08-14T12:10:00+09:00", "url": "https://www.youtube.com/@usadapekora", "liveViewers": 24310 },
+    { "id": "n2", "memberId": "suisei", "type": "music", "status": "live", "title": "정기 가창 방송", "snippet": "신청곡 위주", "timestamp": "2026-08-14T11:40:00+09:00", "url": "https://www.youtube.com/@HoshimachiSuisei", "liveViewers": 18902 },
+    { "id": "n3", "memberId": "korone", "type": "stream", "status": "live", "title": "레트로 게임 마라톤", "snippet": "장시간 방송 진행 중", "timestamp": "2026-08-14T09:05:00+09:00", "url": "https://www.youtube.com/@InugamiKorone", "liveViewers": 9431 },
+
+    { "id": "n4", "memberId": "marine", "type": "stream", "status": "upcoming", "title": "잡담 방송", "snippet": "리스너 사연 소개", "timestamp": "2026-08-15T21:00:00+09:00", "url": "https://www.youtube.com/@HoushouMarine" },
+    { "id": "n5", "memberId": "kanade", "type": "music", "status": "upcoming", "title": "ReGLOSS 합동 라이브", "snippet": "유닛 합동 무대", "timestamp": "2026-08-15T20:00:00+09:00", "url": "https://www.youtube.com/@OtonoseKanade" },
+    { "id": "n6", "memberId": "fubuki", "type": "stream", "status": "upcoming", "title": "협동 게임 합방", "snippet": "미오·오카유와 함께", "timestamp": "2026-08-16T19:30:00+09:00", "url": "https://www.youtube.com/@ShirakamiFubuki" },
+    { "id": "n7", "memberId": "botan", "type": "stream", "status": "upcoming", "title": "FPS 랭크 도전", "snippet": "시청자 참여 가능", "timestamp": "2026-08-16T22:00:00+09:00", "url": "https://www.youtube.com/@ShishiroBotan" },
+
+    { "id": "n8", "memberId": "raden", "type": "music", "status": "past", "title": "커버곡 '夜行' 공개", "snippet": "신규 커버 MV", "timestamp": "2026-08-14T07:30:00+09:00", "url": "https://www.youtube.com/@JuufuuteiRaden" },
+    { "id": "n9", "memberId": "iroha", "type": "stream", "status": "past", "title": "ASMR 잡담 방송", "snippet": "심야 잡담", "timestamp": "2026-08-13T23:10:00+09:00", "url": "https://www.youtube.com/@KazamaIroha" },
+    { "id": "n10", "memberId": "azki", "type": "music", "status": "past", "title": "오리지널 신곡 MV", "snippet": "신곡 뮤직비디오 공개", "timestamp": "2026-08-13T20:00:00+09:00", "url": "https://www.youtube.com/@AZKi" },
+    { "id": "n11", "memberId": "okayu", "type": "video", "status": "past", "title": "방송 다시보기 하이라이트", "snippet": "편집 영상 업로드", "timestamp": "2026-08-13T15:20:00+09:00", "url": "https://www.youtube.com/@nekomataokayu" },
+    { "id": "n12", "memberId": "lamy", "type": "music", "status": "past", "title": "노래방 방송 아카이브", "snippet": "신청곡 모음", "timestamp": "2026-08-13T13:00:00+09:00", "url": "https://www.youtube.com/@YukuhanaLamy" },
+    { "id": "n13", "memberId": "subaru", "type": "video", "status": "past", "title": "기획 영상 업로드", "snippet": "멤버 참여 기획", "timestamp": "2026-08-12T20:30:00+09:00", "url": "https://www.youtube.com/@OozoraSubaru" },
+    { "id": "n14", "memberId": "mio", "type": "stream", "status": "past", "title": "타로 점 방송", "snippet": "월간 운세 코너", "timestamp": "2026-08-12T18:00:00+09:00", "url": "https://www.youtube.com/@OokamiMio" }
   ]
 }

@@ -1,23 +1,49 @@
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, X, MessageCircle, Radio, Music2 } from 'lucide-react';
+import { Bell, X, Radio, Music2, Clock } from 'lucide-react';
 import NotificationCard from './NotificationCard.jsx';
 import MemberAvatar from '../MemberAvatar.jsx';
 
 const TABS = [
-  { id: 'all', label: '전체', icon: Bell },
-  { id: 'tweet', label: '트윗', icon: MessageCircle },
-  { id: 'live', label: '생방송', icon: Radio },
-  { id: 'cover', label: '커버', icon: Music2 },
+  { id: 'all', label: '전체', icon: Bell, match: () => true },
+  { id: 'live', label: 'LIVE', icon: Radio, match: (n) => n.status === 'live' },
+  { id: 'upcoming', label: '예정', icon: Clock, match: (n) => n.status === 'upcoming' },
+  { id: 'music', label: '음악', icon: Music2, match: (n) => n.type === 'music' },
 ];
+
+// 라이브 > 예정 > 지난 순으로 묶는다
+const STATUS_ORDER = { live: 0, upcoming: 1 };
+const statusRank = (n) => STATUS_ORDER[n.status] ?? 2;
+
+function compareNotifications(a, b) {
+  const rankDiff = statusRank(a) - statusRank(b);
+  if (rankDiff !== 0) return rankDiff;
+
+  // 예정은 임박한 순, 나머지는 최신 순
+  const ta = new Date(a.timestamp).getTime();
+  const tb = new Date(b.timestamp).getTime();
+  return a.status === 'upcoming' ? ta - tb : tb - ta;
+}
+
+const EMPTY_MESSAGE = {
+  all: '표시할 활동이 없어요.',
+  live: '지금 방송 중인 멤버가 없어요.',
+  upcoming: '예정된 방송이 없어요.',
+  music: '최근 올라온 음악이 없어요.',
+};
 
 export default function NotificationSidebar({ notifications, membersById, isOpen, onClose, selectedMember, onClearSelection }) {
   const [activeTab, setActiveTab] = useState('all');
 
   const filtered = useMemo(() => {
-    const list = activeTab === 'all' ? notifications : notifications.filter((n) => n.type === activeTab);
-    return [...list].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    const match = TABS.find((t) => t.id === activeTab)?.match ?? (() => true);
+    return notifications.filter(match).sort(compareNotifications);
   }, [notifications, activeTab]);
+
+  const liveCount = useMemo(
+    () => notifications.filter((n) => n.status === 'live').length,
+    [notifications]
+  );
 
   const body = (
     <div className="flex h-full flex-col">
@@ -61,6 +87,15 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
             >
               <Icon size={13} />
               {tab.label}
+              {tab.id === 'live' && liveCount > 0 && (
+                <span
+                  className={`ml-0.5 rounded-full px-1.5 text-[10px] font-bold ${
+                    active ? 'bg-white/25 text-white' : 'bg-red-500 text-white'
+                  }`}
+                >
+                  {liveCount}
+                </span>
+              )}
             </button>
           );
         })}
@@ -73,7 +108,9 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
           ))}
         </AnimatePresence>
         {filtered.length === 0 && (
-          <p className="pt-8 text-center text-sm text-ink-500">해당 카테고리의 알림이 없어요.</p>
+          <p className="pt-8 text-center text-sm text-ink-500">
+            {selectedMember ? '이 멤버의 활동이 없어요.' : EMPTY_MESSAGE[activeTab]}
+          </p>
         )}
       </div>
     </div>

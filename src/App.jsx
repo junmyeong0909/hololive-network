@@ -2,16 +2,20 @@ import { useState } from 'react';
 import { Menu, Sparkles } from 'lucide-react';
 import NotificationSidebar from './components/Sidebar/NotificationSidebar.jsx';
 import NetworkGraph from './components/Graph/NetworkGraph.jsx';
+import { useNotifications } from './hooks/useNotifications.js';
 import data from './data/hololiveData.json';
 
 export default function App() {
   const [mobileFeedOpen, setMobileFeedOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState(null);
+
+  const { notifications, isStale, source } = useNotifications(data.notifications);
+
   const membersById = Object.fromEntries(data.members.map((m) => [m.id, m]));
   const selectedMember = selectedMemberId ? membersById[selectedMemberId] : null;
   const feedNotifications = selectedMemberId
-    ? data.notifications.filter((n) => n.memberId === selectedMemberId)
-    : data.notifications;
+    ? notifications.filter((n) => n.memberId === selectedMemberId)
+    : notifications;
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden font-body text-ink-100">
@@ -28,9 +32,21 @@ export default function App() {
           <span className="font-display text-lg font-bold tracking-tight">HOLONET</span>
           <span className="hidden text-xs text-ink-500 sm:inline">홀로라이브 알림 &amp; 교류 네트워크</span>
         </div>
-        <span className="rounded-full border border-stage-border px-2.5 py-1 text-[11px] text-ink-500">
-          멤버 {data.members.length}명 · 교류 기록 {data.interactions.length}건
-        </span>
+        <div className="flex items-center gap-2">
+          {source === 'dummy' && (
+            <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-2.5 py-1 text-[11px] font-medium text-amber-600">
+              샘플 데이터
+            </span>
+          )}
+          {isStale && (
+            <span className="rounded-full border border-red-400/50 bg-red-400/10 px-2.5 py-1 text-[11px] font-medium text-red-600">
+              갱신 실패
+            </span>
+          )}
+          <span className="hidden rounded-full border border-stage-border px-2.5 py-1 text-[11px] text-ink-500 sm:inline">
+            멤버 {data.members.length}명 · 교류 기록 {data.interactions.length}건
+          </span>
+        </div>
       </header>
 
       {/* 본문: 사이드바 + 그래프 */}
