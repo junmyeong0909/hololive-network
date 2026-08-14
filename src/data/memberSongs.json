@@ -13,10 +13,10 @@
   {
     "id": "yt:2K1ExyX2IR8",
     "memberId": "sora",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 歌枠 】ホロドリで遊べる曲とその他少し歌いたい!【ホロライブ/ときのそら】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-03T14:30:13.000Z",
     "url": "https://www.youtube.com/watch?v=2K1ExyX2IR8",
     "thumbnail": "https://i.ytimg.com/vi/2K1ExyX2IR8/mqdefault.jpg"
@@ -24,10 +24,10 @@
   {
     "id": "yt:MIqMfWQBqe4",
     "memberId": "sora",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 歌枠 】久々にお歌を歌っていくのだ~!!【ホロライブ/ときのそら】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-11T14:00:57.000Z",
     "url": "https://www.youtube.com/watch?v=MIqMfWQBqe4",
     "thumbnail": "https://i.ytimg.com/vi/MIqMfWQBqe4/mqdefault.jpg"
@@ -35,10 +35,10 @@
   {
     "id": "yt:YMYC-mVkrWM",
     "memberId": "sora",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 コールありオリ曲 】ライブチケット始まったし、歌っていこう!【ホロライブ/ときのそら】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-12T12:18:35.000Z",
     "url": "https://www.youtube.com/watch?v=YMYC-mVkrWM",
     "thumbnail": "https://i.ytimg.com/vi/YMYC-mVkrWM/mqdefault.jpg"
@@ -46,24 +46,13 @@
   {
     "id": "yt:SL0Nj1Dp8Ig",
     "memberId": "sora",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 雑談。たまにオリ曲歌枠 】最近は防災グッズと夏対策にはまってます【ホロライブ/ときのそら】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-07T07:02:24.000Z",
     "url": "https://www.youtube.com/watch?v=SL0Nj1Dp8Ig",
     "thumbnail": "https://i.ytimg.com/vi/SL0Nj1Dp8Ig/mqdefault.jpg"
-  },
-  {
-    "id": "yt:VV77mu3-q-M",
-    "memberId": "suisei",
-    "type": "music",
-    "status": "past",
-    "title": "星をみる少女 (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-06-29T15:00:22.000Z",
-    "url": "https://www.youtube.com/watch?v=VV77mu3-q-M",
-    "thumbnail": "https://i.ytimg.com/vi/VV77mu3-q-M/mqdefault.jpg"
   },
   {
     "id": "yt:5L9HHedmLY4",
@@ -123,10 +112,10 @@
   {
     "id": "yt:1_slmzwTMQ0",
     "memberId": "roboco",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 歌枠】NO33.お昼のえもえもろぼめろでぃ～ RBmelody 🎶 【ホロライブ/ ロボ子さん #ろぼめろでぃ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-14T03:01:20.000Z",
     "url": "https://www.youtube.com/watch?v=1_slmzwTMQ0",
     "thumbnail": "https://i.ytimg.com/vi/1_slmzwTMQ0/mqdefault.jpg"
@@ -167,10 +156,10 @@
   {
     "id": "yt:gNui7mRucYA",
     "memberId": "azki",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】アニソン縛り!歌うよ~~~! Singing Stream【ホロライブ / AZKi】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-08T13:01:17.000Z",
     "url": "https://www.youtube.com/watch?v=gNui7mRucYA",
     "thumbnail": "https://i.ytimg.com/vi/gNui7mRucYA/mqdefault.jpg"
@@ -178,10 +167,10 @@
   {
     "id": "yt:n29115yzt5o",
     "memberId": "azki",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】新衣装で歌う~~~!!!J-POP・アニソン・ボカロ Singing Stream【ホロライブ / AZKi】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-08T13:01:30.000Z",
     "url": "https://www.youtube.com/watch?v=n29115yzt5o",
     "thumbnail": "https://i.ytimg.com/vi/n29115yzt5o/mqdefault.jpg"
@@ -198,37 +187,15 @@
     "thumbnail": "https://i.ytimg.com/vi/z6c9WBWz9Ts/mqdefault.jpg"
   },
   {
-    "id": "yt:e0jozed0fGw",
-    "memberId": "azki",
-    "type": "music",
-    "status": "past",
-    "title": "最強未来衝動 (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-07-01T15:00:08.000Z",
-    "url": "https://www.youtube.com/watch?v=e0jozed0fGw",
-    "thumbnail": "https://i.ytimg.com/vi/e0jozed0fGw/mqdefault.jpg"
-  },
-  {
     "id": "yt:_fgIHtVP0Lw",
     "memberId": "azki",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】重大告知させてください!!!!!Singing Stream【ホロライブ / AZKi】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-24T10:01:29.000Z",
     "url": "https://www.youtube.com/watch?v=_fgIHtVP0Lw",
     "thumbnail": "https://i.ytimg.com/vi/_fgIHtVP0Lw/mqdefault.jpg"
-  },
-  {
-    "id": "yt:P6Z3wHOYJEU",
-    "memberId": "miko",
-    "type": "music",
-    "status": "past",
-    "title": "サキミダレアッパレード♪ (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-08-01T15:00:29.000Z",
-    "url": "https://www.youtube.com/watch?v=P6Z3wHOYJEU",
-    "thumbnail": "https://i.ytimg.com/vi/P6Z3wHOYJEU/mqdefault.jpg"
   },
   {
     "id": "yt:boXhSOPRa4Q",
@@ -264,17 +231,6 @@
     "thumbnail": "https://i.ytimg.com/vi/dzcfXjQwGJ8/mqdefault.jpg"
   },
   {
-    "id": "yt:Zs8V61lfgQ0",
-    "memberId": "miko",
-    "type": "music",
-    "status": "past",
-    "title": "ファッションビート (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-07-13T13:42:57.000Z",
-    "url": "https://www.youtube.com/watch?v=Zs8V61lfgQ0",
-    "thumbnail": "https://i.ytimg.com/vi/Zs8V61lfgQ0/mqdefault.jpg"
-  },
-  {
     "id": "yt:OwpDnsBO4R4",
     "memberId": "fubuki",
     "type": "music",
@@ -308,17 +264,6 @@
     "thumbnail": "https://i.ytimg.com/vi/3FaVukSkqas/mqdefault.jpg"
   },
   {
-    "id": "yt:IrAanlr60L8",
-    "memberId": "fubuki",
-    "type": "music",
-    "status": "past",
-    "title": "Vivid Stampede!!!! (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-02-20T15:04:44.000Z",
-    "url": "https://www.youtube.com/watch?v=IrAanlr60L8",
-    "thumbnail": "https://i.ytimg.com/vi/IrAanlr60L8/mqdefault.jpg"
-  },
-  {
     "id": "yt:FOFldSOzfCI",
     "memberId": "fubuki",
     "type": "music",
@@ -332,10 +277,10 @@
   {
     "id": "yt:jbu_zJtuMU0",
     "memberId": "mio",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】夏っぽい歌を聞いてください【ホロライブ/大神ミオ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-06T09:32:26.000Z",
     "url": "https://www.youtube.com/watch?v=jbu_zJtuMU0",
     "thumbnail": "https://i.ytimg.com/vi/jbu_zJtuMU0/mqdefault.jpg"
@@ -343,10 +288,10 @@
   {
     "id": "yt:xNCJnz0FQAc",
     "memberId": "mio",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】ゆるーーーい夜の歌枠はこちらです【ホロライブ/大神ミオ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-24T13:00:25.000Z",
     "url": "https://www.youtube.com/watch?v=xNCJnz0FQAc",
     "thumbnail": "https://i.ytimg.com/vi/xNCJnz0FQAc/mqdefault.jpg"
@@ -365,10 +310,10 @@
   {
     "id": "yt:p51eG0vAVfQ",
     "memberId": "mio",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【告知あり!】久しぶり歌枠!うれしい告知とは・・?!【ホロライブ/大神ミオ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-17T10:00:57.000Z",
     "url": "https://www.youtube.com/watch?v=p51eG0vAVfQ",
     "thumbnail": "https://i.ytimg.com/vi/p51eG0vAVfQ/mqdefault.jpg"
@@ -376,10 +321,10 @@
   {
     "id": "yt:pQDceiet9Bc",
     "memberId": "mio",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】うたうみぉーー-------ん!【 ホロライブ / 大神ミオ 】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-05-11T12:16:51.000Z",
     "url": "https://www.youtube.com/watch?v=pQDceiet9Bc",
     "thumbnail": "https://i.ytimg.com/vi/pQDceiet9Bc/mqdefault.jpg"
@@ -486,10 +431,10 @@
   {
     "id": "yt:J-XP9div4bs",
     "memberId": "haato",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌】DON'T LOSE MY TIME【ホロライブ/赤井はあと】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2025-10-27T12:02:51.000Z",
     "url": "https://www.youtube.com/watch?v=J-XP9div4bs",
     "thumbnail": "https://i.ytimg.com/vi/J-XP9div4bs/mqdefault.jpg"
@@ -508,10 +453,10 @@
   {
     "id": "yt:zjFwKLjxwaI",
     "memberId": "matsuri",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【告知あり!】昭和レトロな歌枠♬【ホロライブ/夏色まつり】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-12T09:00:36.000Z",
     "url": "https://www.youtube.com/watch?v=zjFwKLjxwaI",
     "thumbnail": "https://i.ytimg.com/vi/zjFwKLjxwaI/mqdefault.jpg"
@@ -519,10 +464,10 @@
   {
     "id": "yt:F9EG_9jJA20",
     "memberId": "matsuri",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】久々に歌うのだ~🎤【ホロライブ/夏色まつり】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-08T08:59:56.000Z",
     "url": "https://www.youtube.com/watch?v=F9EG_9jJA20",
     "thumbnail": "https://i.ytimg.com/vi/F9EG_9jJA20/mqdefault.jpg"
@@ -530,10 +475,10 @@
   {
     "id": "yt:jOxACBS-uOo",
     "memberId": "matsuri",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】おやつの時間におうたもどうぞ🍪【ホロライブ/夏色まつり】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-05-13T06:00:26.000Z",
     "url": "https://www.youtube.com/watch?v=jOxACBS-uOo",
     "thumbnail": "https://i.ytimg.com/vi/jOxACBS-uOo/mqdefault.jpg"
@@ -541,10 +486,10 @@
   {
     "id": "yt:DX139lPvzv0",
     "memberId": "matsuri",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】GWって最強だ。【ホロライブ/夏色まつり】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-05-05T01:26:13.000Z",
     "url": "https://www.youtube.com/watch?v=DX139lPvzv0",
     "thumbnail": "https://i.ytimg.com/vi/DX139lPvzv0/mqdefault.jpg"
@@ -552,10 +497,10 @@
   {
     "id": "yt:nzeN_nNBndQ",
     "memberId": "korone",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【ついに…!!!】告知あり歌枠🎤🐶✨",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-11T13:00:57.000Z",
     "url": "https://www.youtube.com/watch?v=nzeN_nNBndQ",
     "thumbnail": "https://i.ytimg.com/vi/nzeN_nNBndQ/mqdefault.jpg"
@@ -563,10 +508,10 @@
   {
     "id": "yt:nBcExqAmA5I",
     "memberId": "korone",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】リベンジするぞ~シェフの気まぐれBANを添えて~",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-05-14T13:00:19.000Z",
     "url": "https://www.youtube.com/watch?v=nBcExqAmA5I",
     "thumbnail": "https://i.ytimg.com/vi/nBcExqAmA5I/mqdefault.jpg"
@@ -594,23 +539,12 @@
     "thumbnail": "https://i.ytimg.com/vi/scUuK8pjgsc/mqdefault.jpg"
   },
   {
-    "id": "yt:fTvqXalAwAE",
-    "memberId": "korone",
-    "type": "music",
-    "status": "past",
-    "title": "マフィオーザ(Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2025-10-01T15:01:17.000Z",
-    "url": "https://www.youtube.com/watch?v=fTvqXalAwAE",
-    "thumbnail": "https://i.ytimg.com/vi/fTvqXalAwAE/mqdefault.jpg"
-  },
-  {
     "id": "yt:V1yGuLLbHJo",
     "memberId": "ayame",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】まぼろしの歌枠・・?【百鬼あやめ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-04-29T12:01:56.000Z",
     "url": "https://www.youtube.com/watch?v=V1yGuLLbHJo",
     "thumbnail": "https://i.ytimg.com/vi/V1yGuLLbHJo/mqdefault.jpg"
@@ -629,10 +563,10 @@
   {
     "id": "yt:XFx_tC6mMVY",
     "memberId": "ayame",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】お知らせアリ!?な歌枠【百鬼あやめ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-02-11T12:02:27.000Z",
     "url": "https://www.youtube.com/watch?v=XFx_tC6mMVY",
     "thumbnail": "https://i.ytimg.com/vi/XFx_tC6mMVY/mqdefault.jpg"
@@ -640,24 +574,13 @@
   {
     "id": "yt:F9rtc6sop2A",
     "memberId": "ayame",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】クリスマス歌枠🎄🎁【百鬼あやめ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2025-12-24T10:01:35.000Z",
     "url": "https://www.youtube.com/watch?v=F9rtc6sop2A",
     "thumbnail": "https://i.ytimg.com/vi/F9rtc6sop2A/mqdefault.jpg"
-  },
-  {
-    "id": "yt:TBzhBJUtga8",
-    "memberId": "ayame",
-    "type": "music",
-    "status": "past",
-    "title": "花吹雪(Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2025-09-03T15:02:35.000Z",
-    "url": "https://www.youtube.com/watch?v=TBzhBJUtga8",
-    "thumbnail": "https://i.ytimg.com/vi/TBzhBJUtga8/mqdefault.jpg"
   },
   {
     "id": "yt:TJlfvhmY6Sc",
@@ -669,17 +592,6 @@
     "timestamp": "2026-08-14T15:04:40.000Z",
     "url": "https://www.youtube.com/watch?v=TJlfvhmY6Sc",
     "thumbnail": "https://i.ytimg.com/vi/TJlfvhmY6Sc/mqdefault.jpg"
-  },
-  {
-    "id": "yt:Kd2nvbAD7VA",
-    "memberId": "choco",
-    "type": "music",
-    "status": "past",
-    "title": "Sincerely (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-08-14T15:04:31.000Z",
-    "url": "https://www.youtube.com/watch?v=Kd2nvbAD7VA",
-    "thumbnail": "https://i.ytimg.com/vi/Kd2nvbAD7VA/mqdefault.jpg"
   },
   {
     "id": "yt:2He1_YXzJYU",
@@ -704,28 +616,6 @@
     "thumbnail": "https://i.ytimg.com/vi/Z3ZVLuI4XI4/mqdefault.jpg"
   },
   {
-    "id": "yt:ORsOPsIYgAs",
-    "memberId": "choco",
-    "type": "music",
-    "status": "past",
-    "title": "サマーラブ (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-07-14T15:05:14.000Z",
-    "url": "https://www.youtube.com/watch?v=ORsOPsIYgAs",
-    "thumbnail": "https://i.ytimg.com/vi/ORsOPsIYgAs/mqdefault.jpg"
-  },
-  {
-    "id": "yt:B6rNHlzGyKw",
-    "memberId": "subaru",
-    "type": "music",
-    "status": "past",
-    "title": "Okie Dokie Dance (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-07-02T15:00:32.000Z",
-    "url": "https://www.youtube.com/watch?v=B6rNHlzGyKw",
-    "thumbnail": "https://i.ytimg.com/vi/B6rNHlzGyKw/mqdefault.jpg"
-  },
-  {
     "id": "yt:vNx_vZTaY20",
     "memberId": "subaru",
     "type": "music",
@@ -748,17 +638,6 @@
     "thumbnail": "https://i.ytimg.com/vi/NUg9S85L5ZQ/mqdefault.jpg"
   },
   {
-    "id": "yt:9yNCCqEILGE",
-    "memberId": "subaru",
-    "type": "music",
-    "status": "past",
-    "title": "ラブミ! (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2025-09-16T15:00:14.000Z",
-    "url": "https://www.youtube.com/watch?v=9yNCCqEILGE",
-    "thumbnail": "https://i.ytimg.com/vi/9yNCCqEILGE/mqdefault.jpg"
-  },
-  {
     "id": "yt:-a9hq46v0Tk",
     "memberId": "subaru",
     "type": "music",
@@ -779,17 +658,6 @@
     "timestamp": "2026-02-14T15:02:40.000Z",
     "url": "https://www.youtube.com/watch?v=kCZfx-Y_2xE",
     "thumbnail": "https://i.ytimg.com/vi/kCZfx-Y_2xE/mqdefault.jpg"
-  },
-  {
-    "id": "yt:qlq414bBYGU",
-    "memberId": "pekora",
-    "type": "music",
-    "status": "past",
-    "title": "ラブノカサブタ (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-02-14T15:01:56.000Z",
-    "url": "https://www.youtube.com/watch?v=qlq414bBYGU",
-    "thumbnail": "https://i.ytimg.com/vi/qlq414bBYGU/mqdefault.jpg"
   },
   {
     "id": "yt:ktu84esKNcY",
@@ -836,17 +704,6 @@
     "thumbnail": "https://i.ytimg.com/vi/JUXIXgRI-TY/mqdefault.jpg"
   },
   {
-    "id": "yt:fjlkWirNa2Q",
-    "memberId": "flare",
-    "type": "music",
-    "status": "past",
-    "title": "Silent Flame,Never Fade (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-04-02T15:01:36.000Z",
-    "url": "https://www.youtube.com/watch?v=fjlkWirNa2Q",
-    "thumbnail": "https://i.ytimg.com/vi/fjlkWirNa2Q/mqdefault.jpg"
-  },
-  {
     "id": "yt:0ZCeN3dw8iA",
     "memberId": "flare",
     "type": "music",
@@ -871,10 +728,10 @@
   {
     "id": "yt:9wTjvHZLqVw",
     "memberId": "flare",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠/重大告知】今年も歌うから何の告知かわからないふりを続けてどうぞ【不知火フレア/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-03-26T12:07:33.000Z",
     "url": "https://www.youtube.com/watch?v=9wTjvHZLqVw",
     "thumbnail": "https://i.ytimg.com/vi/9wTjvHZLqVw/mqdefault.jpg"
@@ -882,10 +739,10 @@
   {
     "id": "yt:HoKFaHh4qvk",
     "memberId": "noel",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】華の金曜日✨お酒飲みながら超絶久々の歌枠~!!!!!!!???【白銀ノエル/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-05-22T09:00:23.000Z",
     "url": "https://www.youtube.com/watch?v=HoKFaHh4qvk",
     "thumbnail": "https://i.ytimg.com/vi/HoKFaHh4qvk/mqdefault.jpg"
@@ -893,10 +750,10 @@
   {
     "id": "yt:aIi1h6-GhuI",
     "memberId": "noel",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【朝活】久しぶりの縦型歌枠でキミを起こしちゃう💡【白銀ノエル/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-02-23T00:00:46.000Z",
     "url": "https://www.youtube.com/watch?v=aIi1h6-GhuI",
     "thumbnail": "https://i.ytimg.com/vi/aIi1h6-GhuI/mqdefault.jpg"
@@ -915,24 +772,13 @@
   {
     "id": "yt:wUWM81nUh9o",
     "memberId": "noel",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】Happy Valentine💖久々の歌枠するよ~✨【白銀ノエル/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-02-14T09:00:51.000Z",
     "url": "https://www.youtube.com/watch?v=wUWM81nUh9o",
     "thumbnail": "https://i.ytimg.com/vi/wUWM81nUh9o/mqdefault.jpg"
-  },
-  {
-    "id": "yt:Prac9x4lQAo",
-    "memberId": "noel",
-    "type": "music",
-    "status": "past",
-    "title": "VAVAVA!バーチャル大分 (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2025-11-24T15:02:53.000Z",
-    "url": "https://www.youtube.com/watch?v=Prac9x4lQAo",
-    "thumbnail": "https://i.ytimg.com/vi/Prac9x4lQAo/mqdefault.jpg"
   },
   {
     "id": "yt:dJFSXC7aQyU",
@@ -966,17 +812,6 @@
     "timestamp": "2026-08-12T03:00:39.000Z",
     "url": "https://www.youtube.com/watch?v=pP3Jwc3bfNM",
     "thumbnail": "https://i.ytimg.com/vi/pP3Jwc3bfNM/mqdefault.jpg"
-  },
-  {
-    "id": "yt:Oe4q4Mxb1z8",
-    "memberId": "marine",
-    "type": "music",
-    "status": "past",
-    "title": "きゃぴ (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-08-11T15:00:19.000Z",
-    "url": "https://www.youtube.com/watch?v=Oe4q4Mxb1z8",
-    "thumbnail": "https://i.ytimg.com/vi/Oe4q4Mxb1z8/mqdefault.jpg"
   },
   {
     "id": "yt:5hWjMfWoFHk",
@@ -1025,10 +860,10 @@
   {
     "id": "yt:2Y4rW9sOyfw",
     "memberId": "okayu",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 歌枠 】春ですわ~~~🎤✦【 猫又おかゆ/ホロライブ 】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-04-16T10:02:10.000Z",
     "url": "https://www.youtube.com/watch?v=2Y4rW9sOyfw",
     "thumbnail": "https://i.ytimg.com/vi/2Y4rW9sOyfw/mqdefault.jpg"
@@ -1036,10 +871,10 @@
   {
     "id": "yt:-0GNam-NnQ8",
     "memberId": "okayu",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 🔥歌枠 】210万人耐久じゃあ~~~~~~!✦【 猫又おかゆ/ホロライブ 】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-03-02T12:01:09.000Z",
     "url": "https://www.youtube.com/watch?v=-0GNam-NnQ8",
     "thumbnail": "https://i.ytimg.com/vi/-0GNam-NnQ8/mqdefault.jpg"
@@ -1047,10 +882,10 @@
   {
     "id": "yt:ff-wBqeRj5Q",
     "memberId": "watame",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】特大告知をして、みんなと乾杯する配信!!! Singing Stream🎤🎶【角巻わため/ホロライブ4期生】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-12T10:01:01.000Z",
     "url": "https://www.youtube.com/watch?v=ff-wBqeRj5Q",
     "thumbnail": "https://i.ytimg.com/vi/ff-wBqeRj5Q/mqdefault.jpg"
@@ -1058,10 +893,10 @@
   {
     "id": "yt:tAqdRylts9w",
     "memberId": "watame",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】第135回!わためぇ Night Fever!! Singing Stream🎤🎶【角巻わため/ホロライブ4期生】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-29T13:00:24.000Z",
     "url": "https://www.youtube.com/watch?v=tAqdRylts9w",
     "thumbnail": "https://i.ytimg.com/vi/tAqdRylts9w/mqdefault.jpg"
@@ -1069,24 +904,13 @@
   {
     "id": "yt:Fxhq4FijB78",
     "memberId": "watame",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】みんなに嬉しい告知があります!!! Singing Stream🎤🎶【角巻わため/ホロライブ4期生】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-19T12:00:32.000Z",
     "url": "https://www.youtube.com/watch?v=Fxhq4FijB78",
     "thumbnail": "https://i.ytimg.com/vi/Fxhq4FijB78/mqdefault.jpg"
-  },
-  {
-    "id": "yt:u3YVky6Jh1M",
-    "memberId": "watame",
-    "type": "music",
-    "status": "past",
-    "title": "灰色の証明 (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-06-06T15:00:32.000Z",
-    "url": "https://www.youtube.com/watch?v=u3YVky6Jh1M",
-    "thumbnail": "https://i.ytimg.com/vi/u3YVky6Jh1M/mqdefault.jpg"
   },
   {
     "id": "yt:vfiLQHjmtyk",
@@ -1100,17 +924,6 @@
     "thumbnail": "https://i.ytimg.com/vi/vfiLQHjmtyk/mqdefault.jpg"
   },
   {
-    "id": "yt:JV9uwZ4mlug",
-    "memberId": "towa",
-    "type": "music",
-    "status": "past",
-    "title": "SM4SH IT UP (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-08-08T15:05:16.000Z",
-    "url": "https://www.youtube.com/watch?v=JV9uwZ4mlug",
-    "thumbnail": "https://i.ytimg.com/vi/JV9uwZ4mlug/mqdefault.jpg"
-  },
-  {
     "id": "yt:lmBkWOkBCBA",
     "memberId": "towa",
     "type": "music",
@@ -1120,17 +933,6 @@
     "timestamp": "2026-08-08T15:05:11.000Z",
     "url": "https://www.youtube.com/watch?v=lmBkWOkBCBA",
     "thumbnail": "https://i.ytimg.com/vi/lmBkWOkBCBA/mqdefault.jpg"
-  },
-  {
-    "id": "yt:0bEJgWdoq74",
-    "memberId": "towa",
-    "type": "music",
-    "status": "past",
-    "title": "#ウチらしか勝たん (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-07-09T15:00:18.000Z",
-    "url": "https://www.youtube.com/watch?v=0bEJgWdoq74",
-    "thumbnail": "https://i.ytimg.com/vi/0bEJgWdoq74/mqdefault.jpg"
   },
   {
     "id": "yt:YiZw79bvG6c",
@@ -1157,10 +959,10 @@
   {
     "id": "yt:Up_tE6a6QRg",
     "memberId": "luna",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 歌枠 】縛りなしで色々歌うのら~!!!Let's Singing🎶【姫森ルーナ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-05T12:59:41.000Z",
     "url": "https://www.youtube.com/watch?v=Up_tE6a6QRg",
     "thumbnail": "https://i.ytimg.com/vi/Up_tE6a6QRg/mqdefault.jpg"
@@ -1168,10 +970,10 @@
   {
     "id": "yt:GNIO8wL2rX0",
     "memberId": "luna",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 定期歌枠 】5ヶ月ぶりに「B'z」を歌うのら~!!!🎶 KARAOKE【姫森ルーナ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-05T12:59:02.000Z",
     "url": "https://www.youtube.com/watch?v=GNIO8wL2rX0",
     "thumbnail": "https://i.ytimg.com/vi/GNIO8wL2rX0/mqdefault.jpg"
@@ -1190,10 +992,10 @@
   {
     "id": "yt:FIWfIVFsZhE",
     "memberId": "luna",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 歌枠 】L'Arc〜en〜Ciel (ラルク) をうなうな歌うのら~!!!🎵 ~ KARAOKE #shorts【姫森ルーナ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-02-22T09:01:25.000Z",
     "url": "https://www.youtube.com/watch?v=FIWfIVFsZhE",
     "thumbnail": "https://i.ytimg.com/vi/FIWfIVFsZhE/mqdefault.jpg"
@@ -1201,10 +1003,10 @@
   {
     "id": "yt:TS-X2U03RIY",
     "memberId": "luna",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 チケット当選祈願歌枠 】B'zのチケットが当たりますように!なのら!!!✊(・o・🍬)🎶KARAOKE #shorts 【姫森ルーナ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-01-29T12:57:58.000Z",
     "url": "https://www.youtube.com/watch?v=TS-X2U03RIY",
     "thumbnail": "https://i.ytimg.com/vi/TS-X2U03RIY/mqdefault.jpg"
@@ -1254,17 +1056,6 @@
     "thumbnail": "https://i.ytimg.com/vi/ZrhD-CUXV60/mqdefault.jpg"
   },
   {
-    "id": "yt:2aURPJ1jNWQ",
-    "memberId": "lamy",
-    "type": "music",
-    "status": "past",
-    "title": "無敵☆本気だサバイバー! (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2025-11-15T15:04:46.000Z",
-    "url": "https://www.youtube.com/watch?v=2aURPJ1jNWQ",
-    "thumbnail": "https://i.ytimg.com/vi/2aURPJ1jNWQ/mqdefault.jpg"
-  },
-  {
     "id": "yt:4BuB6fcFHLw",
     "memberId": "nene",
     "type": "music",
@@ -1285,17 +1076,6 @@
     "timestamp": "2026-07-29T15:00:39.000Z",
     "url": "https://www.youtube.com/watch?v=M_lEYDMxHhY",
     "thumbnail": "https://i.ytimg.com/vi/M_lEYDMxHhY/mqdefault.jpg"
-  },
-  {
-    "id": "yt:zm8dD_vrKls",
-    "memberId": "nene",
-    "type": "music",
-    "status": "past",
-    "title": "ももいろの砂時計 (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-07-29T15:00:35.000Z",
-    "url": "https://www.youtube.com/watch?v=zm8dD_vrKls",
-    "thumbnail": "https://i.ytimg.com/vi/zm8dD_vrKls/mqdefault.jpg"
   },
   {
     "id": "yt:Tess3wtT19M",
@@ -1329,17 +1109,6 @@
     "timestamp": "2026-08-10T12:00:06.000Z",
     "url": "https://www.youtube.com/watch?v=bL4XUgUQnMI",
     "thumbnail": "https://i.ytimg.com/vi/bL4XUgUQnMI/mqdefault.jpg"
-  },
-  {
-    "id": "yt:t8JpLiG4GRA",
-    "memberId": "botan",
-    "type": "music",
-    "status": "past",
-    "title": "トキハナテ (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-04-10T15:03:27.000Z",
-    "url": "https://www.youtube.com/watch?v=t8JpLiG4GRA",
-    "thumbnail": "https://i.ytimg.com/vi/t8JpLiG4GRA/mqdefault.jpg"
   },
   {
     "id": "yt:XlVr4LDiICU",
@@ -1388,10 +1157,10 @@
   {
     "id": "yt:qt3CZg8GcXs",
     "memberId": "polka",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠/KARAOKE】リハビリ歌枠💓こいついつもリハビリしてんな👊【尾丸ポルカ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-25T08:01:11.000Z",
     "url": "https://www.youtube.com/watch?v=qt3CZg8GcXs",
     "thumbnail": "https://i.ytimg.com/vi/qt3CZg8GcXs/mqdefault.jpg"
@@ -1410,10 +1179,10 @@
   {
     "id": "yt:kpL7afPk0TA",
     "memberId": "polka",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠/KARAOKE】春はJ-POP?ボカロ?まったりしながら今週もがんばろ🎶【尾丸ポルカ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-04-27T13:07:47.000Z",
     "url": "https://www.youtube.com/watch?v=kpL7afPk0TA",
     "thumbnail": "https://i.ytimg.com/vi/kpL7afPk0TA/mqdefault.jpg"
@@ -1443,10 +1212,10 @@
   {
     "id": "yt:y0NtcsNmtZg",
     "memberId": "laplus",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "博衣こよりはいいぞ配信",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-26T16:06:55.000Z",
     "url": "https://www.youtube.com/watch?v=y0NtcsNmtZg",
     "thumbnail": "https://i.ytimg.com/vi/y0NtcsNmtZg/mqdefault.jpg"
@@ -1474,17 +1243,6 @@
     "thumbnail": "https://i.ytimg.com/vi/EvZwptR-jfY/mqdefault.jpg"
   },
   {
-    "id": "yt:znZ3AOEHlAE",
-    "memberId": "laplus",
-    "type": "music",
-    "status": "past",
-    "title": "お姉さま♡ラヴコール (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-05-25T15:00:04.000Z",
-    "url": "https://www.youtube.com/watch?v=znZ3AOEHlAE",
-    "thumbnail": "https://i.ytimg.com/vi/znZ3AOEHlAE/mqdefault.jpg"
-  },
-  {
     "id": "yt:VgkvRRcI6F4",
     "memberId": "lui",
     "type": "music",
@@ -1498,10 +1256,10 @@
   {
     "id": "yt:cUZcGarMKnw",
     "memberId": "lui",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 3D KARAOKE / 歌枠 】カラオケ屋に新衣装できた~~~!!沢山歌うぞ~~~!!!【鷹嶺ルイ/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-12T08:59:38.000Z",
     "url": "https://www.youtube.com/watch?v=cUZcGarMKnw",
     "thumbnail": "https://i.ytimg.com/vi/cUZcGarMKnw/mqdefault.jpg"
@@ -1518,17 +1276,6 @@
     "thumbnail": "https://i.ytimg.com/vi/aGL-ho04XzY/mqdefault.jpg"
   },
   {
-    "id": "yt:oF6q7Nt-cf0",
-    "memberId": "lui",
-    "type": "music",
-    "status": "past",
-    "title": "Soar (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-06-11T15:00:22.000Z",
-    "url": "https://www.youtube.com/watch?v=oF6q7Nt-cf0",
-    "thumbnail": "https://i.ytimg.com/vi/oF6q7Nt-cf0/mqdefault.jpg"
-  },
-  {
     "id": "yt:zRfugM7ZT4M",
     "memberId": "lui",
     "type": "music",
@@ -1542,10 +1289,10 @@
   {
     "id": "yt:R2BSE9fah5s",
     "memberId": "koyori",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【平成アニソン老人会カラオケ】1990年代~2000年代のアニソンや声優ソングに想いを馳せる深夜の歌枠【博衣こより/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-07T14:00:29.000Z",
     "url": "https://www.youtube.com/watch?v=R2BSE9fah5s",
     "thumbnail": "https://i.ytimg.com/vi/R2BSE9fah5s/mqdefault.jpg"
@@ -1553,10 +1300,10 @@
   {
     "id": "yt:QGedFqK0yic",
     "memberId": "koyori",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【平成アニソン老人会カラオケ】1990年代~2000年代のアニソンや声優ソングに想いを馳せる深夜の歌枠【博衣こより/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-16T14:00:31.000Z",
     "url": "https://www.youtube.com/watch?v=QGedFqK0yic",
     "thumbnail": "https://i.ytimg.com/vi/QGedFqK0yic/mqdefault.jpg"
@@ -1584,28 +1331,6 @@
     "thumbnail": "https://i.ytimg.com/vi/lfs_M3e9MtI/mqdefault.jpg"
   },
   {
-    "id": "yt:cNiZ05B7_QY",
-    "memberId": "koyori",
-    "type": "music",
-    "status": "past",
-    "title": "NaN GAME (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-05-04T15:01:06.000Z",
-    "url": "https://www.youtube.com/watch?v=cNiZ05B7_QY",
-    "thumbnail": "https://i.ytimg.com/vi/cNiZ05B7_QY/mqdefault.jpg"
-  },
-  {
-    "id": "yt:fDiqCHyUmvE",
-    "memberId": "iroha",
-    "type": "music",
-    "status": "past",
-    "title": "風向きエントロピー (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-06-18T15:00:24.000Z",
-    "url": "https://www.youtube.com/watch?v=fDiqCHyUmvE",
-    "thumbnail": "https://i.ytimg.com/vi/fDiqCHyUmvE/mqdefault.jpg"
-  },
-  {
     "id": "yt:DYDEeXyrNxw",
     "memberId": "iroha",
     "type": "music",
@@ -1630,32 +1355,21 @@
   {
     "id": "yt:b99OMm1WlNI",
     "memberId": "iroha",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】あした誕生日なんでライブみにきてくださいの歌枠🎤#shorts #歌枠【風真いろは/ホロライブ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-17T10:05:08.000Z",
     "url": "https://www.youtube.com/watch?v=b99OMm1WlNI",
     "thumbnail": "https://i.ytimg.com/vi/b99OMm1WlNI/mqdefault.jpg"
   },
   {
-    "id": "yt:AnIMvnsP2hY",
-    "memberId": "iroha",
-    "type": "music",
-    "status": "past",
-    "title": "ドリームキャッチピュアいろは! (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-03-31T15:03:19.000Z",
-    "url": "https://www.youtube.com/watch?v=AnIMvnsP2hY",
-    "thumbnail": "https://i.ytimg.com/vi/AnIMvnsP2hY/mqdefault.jpg"
-  },
-  {
     "id": "yt:Ywgr33dovHI",
     "memberId": "raden",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】かかぽと最後のコラボ!一緒にカラオケするぞー!!【儒烏風亭らでん #ReGLOSS 】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-06T10:00:25.000Z",
     "url": "https://www.youtube.com/watch?v=Ywgr33dovHI",
     "thumbnail": "https://i.ytimg.com/vi/Ywgr33dovHI/mqdefault.jpg"
@@ -1670,17 +1384,6 @@
     "timestamp": "2026-05-31T14:00:07.000Z",
     "url": "https://www.youtube.com/watch?v=o5seggyi0lc",
     "thumbnail": "https://i.ytimg.com/vi/o5seggyi0lc/mqdefault.jpg"
-  },
-  {
-    "id": "yt:df2yMS7uZCw",
-    "memberId": "raden",
-    "type": "music",
-    "status": "past",
-    "title": "Miracle Palette (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-05-17T15:00:37.000Z",
-    "url": "https://www.youtube.com/watch?v=df2yMS7uZCw",
-    "thumbnail": "https://i.ytimg.com/vi/df2yMS7uZCw/mqdefault.jpg"
   },
   {
     "id": "yt:STg1B8CXzk4",
@@ -1707,10 +1410,10 @@
   {
     "id": "yt:8JNJ8GYgTQk",
     "memberId": "kanade",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 縦型歌枠 】呼吸!!!【音乃瀬奏】#hololiveDEV_IS #ReGLOSS",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-07T11:00:15.000Z",
     "url": "https://www.youtube.com/watch?v=8JNJ8GYgTQk",
     "thumbnail": "https://i.ytimg.com/vi/8JNJ8GYgTQk/mqdefault.jpg"
@@ -1718,10 +1421,10 @@
   {
     "id": "yt:4flP14V9uRI",
     "memberId": "kanade",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 縦型歌枠 】今日はセンチメンタルな気分・・・【音乃瀬奏】#hololiveDEV_IS #ReGLOSS",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-29T12:01:48.000Z",
     "url": "https://www.youtube.com/watch?v=4flP14V9uRI",
     "thumbnail": "https://i.ytimg.com/vi/4flP14V9uRI/mqdefault.jpg"
@@ -1729,10 +1432,10 @@
   {
     "id": "yt:a8GYotCWqxs",
     "memberId": "kanade",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 歌枠 】久しぶりの横長歌枠!!【音乃瀬奏】#hololiveDEV_IS #ReGLOSS",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-05-21T11:02:21.000Z",
     "url": "https://www.youtube.com/watch?v=a8GYotCWqxs",
     "thumbnail": "https://i.ytimg.com/vi/a8GYotCWqxs/mqdefault.jpg"
@@ -1740,10 +1443,10 @@
   {
     "id": "yt:cM9H5jKzU1g",
     "memberId": "kanade",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 耐久歌枠 】GW企画!80万人いけるかな?!【音乃瀬奏】#hololiveDEV_IS #ReGLOSS",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-05-02T07:00:59.000Z",
     "url": "https://www.youtube.com/watch?v=cM9H5jKzU1g",
     "thumbnail": "https://i.ytimg.com/vi/cM9H5jKzU1g/mqdefault.jpg"
@@ -1762,10 +1465,10 @@
   {
     "id": "yt:pL4Xt1D3iCU",
     "memberId": "ririka",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "5億年ぶり激レアのカラオケ配信です。【一条莉々華/hololive DEV_IS ReGLOSS】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-07T11:01:30.000Z",
     "url": "https://www.youtube.com/watch?v=pL4Xt1D3iCU",
     "thumbnail": "https://i.ytimg.com/vi/pL4Xt1D3iCU/mqdefault.jpg"
@@ -1793,17 +1496,6 @@
     "thumbnail": "https://i.ytimg.com/vi/nO3pG3slzL8/mqdefault.jpg"
   },
   {
-    "id": "yt:HOtzSNt9qp8",
-    "memberId": "ririka",
-    "type": "music",
-    "status": "past",
-    "title": "ガチマジ☆デスゲーム (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-05-12T15:00:23.000Z",
-    "url": "https://www.youtube.com/watch?v=HOtzSNt9qp8",
-    "thumbnail": "https://i.ytimg.com/vi/HOtzSNt9qp8/mqdefault.jpg"
-  },
-  {
     "id": "yt:371pthxt-_g",
     "memberId": "ririka",
     "type": "music",
@@ -1817,10 +1509,10 @@
   {
     "id": "yt:LmLcTFr4oWw",
     "memberId": "hajime",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠】まったりチルしていこ♪【轟はじめ/ReGLOSS】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-06T13:00:29.000Z",
     "url": "https://www.youtube.com/watch?v=LmLcTFr4oWw",
     "thumbnail": "https://i.ytimg.com/vi/LmLcTFr4oWw/mqdefault.jpg"
@@ -1859,23 +1551,12 @@
     "thumbnail": "https://i.ytimg.com/vi/TY6CAGUZ-0s/mqdefault.jpg"
   },
   {
-    "id": "yt:X6Ey7qRB3IM",
-    "memberId": "hajime",
-    "type": "music",
-    "status": "past",
-    "title": "Deep Dive (Instrumental)",
-    "snippet": "오리지널 곡",
-    "timestamp": "2026-06-07T15:00:12.000Z",
-    "url": "https://www.youtube.com/watch?v=X6Ey7qRB3IM",
-    "thumbnail": "https://i.ytimg.com/vi/X6Ey7qRB3IM/mqdefault.jpg"
-  },
-  {
     "id": "yt:DYbvHIjfIj0",
     "memberId": "riona",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 歌枠 】歌います!!聴いてええええ❤【ホロライブ DEV_IS 響咲リオナ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-26T09:05:08.000Z",
     "url": "https://www.youtube.com/watch?v=DYbvHIjfIj0",
     "thumbnail": "https://i.ytimg.com/vi/DYbvHIjfIj0/mqdefault.jpg"
@@ -1883,10 +1564,10 @@
   {
     "id": "yt:s1xmTZs_f0U",
     "memberId": "riona",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 耐久歌枠 】ついに50万人耐久です🔥歌います!【ホロライブ DEV_IS 響咲リオナ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-13T09:01:05.000Z",
     "url": "https://www.youtube.com/watch?v=s1xmTZs_f0U",
     "thumbnail": "https://i.ytimg.com/vi/s1xmTZs_f0U/mqdefault.jpg"
@@ -1905,10 +1586,10 @@
   {
     "id": "yt:ZEAgcWCnkwQ",
     "memberId": "riona",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 3Ⅾ歌枠 】久しぶりの3Dカラオケ🎤告知あります✨【ホロライブ DEV_IS 響咲リオナ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-07T09:00:09.000Z",
     "url": "https://www.youtube.com/watch?v=ZEAgcWCnkwQ",
     "thumbnail": "https://i.ytimg.com/vi/ZEAgcWCnkwQ/mqdefault.jpg"
@@ -1916,10 +1597,10 @@
   {
     "id": "yt:50uRJZK1JA4",
     "memberId": "riona",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【縦型歌雑枠】お話多めのお歌枠🎤【ホロライブ DEV_IS 響咲リオナ】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-01T09:31:39.000Z",
     "url": "https://www.youtube.com/watch?v=50uRJZK1JA4",
     "thumbnail": "https://i.ytimg.com/vi/50uRJZK1JA4/mqdefault.jpg"
@@ -1927,10 +1608,10 @@
   {
     "id": "yt:gbctghL3S4M",
     "memberId": "niko",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 引っ越します 】さようなら、今の家【虎金妃笑虎】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-10T09:34:28.000Z",
     "url": "https://www.youtube.com/watch?v=gbctghL3S4M",
     "thumbnail": "https://i.ytimg.com/vi/gbctghL3S4M/mqdefault.jpg"
@@ -1949,10 +1630,10 @@
   {
     "id": "yt:z7t523K7kYE",
     "memberId": "niko",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 #笑虎ネクト 】第2回目!歌って!笑虎ネクト🐯ゲスト 角巻わため先輩🐏【虎金妃笑虎/角巻わため】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-22T11:00:09.000Z",
     "url": "https://www.youtube.com/watch?v=z7t523K7kYE",
     "thumbnail": "https://i.ytimg.com/vi/z7t523K7kYE/mqdefault.jpg"
@@ -1960,10 +1641,10 @@
   {
     "id": "yt:t1zcvrAIizw",
     "memberId": "niko",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【重大告知】重大ということは、重くて大きいということです【虎金妃笑虎】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-18T11:31:51.000Z",
     "url": "https://www.youtube.com/watch?v=t1zcvrAIizw",
     "thumbnail": "https://i.ytimg.com/vi/t1zcvrAIizw/mqdefault.jpg"
@@ -1971,10 +1652,10 @@
   {
     "id": "yt:qfGoQ_PE6hg",
     "memberId": "niko",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【ゲスト歌枠】あなたは....かの有名な虎のッ....!!!【虎金妃笑虎】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-10T09:05:14.000Z",
     "url": "https://www.youtube.com/watch?v=qfGoQ_PE6hg",
     "thumbnail": "https://i.ytimg.com/vi/qfGoQ_PE6hg/mqdefault.jpg"
@@ -1993,10 +1674,10 @@
   {
     "id": "yt:pj0TgtP1gog",
     "memberId": "su",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠 KARAOKE】縦型歌雑談〜❕【水宮枢/ホロライブDEV_IS】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-02T08:27:25.000Z",
     "url": "https://www.youtube.com/watch?v=pj0TgtP1gog",
     "thumbnail": "https://i.ytimg.com/vi/pj0TgtP1gog/mqdefault.jpg"
@@ -2004,10 +1685,10 @@
   {
     "id": "yt:dhiBuRYeiCQ",
     "memberId": "su",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【70万人耐久】歌と雑談!/KARAOKE➕freeTalk【水宮枢/ホロライブDEV_IS】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-06T08:00:23.000Z",
     "url": "https://www.youtube.com/watch?v=dhiBuRYeiCQ",
     "thumbnail": "https://i.ytimg.com/vi/dhiBuRYeiCQ/mqdefault.jpg"
@@ -2026,10 +1707,10 @@
   {
     "id": "yt:zg0dSPxwwOg",
     "memberId": "su",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠 KARAOKE】縦型雑談〜マイク調節会❕【水宮枢/ホロライブDEV_IS】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-28T08:56:04.000Z",
     "url": "https://www.youtube.com/watch?v=zg0dSPxwwOg",
     "thumbnail": "https://i.ytimg.com/vi/zg0dSPxwwOg/mqdefault.jpg"
@@ -2037,10 +1718,10 @@
   {
     "id": "yt:f4EZ7LDp-cI",
     "memberId": "chihaya",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【耐久歌枠/KARAOKE】遂に60万人目前!一緒に迎えたいです!!!!【#輪堂千速 / #hololivedev_is  #FLOWGLOW 】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-29T09:02:17.000Z",
     "url": "https://www.youtube.com/watch?v=f4EZ7LDp-cI",
     "thumbnail": "https://i.ytimg.com/vi/f4EZ7LDp-cI/mqdefault.jpg"
@@ -2081,10 +1762,10 @@
   {
     "id": "yt:zYRo9EosGPA",
     "memberId": "chihaya",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【歌枠/KARAOKE】告知だ~~~!歌うぞ!!!!!【#輪堂千速 / #hololivedev_is  #FLOWGLOW 】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-07-02T11:00:10.000Z",
     "url": "https://www.youtube.com/watch?v=zYRo9EosGPA",
     "thumbnail": "https://i.ytimg.com/vi/zYRo9EosGPA/mqdefault.jpg"
@@ -2092,10 +1773,10 @@
   {
     "id": "yt:LFHLGp2KWOw",
     "memberId": "vivi",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 縦型歌枠 】70万人耐久歌枠!【 #綺々羅々ヴィヴィ #hololiveDEV_IS #FLOWGLOW】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-08-11T07:00:26.000Z",
     "url": "https://www.youtube.com/watch?v=LFHLGp2KWOw",
     "thumbnail": "https://i.ytimg.com/vi/LFHLGp2KWOw/mqdefault.jpg"
@@ -2103,10 +1784,10 @@
   {
     "id": "yt:K1nIWY8Bck8",
     "memberId": "vivi",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 縦型歌枠/KARAOKE 】66万人ありがとう!!【 #綺々羅々ヴィヴィ #hololiveDEV_IS #FLOWGLOW】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-06-13T01:14:09.000Z",
     "url": "https://www.youtube.com/watch?v=K1nIWY8Bck8",
     "thumbnail": "https://i.ytimg.com/vi/K1nIWY8Bck8/mqdefault.jpg"
@@ -2114,10 +1795,10 @@
   {
     "id": "yt:EgihHV_7KqM",
     "memberId": "vivi",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 3Dカラオケ 】ちはヴィヴィ初めてのカラオケ!!【#綺々羅々ヴィヴィ #hololiveDEV_IS #FLOWGLOW】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-05-01T09:59:36.000Z",
     "url": "https://www.youtube.com/watch?v=EgihHV_7KqM",
     "thumbnail": "https://i.ytimg.com/vi/EgihHV_7KqM/mqdefault.jpg"
@@ -2136,10 +1817,10 @@
   {
     "id": "yt:4ecKH71LPKg",
     "memberId": "vivi",
-    "type": "music",
+    "type": "stream",
     "status": "past",
     "title": "【 縦型歌枠/KARAOKE 】60万人耐久!!【 #綺々羅々ヴィヴィ #hololiveDEV_IS #FLOWGLOW】",
-    "snippet": "노래",
+    "snippet": "노래 방송",
     "timestamp": "2026-03-16T09:05:00.000Z",
     "url": "https://www.youtube.com/watch?v=4ecKH71LPKg",
     "thumbnail": "https://i.ytimg.com/vi/4ecKH71LPKg/mqdefault.jpg"

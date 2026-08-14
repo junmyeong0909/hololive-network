@@ -55,9 +55,16 @@ const EXCLUDED_TOPICS = new Set(['freechat', 'freetalk']);
 // 토픽 이름으로 거르면 놓치는 게 생겨서 예정 시각 기준으로 자른다.
 const MAX_UPCOMING_DAYS = 14;
 
-// 음악 판정. Holodex topic_id는 singing / music_cover / original_song / karaoke 등
-// 표기가 여러 가지라 정확한 목록 대신 패턴으로 잡는다.
-const MUSIC_TOPIC = /sing|music|cover|karaoke|song/i;
+/*
+ * 음악 탭에는 "유튜브 동영상으로 올라온 곡"만 넣는다.
+ * 가창 방송(歌枠, topic=singing/karaoke)은 곡이 아니라 방송이므로 stream으로 둔다.
+ * 라이브에서 부른 곡을 나중에 동영상으로 따로 올리면 그 영상은 Music_Cover /
+ * Original_Song 태그가 붙으므로 자연히 음악으로 잡힌다.
+ */
+const MUSIC_TOPICS = new Set(['music_cover', 'original_song']);
+
+// 인스트루멘털(반주) 버전은 음악 탭에서 뺀다
+const INSTRUMENTAL = /instrumental|off\s*vocal|inst\.?\s*ver|카라오케\s*ver/i;
 
 // 기술적인 topic_id를 사람이 읽을 만하게.
 // Holodex는 Music_Cover / 3D_Stream 처럼 대소문자가 섞여 오므로 소문자로 조회한다.
@@ -98,7 +105,9 @@ function toNotification(v) {
   // Holodex status: live | upcoming | past | new | missing
   const status = v.status === 'live' || v.status === 'upcoming' ? v.status : 'past';
 
-  const isMusic = MUSIC_TOPIC.test(topicId);
+  // 음악은 곡 영상만. 인스트루멘털은 제외해 일반 영상으로 둔다.
+  const title = v.title ?? '';
+  const isMusic = MUSIC_TOPICS.has(topicId.toLowerCase()) && !INSTRUMENTAL.test(title);
   const type = isMusic ? 'music' : v.type === 'stream' ? 'stream' : 'video';
 
   // 라이브/예정은 시작(예정) 시각, 지난 건 공개 시각
@@ -115,7 +124,7 @@ function toNotification(v) {
     memberId,
     type,
     status,
-    title: v.title ?? '',
+    title,
     // 토픽이 없으면 비워둔다. 채널명으로 폴백하면 바로 위 멤버 이름과 중복된다.
     snippet: prettyTopic(topicId),
     timestamp,
@@ -148,17 +157,19 @@ async function buildFeed(apiKey, debug) {
     });
 
   // 3) 음악 전용 조회.
-  // 2)는 org 전체에서 최근 50건만 받아 거르는 구조라 커버곡이 쉽게 밀려난다.
-  // 음악 탭이 비지 않도록 따로 가져온다.
-  const musicPromise = holodex(
-    `/videos?org=Hololive&topic=Music_Cover&status=past&limit=${MUSIC_LIMIT}&sort=available_at&order=desc`,
-    apiKey
-  )
-    .then((r) => (Array.isArray(r) ? r : []))
-    .catch((e) => {
-      diagnostics.musicError = e.message;
-      return [];
-    });
+  // 2)는 org 전체에서 최근 50건만 받아 거르는 구조라 곡이 쉽게 밀려난다.
+  // 커버와 오리지널은 토픽이 나뉘어 있어 둘 다 가져온다.
+  const musicPromise = Promise.all(
+    ['Music_Cover', 'Original_Song'].map((topic) =>
+      holodex(
+        `/videos?org=Hololive&topic=${topic}&status=past&limit=${MUSIC_LIMIT}&sort=available_at&order=desc`,
+        apiKey
+      ).catch((e) => {
+        diagnostics.musicError = e.message;
+        return [];
+      })
+    )
+  ).then((lists) => lists.flat().filter(Boolean));
 
   const [live, past, music] = await Promise.all([livePromise, pastPromise, musicPromise]);
 

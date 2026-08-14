@@ -3,8 +3,18 @@
  * 팔레트 PNG의 흰 배경을 투명하게 만든다 (누끼).
  *
  * imgs/background/images.png 는 colorType 3(팔레트)에 tRNS 청크가 없어서
- * 흰 배경이 그대로 사각형으로 보인다. 팔레트에서 흰색에 가까운 항목을 찾아
- * alpha=0으로 지정하는 tRNS 청크를 넣어준다. 원본은 건드리지 않는다.
+ * 흰 배경이 그대로 사각형으로 보인다.
+ *
+ * 흰색만 alpha=0으로 잘라내면(이진 투명) 안티앨리어싱된 가장자리 픽셀이
+ * 불투명하게 남아, 어두운 배경에서 밝은 계단 모양으로 드러난다.
+ * 그래서 항목마다 "흰색에서 얼마나 떨어져 있는가"에 비례하는 중간 알파를 주고,
+ * 흰색과 섞인 만큼 색을 되돌린다(un-matte).
+ *
+ *   관측색 = 원래색 * a + 흰색 * (1 - a)
+ *   → a = (255 - min(R,G,B)) / (255 - 가장 진한 항목의 min)
+ *   → 원래색 = (관측색 - 255 * (1 - a)) / a
+ *
+ * 원본은 건드리지 않는다.
  *
  * 사용법: node scripts/make-logo-transparent.mjs
  */
@@ -17,9 +27,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const SRC = resolve(ROOT, 'imgs/background/images.png');
 const OUT = resolve(ROOT, 'public/bg/hololive-mark.png');
-
-// 이 값 이상으로 밝고 무채색이면 배경으로 간주
-const WHITE_MIN = 246;
 
 const CRC_TABLE = (() => {
   const t = new Int32Array(256);
@@ -73,22 +80,45 @@ const plte = chunks.find((c) => c.type === 'PLTE');
 if (!plte) throw new Error('PLTE 청크가 없습니다');
 
 const entryCount = plte.data.length / 3;
-const alpha = Buffer.alloc(entryCount, 255);
-
-let transparentCount = 0;
+const palette = [];
 for (let i = 0; i < entryCount; i++) {
-  const r = plte.data[i * 3];
-  const g = plte.data[i * 3 + 1];
-  const b = plte.data[i * 3 + 2];
-  if (r >= WHITE_MIN && g >= WHITE_MIN && b >= WHITE_MIN) {
-    alpha[i] = 0;
-    transparentCount++;
-  }
+  palette.push({
+    r: plte.data[i * 3],
+    g: plte.data[i * 3 + 1],
+    b: plte.data[i * 3 + 2],
+  });
 }
 
-if (transparentCount === 0) {
-  console.warn('흰색 팔레트 항목을 못 찾았습니다. WHITE_MIN을 낮춰보세요.');
+// 가장 진한(= 흰색에서 가장 먼) 항목을 기준으로 알파를 정규화한다
+const coverage = palette.map((c) => 255 - Math.min(c.r, c.g, c.b));
+const maxCoverage = Math.max(...coverage);
+if (maxCoverage === 0) throw new Error('팔레트가 전부 흰색입니다');
+
+const alpha = Buffer.alloc(entryCount, 255);
+const newPlte = Buffer.from(plte.data);
+
+let fullyTransparent = 0;
+let partial = 0;
+
+for (let i = 0; i < entryCount; i++) {
+  const a = Math.round((coverage[i] / maxCoverage) * 255);
+  alpha[i] = a;
+
+  if (a === 0) {
+    fullyTransparent++;
+    continue;
+  }
+  if (a < 255) partial++;
+
+  // 흰색과 섞인 만큼 되돌린다 (a로 나누므로 a가 작을수록 보정이 커진다)
+  const f = a / 255;
+  const unmatte = (v) => Math.max(0, Math.min(255, Math.round((v - 255 * (1 - f)) / f)));
+  newPlte[i * 3] = unmatte(palette[i].r);
+  newPlte[i * 3 + 1] = unmatte(palette[i].g);
+  newPlte[i * 3 + 2] = unmatte(palette[i].b);
 }
+
+plte.data = newPlte;
 
 // 기존 tRNS는 버리고 새로 만든다. tRNS는 PLTE 뒤, IDAT 앞에 와야 한다.
 const out = [Buffer.from(src.subarray(0, 8))];
@@ -100,5 +130,5 @@ for (const c of chunks) {
 
 writeFileSync(OUT, Buffer.concat(out));
 
-console.log(`팔레트 ${entryCount}개 중 ${transparentCount}개를 투명 처리`);
+console.log(`팔레트 ${entryCount}개: 완전투명 ${fullyTransparent} / 반투명 ${partial} / 불투명 ${entryCount - fullyTransparent - partial}`);
 console.log(`저장: ${OUT}`);
