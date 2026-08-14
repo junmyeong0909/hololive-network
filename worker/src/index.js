@@ -12,6 +12,7 @@ import channelIds from '../../src/data/channelIds.json';
 const HOLODEX = 'https://holodex.net/api/v2';
 const CACHE_SECONDS = 60;
 const PAST_VIDEO_LIMIT = 50;
+const MUSIC_LIMIT = 25;
 
 const ALLOWED_ORIGINS = [
   'https://junmyeong0909.github.io',
@@ -50,25 +51,39 @@ async function holodex(path, apiKey) {
 // 상시 대기방(FreeChat)은 영구히 upcoming 상태라 예정 탭을 도배한다. 제외.
 const EXCLUDED_TOPICS = new Set(['freechat', 'freetalk']);
 
+// 몇 달~몇 년 뒤로 잡아둔 상시 공지 프레임(2028년 예정 등)을 걸러낸다.
+// 토픽 이름으로 거르면 놓치는 게 생겨서 예정 시각 기준으로 자른다.
+const MAX_UPCOMING_DAYS = 14;
+
 // 음악 판정. Holodex topic_id는 singing / music_cover / original_song / karaoke 등
 // 표기가 여러 가지라 정확한 목록 대신 패턴으로 잡는다.
 const MUSIC_TOPIC = /sing|music|cover|karaoke|song/i;
 
-// 기술적인 topic_id를 사람이 읽을 만하게
+// 기술적인 topic_id를 사람이 읽을 만하게.
+// Holodex는 Music_Cover / 3D_Stream 처럼 대소문자가 섞여 오므로 소문자로 조회한다.
 const TOPIC_LABEL = {
   singing: '노래',
   music_cover: '커버',
   original_song: '오리지널 곡',
   karaoke: '노래방',
+  '3d_stream': '3D 방송',
+  '3d_live': '3D 라이브',
   asmr: 'ASMR',
   talk: '잡담',
+  announce: '공지',
+  anniversary: '기념 방송',
+  watchalong: '같이 보기',
+  membersonly: '멤버 한정',
+  shorts: '쇼츠',
+  vlog: '브이로그',
+  morning: '아침 방송',
   minecraft: '마인크래프트',
   apex: 'APEX',
 };
 
 function prettyTopic(topicId) {
   if (!topicId) return '';
-  return TOPIC_LABEL[topicId] ?? String(topicId).replace(/_/g, ' ');
+  return TOPIC_LABEL[String(topicId).toLowerCase()] ?? String(topicId).replace(/_/g, ' ');
 }
 
 /** Holodex 영상 하나를 우리 알림 스키마로 변환. 제외 대상이면 null. */
@@ -88,6 +103,12 @@ function toNotification(v) {
 
   // 라이브/예정은 시작(예정) 시각, 지난 건 공개 시각
   const timestamp = v.start_actual ?? v.start_scheduled ?? v.available_at ?? v.published_at;
+
+  // 몇 달 뒤로 잡아둔 상시 공지 프레임 제외
+  if (status === 'upcoming' && timestamp) {
+    const daysAhead = (new Date(timestamp).getTime() - Date.now()) / 86_400_000;
+    if (daysAhead > MAX_UPCOMING_DAYS) return null;
+  }
 
   return {
     id: `yt:${v.id}`,
@@ -125,14 +146,38 @@ async function buildFeed(apiKey, debug) {
       return [];
     });
 
-  const [live, past] = await Promise.all([livePromise, pastPromise]);
+  // 3) 음악 전용 조회.
+  // 2)는 org 전체에서 최근 50건만 받아 거르는 구조라 커버곡이 쉽게 밀려난다.
+  // 음악 탭이 비지 않도록 따로 가져온다.
+  const musicPromise = holodex(
+    `/videos?org=Hololive&topic=Music_Cover&status=past&limit=${MUSIC_LIMIT}&sort=available_at&order=desc`,
+    apiKey
+  )
+    .then((r) => (Array.isArray(r) ? r : []))
+    .catch((e) => {
+      diagnostics.musicError = e.message;
+      return [];
+    });
+
+  const [live, past, music] = await Promise.all([livePromise, pastPromise, musicPromise]);
+
+  const all = [...live, ...past, ...music];
+
+  // id 기준 중복 제거 (세 목록이 서로 겹칠 수 있음)
+  const seen = new Set();
+  const notifications = [];
+  for (const v of all) {
+    const n = toNotification(v);
+    if (!n || seen.has(n.id)) continue;
+    seen.add(n.id);
+    notifications.push(n);
+  }
 
   if (debug) {
     diagnostics.liveRaw = live.length;
     diagnostics.pastRaw = past.length;
+    diagnostics.musicRaw = music.length;
     diagnostics.mappedChannels = CHANNEL_IDS.length;
-    // 무엇이 왜 걸러졌는지 (FreeChat 필터가 먹는지 확인용)
-    const all = [...live, ...past];
     diagnostics.excludedByTopic = all.filter((v) =>
       EXCLUDED_TOPICS.has(String(v.topic_id ?? '').toLowerCase())
     ).length;
@@ -140,19 +185,21 @@ async function buildFeed(apiKey, debug) {
       (v) => !MEMBER_BY_CHANNEL[v.channel?.id ?? v.channel_id]
     ).length;
     diagnostics.topicsSeen = [...new Set(all.map((v) => v.topic_id).filter(Boolean))];
+    diagnostics.result = {
+      total: notifications.length,
+      live: notifications.filter((n) => n.status === 'live').length,
+      upcoming: notifications.filter((n) => n.status === 'upcoming').length,
+      past: notifications.filter((n) => n.status === 'past').length,
+      music: notifications.filter((n) => n.type === 'music').length,
+    };
+    diagnostics.furthestUpcoming = notifications
+      .filter((n) => n.status === 'upcoming')
+      .map((n) => n.timestamp)
+      .sort()
+      .pop();
   }
 
-  // id 기준 중복 제거 (라이브 목록과 지난 목록이 겹칠 수 있음)
-  const seen = new Set();
-  const notifications = [];
-  for (const v of [...live, ...past]) {
-    const n = toNotification(v);
-    if (!n || seen.has(n.id)) continue;
-    seen.add(n.id);
-    notifications.push(n);
-  }
-
-  // 업스트림이 둘 다 실패했으면 빈 응답 대신 에러로 처리해서
+  // 업스트림이 전부 실패했으면 빈 응답 대신 에러로 처리해서
   // 프론트가 '갱신 실패'로 인식하고 이전 데이터를 유지하게 한다
   if (notifications.length === 0 && (diagnostics.liveError || diagnostics.pastError)) {
     throw new Error(diagnostics.liveError ?? diagnostics.pastError);
