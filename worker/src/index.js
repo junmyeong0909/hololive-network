@@ -116,7 +116,8 @@ function toNotification(v) {
     type,
     status,
     title: v.title ?? '',
-    snippet: prettyTopic(topicId) || v.channel?.english_name || v.channel?.name || '',
+    // 토픽이 없으면 비워둔다. 채널명으로 폴백하면 바로 위 멤버 이름과 중복된다.
+    snippet: prettyTopic(topicId),
     timestamp,
     url: `https://www.youtube.com/watch?v=${v.id}`,
     thumbnail: `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`,

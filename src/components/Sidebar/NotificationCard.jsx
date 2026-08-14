@@ -68,7 +68,9 @@ export default function NotificationCard({ notification, member, index }) {
         </div>
 
         <p className="mt-0.5 truncate text-sm font-medium text-ink-300">{notification.title}</p>
-        <p className="mt-0.5 truncate text-xs text-ink-500">{notification.snippet}</p>
+        {notification.snippet && (
+          <p className="mt-0.5 truncate text-xs text-ink-500">{notification.snippet}</p>
+        )}
 
         <div className="mt-1.5 flex items-center justify-between">
           {status === 'live' && (
