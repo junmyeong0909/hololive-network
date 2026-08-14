@@ -22,6 +22,10 @@ const OUT_PATH = resolve(ROOT, 'src/data/memberSongs.json');
 
 const API = 'https://holodex.net/api/v2';
 const PER_MEMBER = 5;
+
+// Holodex는 커버와 오리지널 곡에 서로 다른 토픽을 붙인다.
+// Music_Cover만 보면 오리지널 곡이 통째로 빠진다.
+const MUSIC_TOPICS = ['Music_Cover', 'Original_Song', 'singing', 'karaoke'];
 const MUSIC_TOPIC = /sing|music|cover|karaoke|song/i;
 
 function askHidden(question) {
@@ -55,15 +59,23 @@ async function api(path) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const TOPIC_LABEL = {
+  music_cover: '커버',
+  original_song: '오리지널 곡',
+  singing: '노래',
+  karaoke: '노래방',
+};
+
 /** Holodex 영상 → 우리 알림 스키마 (Worker의 변환과 동일한 형태) */
 function toSong(v, memberId) {
+  const topic = String(v.topic_id ?? '').toLowerCase();
   return {
     id: `yt:${v.id}`,
     memberId,
     type: 'music',
     status: 'past',
     title: v.title ?? '',
-    snippet: '커버',
+    snippet: TOPIC_LABEL[topic] ?? '음악',
     timestamp: v.available_at ?? v.published_at,
     url: `https://www.youtube.com/watch?v=${v.id}`,
     thumbnail: `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`,
@@ -87,31 +99,42 @@ async function main() {
 
   for (const [memberId, channelId] of entries) {
     try {
-      // 음악 토픽으로 먼저 조회
-      let vids = await api(
-        `/videos?channel_id=${channelId}&topic=Music_Cover&status=past&limit=${PER_MEMBER}&sort=available_at&order=desc`
-      );
+      const byId = new Map();
 
-      // 부족하면 최근 영상에서 음악 토픽을 추려 채운다
-      if (!Array.isArray(vids) || vids.length < PER_MEMBER) {
+      // 음악 토픽별로 조회해 합친다 (커버/오리지널/가창 등 태그가 나뉘어 있음)
+      const results = await Promise.all(
+        MUSIC_TOPICS.map((topic) =>
+          api(
+            `/videos?channel_id=${channelId}&topic=${topic}&status=past&limit=${PER_MEMBER}&sort=available_at&order=desc`
+          ).catch(() => [])
+        )
+      );
+      for (const list of results) {
+        for (const v of Array.isArray(list) ? list : []) byId.set(v.id, v);
+      }
+
+      // 그래도 부족하면 최근 영상에서 음악으로 보이는 것을 추려 채운다
+      if (byId.size < PER_MEMBER) {
         const recent = await api(
           `/videos?channel_id=${channelId}&status=past&limit=50&sort=available_at&order=desc`
-        );
-        const extra = (Array.isArray(recent) ? recent : []).filter((v) => MUSIC_TOPIC.test(v.topic_id ?? ''));
-        const seen = new Set((vids ?? []).map((v) => v.id));
-        for (const v of extra) {
-          if (songs.length && seen.has(v.id)) continue;
-          if (seen.has(v.id)) continue;
-          seen.add(v.id);
-          vids.push(v);
-          if (vids.length >= PER_MEMBER) break;
+        ).catch(() => []);
+        for (const v of Array.isArray(recent) ? recent : []) {
+          if (MUSIC_TOPIC.test(v.topic_id ?? '')) byId.set(v.id, v);
         }
       }
 
-      const picked = (vids ?? []).slice(0, PER_MEMBER);
+      // 최신순 상위 5개
+      const picked = [...byId.values()]
+        .sort((a, b) =>
+          String(b.available_at ?? b.published_at ?? '').localeCompare(
+            String(a.available_at ?? a.published_at ?? '')
+          )
+        )
+        .slice(0, PER_MEMBER);
+
       picked.forEach((v) => songs.push(toSong(v, memberId)));
 
-      const mark = picked.length === 0 ? '  ← 음악 없음' : '';
+      const mark = picked.length < PER_MEMBER ? `  ← ${picked.length}곡뿐 (보유량 부족)` : '';
       console.log(`  ${memberId.padEnd(10)} ${picked.length}곡${mark}`);
       if (picked.length === 0) noMusic.push(memberId);
     } catch (e) {
@@ -119,7 +142,7 @@ async function main() {
       noMusic.push(memberId);
     }
 
-    await sleep(120); // API에 부담 주지 않도록
+    await sleep(100); // API에 부담 주지 않도록
   }
 
   // id 중복 제거 (여러 멤버가 참여한 합동 곡 등)
