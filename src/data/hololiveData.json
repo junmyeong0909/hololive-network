@@ -22,7 +22,7 @@
     { "id": "watame", "name": "츠노마키 와타메", "nameEn": "Tsunomaki Watame", "unit": "4기생", "color": "#fff176", "initials": "ワタ", "profileImg": "/profile_img/watame.jpg" },
     { "id": "towa", "name": "토코야미 토와", "nameEn": "Tokoyami Towa", "unit": "4기생", "color": "#5e35b1", "initials": "トワ", "profileImg": "/profile_img/towa.jpg" },
     { "id": "luna", "name": "히메모리 루나", "nameEn": "Himemori Luna", "unit": "4기생", "color": "#ce93d8", "initials": "ルナ", "profileImg": "/profile_img/luna.jpg" },
-    { "id": "lamy", "name": "유쿠하나 라미", "nameEn": "Yukuhana Lamy", "unit": "5기생", "color": "#b39ddb", "initials": "ラミ", "profileImg": "/profile_img/lamy.jpg" },
+    { "id": "lamy", "name": "유키하나 라미", "nameEn": "Yukihana Lamy", "unit": "5기생", "color": "#b39ddb", "initials": "ラミ", "profileImg": "/profile_img/lamy.jpg" },
     { "id": "nene", "name": "모모스즈 네네", "nameEn": "Momosuzu Nene", "unit": "5기생", "color": "#f48fb1", "initials": "ネネ", "profileImg": "/profile_img/nene.jpg" },
     { "id": "botan", "name": "시시로 보탄", "nameEn": "Shishiro Botan", "unit": "5기생", "color": "#66bb6a", "initials": "ボタ", "profileImg": "/profile_img/botan.jpg" },
     { "id": "polka", "name": "오마루 포르카", "nameEn": "Omaru Polka", "unit": "5기생", "color": "#8e24aa", "initials": "ポル", "profileImg": "/profile_img/polka.jpg" },
