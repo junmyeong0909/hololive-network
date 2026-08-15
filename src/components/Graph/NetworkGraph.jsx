@@ -16,6 +16,18 @@ function pairKey(a, b) {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
 }
 
+/** 노드 배지 안에 그릴 좌/우 대칭 신호 아치 하나의 SVG path (반지름 r, 중심 각도 centerDeg). */
+function signalArcPath(r, centerDeg, halfSpanDeg = 34) {
+  const rad = (deg) => (deg * Math.PI) / 180;
+  const a1 = centerDeg - halfSpanDeg;
+  const a2 = centerDeg + halfSpanDeg;
+  const x1 = r * Math.cos(rad(a1));
+  const y1 = r * Math.sin(rad(a1));
+  const x2 = r * Math.cos(rad(a2));
+  const y2 = r * Math.sin(rad(a2));
+  return `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`;
+}
+
 // interactions -> 쌍(pair)별 감쇠 적용 친밀도 점수 + 원본 합방/커버 횟수
 function buildPairStats(interactions, now) {
   const closeness = new Map();
@@ -44,13 +56,16 @@ function buildPairStats(interactions, now) {
   return { closeness, rawCounts };
 }
 
-export default function NetworkGraph({ members, interactions, notifications, selectedMemberId, onSelectMember }) {
+const EMPTY_SET = new Set();
+
+export default function NetworkGraph({ members, interactions, liveMemberIds = EMPTY_SET, selectedMemberId, onSelectMember }) {
   const containerRef = useRef(null);
   const svgRef = useRef(null);
   const zoomRef = useRef(null);
   const [tooltip, setTooltip] = useState(null); // { member, connections, x, y }
   const selectedIdRef = useRef(null);
   const applyHighlightRef = useRef(null);
+  const updateLiveBadgesRef = useRef(null);
 
   const membersById = Object.fromEntries(members.map((m) => [m.id, m]));
 
@@ -198,6 +213,33 @@ export default function NetworkGraph({ members, interactions, notifications, sel
       // fill은 index.css(.node text.label)에서 테마 변수로 지정한다
       .style('pointer-events', 'none');
 
+    // LIVE 배지: 지금 방송 중인 멤버의 노드 우상단에 깜빡이는 빨간 신호 아이콘.
+    // 항상 만들어두고 평소엔 숨겨뒀다가, liveMemberIds가 바뀔 때(60초 폴링)
+    // updateLiveBadges()로 표시만 토글한다 — 그래프를 통째로 다시 그리지 않기 위해서다.
+    const badgeSel = nodeSel
+      .append('g')
+      .attr('class', 'live-badge')
+      .attr('transform', (d) => `translate(${d.r * 0.72}, ${-d.r * 0.72})`)
+      .style('pointer-events', 'none')
+      .style('display', 'none');
+
+    badgeSel.append('circle').attr('class', 'live-badge-bg').attr('r', 8);
+    badgeSel.append('circle').attr('class', 'live-badge-dot').attr('r', 2.2);
+    [0, 180].forEach((centerDeg) => {
+      [4.2, 6, 7.8].forEach((r) => {
+        badgeSel
+          .append('path')
+          .attr('class', 'live-badge-arc')
+          .attr('d', signalArcPath(r, centerDeg));
+      });
+    });
+
+    function updateLiveBadges(liveIds) {
+      nodeSel.select('.live-badge').style('display', (d) => (liveIds?.has(d.id) ? null : 'none'));
+    }
+    updateLiveBadgesRef.current = updateLiveBadges;
+    updateLiveBadges(liveMemberIds);
+
     function applyHighlight(selectedId) {
       if (!selectedId) {
         nodeSel.attr('opacity', 1);
@@ -334,6 +376,12 @@ export default function NetworkGraph({ members, interactions, notifications, sel
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [members, interactions]);
+
+  // liveMemberIds는 60초 폴링마다 바뀌지만, 그때마다 시뮬레이션을 통째로
+  // 다시 만들 필요는 없다 — 배지 표시만 토글한다.
+  useEffect(() => {
+    updateLiveBadgesRef.current?.(liveMemberIds);
+  }, [liveMemberIds]);
 
   const handleZoom = (factor) => {
     const svg = d3.select(svgRef.current);

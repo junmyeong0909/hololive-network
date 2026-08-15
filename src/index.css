@@ -103,6 +103,35 @@ image.watermark {
   opacity: var(--watermark-opacity);
 }
 
+/* LIVE 배지 (지금 방송 중인 멤버 노드 우상단에 깜빡이는 신호 아이콘) */
+.live-badge {
+  animation: live-badge-blink 1.3s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.live-badge-bg {
+  /* 노드 배경과 같은 색으로 채워 사진/원 위에서 도려낸 것처럼 보이게 한다 */
+  fill: rgb(var(--graph-node-bg));
+}
+.live-badge-dot {
+  fill: #ef4444;
+}
+.live-badge-arc {
+  fill: none;
+  stroke: #ef4444;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+@keyframes live-badge-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
 .text-glow {
   text-shadow: 0 0 18px currentColor;
 }

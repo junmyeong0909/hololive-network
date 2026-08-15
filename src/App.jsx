@@ -35,6 +35,13 @@ export default function App() {
     return [...notifications, ...archive.filter((s) => !seen.has(s.id))];
   }, [notifications, music, source]);
 
+  // 그래프 노드에 LIVE 표시를 하기 위한 집합. 곡 아카이브는 전부 status:'past'라
+  // 여기 섞여도 무해하지만, 굳이 합칠 필요 없이 실시간 알림에서만 뽑는다.
+  const liveMemberIds = useMemo(
+    () => new Set(notifications.filter((n) => n.status === 'live').map((n) => n.memberId)),
+    [notifications]
+  );
+
   const selectedMember = selectedMemberId ? membersById[selectedMemberId] : null;
   const feedNotifications = selectedMemberId
     ? allNotifications.filter((n) => n.memberId === selectedMemberId)
@@ -98,6 +105,7 @@ export default function App() {
           <NetworkGraph
             members={members}
             interactions={data.interactions}
+            liveMemberIds={liveMemberIds}
             selectedMemberId={selectedMemberId}
             onSelectMember={setSelectedMemberId}
           />
