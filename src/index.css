@@ -103,32 +103,46 @@ image.watermark {
   opacity: var(--watermark-opacity);
 }
 
-/* LIVE 배지 (지금 방송 중인 멤버 노드 우상단에 깜빡이는 신호 아이콘) */
-.live-badge {
-  animation: live-badge-blink 1.3s ease-in-out infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.live-badge-bg {
-  /* 노드 배경과 같은 색으로 채워 사진/원 위에서 도려낸 것처럼 보이게 한다 */
-  fill: rgb(var(--graph-node-bg));
-}
-.live-badge-dot {
-  fill: #ef4444;
-}
-.live-badge-arc {
+/*
+ * LIVE 표시: 지금 방송 중인 멤버의 노드 전체를 두르는 빨간 파동 링.
+ * 소나 핑처럼 테두리에서 밖으로 퍼지며 옅어지는 원 2개(위상차를 둬서 끊임없이
+ * 퍼지는 느낌) + 항상 보이는 고정 테두리 링으로 구성한다.
+ */
+.live-ring-static {
   fill: none;
   stroke: #ef4444;
-  stroke-width: 1.6;
-  stroke-linecap: round;
+  stroke-width: 2.5;
+  animation: live-ring-glow 1.3s ease-in-out infinite;
 }
-@keyframes live-badge-blink {
+.live-ring-pulse {
+  fill: none;
+  stroke: #ef4444;
+  stroke-width: 2.5;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: live-ring-sonar 2s ease-out infinite;
+}
+.live-ring-pulse-2 {
+  animation-delay: 1s;
+}
+@keyframes live-ring-glow {
   0%,
   100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.25;
+    opacity: 0.45;
+  }
+}
+@keyframes live-ring-sonar {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
   }
 }
 
