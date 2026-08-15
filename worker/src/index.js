@@ -8,11 +8,17 @@
  */
 
 import channelIds from '../../src/data/channelIds.json';
+import seedSongs from '../../src/data/memberSongs.json';
 
 const HOLODEX = 'https://holodex.net/api/v2';
 const CACHE_SECONDS = 60;
 const PAST_VIDEO_LIMIT = 50;
 const MUSIC_LIMIT = 25;
+
+// 곡 아카이브(무한 누적)의 안전 상한. KV 값 크기(25MB)에는 한참 못 미치지만,
+// 응답 payload가 끝없이 커지는 걸 막는다. 39명 x 활동량 기준 수년 치 분량.
+const MUSIC_ARCHIVE_CAP = 5000;
+const MUSIC_ARCHIVE_KEY = 'music-archive-v1';
 
 const ALLOWED_ORIGINS = [
   'https://junmyeong0909.github.io',
@@ -134,7 +140,48 @@ function toNotification(v) {
   };
 }
 
-async function buildFeed(apiKey, debug) {
+/**
+ * 곡 아카이브를 KV에 영구 누적한다.
+ *
+ * /api/feed의 다른 조회(라이브·예정·최근 영상)는 "현재 시점 기준 최근 것"만
+ * 다시 받아오는 스냅샷이라 오래된 항목이 자연히 밀려난다. 곡은 그러면 안 되므로
+ * (사용자가 무한 누적을 요청했다) 별도로 KV에 쌓아 올린다.
+ *
+ * KV가 비어 있으면(최초 배포 시) 저장소에 커밋된 정적 아카이브(seedSongs)로
+ * 부트스트랩한다 — npm run setup:songs로 미리 모아둔 초기 데이터.
+ * 새 곡이 없으면 KV에 쓰지 않는다(무료 쓰기 한도 하루 1,000회를 아끼기 위해).
+ */
+async function accumulateMusicArchive(kv, freshMusic, debugOut) {
+  let archive;
+  try {
+    const stored = kv ? await kv.get(MUSIC_ARCHIVE_KEY, 'json') : null;
+    archive = Array.isArray(stored) ? stored : seedSongs;
+  } catch (e) {
+    if (debugOut) debugOut.archiveReadError = e.message;
+    archive = seedSongs;
+  }
+
+  const seen = new Set(archive.map((s) => s.id));
+  const additions = freshMusic.filter((s) => !seen.has(s.id));
+
+  let result = archive;
+  if (additions.length > 0) {
+    result = [...additions, ...archive]
+      .sort((a, b) => String(b.timestamp ?? '').localeCompare(String(a.timestamp ?? '')))
+      .slice(0, MUSIC_ARCHIVE_CAP);
+  }
+
+  if (debugOut) {
+    debugOut.archiveBaseSize = archive.length;
+    debugOut.archiveAdditions = additions.length;
+    debugOut.archiveFinalSize = result.length;
+  }
+
+  return { archive: result, dirty: additions.length > 0 };
+}
+
+async function buildFeed(env, debug) {
+  const apiKey = env.HOLODEX_API_KEY;
   const diagnostics = {};
 
   // 1) 라이브 + 예정 (우리 채널만 대상으로 하는 캐시된 조회)
@@ -217,9 +264,18 @@ async function buildFeed(apiKey, debug) {
     throw new Error(diagnostics.liveError ?? diagnostics.pastError);
   }
 
+  const freshMusic = notifications.filter((n) => n.type === 'music');
+  const { archive: musicArchive, dirty: archiveDirty } = await accumulateMusicArchive(
+    env.MUSIC_ARCHIVE,
+    freshMusic,
+    debug ? diagnostics : null
+  );
+
   return {
     updatedAt: new Date().toISOString(),
     notifications,
+    music: musicArchive,
+    _archiveDirty: archiveDirty, // fetch 핸들러가 KV 쓰기 여부를 판단하는 데만 씀
     ...(debug ? { _debug: diagnostics } : {}),
   };
 }
@@ -262,8 +318,14 @@ export default {
     }
 
     try {
-      const feed = await buildFeed(env.HOLODEX_API_KEY, debug);
-      const body = JSON.stringify(feed);
+      const feed = await buildFeed(env, debug);
+      const { _archiveDirty, ...publicFeed } = feed;
+      const body = JSON.stringify(publicFeed);
+
+      // 새 곡을 찾았을 때만 KV에 쓴다 (무료 쓰기 한도 하루 1,000회를 아끼기 위해)
+      if (_archiveDirty && env.MUSIC_ARCHIVE) {
+        ctx.waitUntil(env.MUSIC_ARCHIVE.put(MUSIC_ARCHIVE_KEY, JSON.stringify(publicFeed.music)));
+      }
 
       if (!debug) {
         const cacheable = new Response(body, {

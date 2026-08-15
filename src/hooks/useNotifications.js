@@ -18,6 +18,8 @@ export function useNotifications(fallback = []) {
   const enabled = Boolean(FEED_ENDPOINT);
 
   const [notifications, setNotifications] = useState(enabled ? [] : fallback);
+  // 곡 아카이브 (Worker가 KV에 무한 누적한 목록). 더미 모드에서는 없다.
+  const [music, setMusic] = useState([]);
   const [updatedAt, setUpdatedAt] = useState(null);
   const [isStale, setIsStale] = useState(false); // 갱신 실패로 옛 데이터를 보여주는 중
   const [isLoading, setIsLoading] = useState(enabled);
@@ -35,6 +37,7 @@ export function useNotifications(fallback = []) {
       if (!Array.isArray(data?.notifications)) throw new Error('예상과 다른 응답 형식');
 
       setNotifications(data.notifications);
+      if (Array.isArray(data.music)) setMusic(data.music);
       setUpdatedAt(data.updatedAt ?? new Date().toISOString());
       setIsStale(false);
       hasLoadedRef.current = true;
@@ -63,6 +66,7 @@ export function useNotifications(fallback = []) {
 
   return {
     notifications,
+    music,
     updatedAt,
     isStale,
     isLoading,

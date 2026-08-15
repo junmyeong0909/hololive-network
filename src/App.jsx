@@ -13,7 +13,7 @@ export default function App() {
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const { theme, toggle } = useTheme();
 
-  const { notifications, isStale, source } = useNotifications(data.notifications);
+  const { notifications, music, isStale, source } = useNotifications(data.notifications);
 
   // 채널 ID는 스크립트로 생성되는 별도 파일이라 여기서 합쳐준다 (툴팁의 채널 링크용)
   const members = useMemo(
@@ -23,15 +23,17 @@ export default function App() {
   const membersById = useMemo(() => Object.fromEntries(members.map((m) => [m.id, m])), [members]);
 
   /**
-   * 실시간 피드 + 곡 아카이브를 합친다.
-   * 실시간 피드에는 최근 활동만 담기므로, 활동이 뜸한 멤버를 클릭하면
-   * 피드가 비어버린다. 아카이브를 함께 넣어 그런 경우를 없앤다.
+   * 실시간 피드(라이브·예정·최근 영상) + 곡 아카이브(무한 누적)를 합친다.
+   * 곡 아카이브는 Worker가 KV에 계속 쌓아온 전체 목록이라 그 자체로
+   * 활동이 뜸한 멤버까지 포함하므로, 더미 정적 파일을 따로 병합할 필요가 없다.
+   * (Worker가 없는 더미 모드에서만 로컬 memberSongs.json으로 보완한다.)
    * 같은 영상이 양쪽에 있으면 실시간 쪽을 남긴다(라이브 상태 등 최신 정보 유지).
    */
   const allNotifications = useMemo(() => {
     const seen = new Set(notifications.map((n) => n.id));
-    return [...notifications, ...memberSongs.filter((s) => !seen.has(s.id))];
-  }, [notifications]);
+    const archive = source === 'live' ? music : memberSongs;
+    return [...notifications, ...archive.filter((s) => !seen.has(s.id))];
+  }, [notifications, music, source]);
 
   const selectedMember = selectedMemberId ? membersById[selectedMemberId] : null;
   const feedNotifications = selectedMemberId

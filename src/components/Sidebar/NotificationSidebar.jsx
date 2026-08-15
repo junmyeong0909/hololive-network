@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, X, Radio, Music2, Clock } from 'lucide-react';
 import NotificationCard from './NotificationCard.jsx';
@@ -32,20 +32,52 @@ const EMPTY_MESSAGE = {
   music: '최근 올라온 음악이 없어요.',
 };
 
-export default function NotificationSidebar({ notifications, membersById, isOpen, onClose, selectedMember, onClearSelection }) {
-  const [activeTab, setActiveTab] = useState('all');
+// 곡 아카이브가 무한 누적이라 한 번에 다 그리면 DOM이 계속 무거워진다.
+// 스크롤이 바닥에 닿을 때마다 이만큼씩 더 보여준다.
+const PAGE_SIZE = 20;
 
-  const filtered = useMemo(() => {
-    const match = TABS.find((t) => t.id === activeTab)?.match ?? (() => true);
-    return notifications.filter(match).sort(compareNotifications);
-  }, [notifications, activeTab]);
+/**
+ * 스크롤 컨테이너 바닥의 sentinel이 보이면 다음 페이지를 더 노출한다.
+ * 데이터는 이미 다 받아와 있으므로(App.jsx에서 병합 완료) 여긴 렌더링
+ * 개수만 늘린다 — 네트워크 요청 없이 즉시 반응한다.
+ *
+ * 데스크톱/모바일 두 벌의 피드 UI가 동시에 DOM에 존재할 수 있어서(반응형
+ * CSS로 한쪽만 숨김) 컨테이너별로 독립된 ref가 필요하다. 하나의 ref를
+ * 두 곳에서 같이 쓰면 나중에 마운트된 쪽이 앞쪽 ref를 덮어써 스크롤
+ * 초기화가 엉뚱한 곳에 걸린다.
+ */
+function useInfiniteScroll({ scrollRef, sentinelRef, hasMore, onLoadMore }) {
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const root = scrollRef.current;
+    if (!sentinel || !root || !hasMore) return;
 
-  const liveCount = useMemo(
-    () => notifications.filter((n) => n.status === 'live').length,
-    [notifications]
-  );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) onLoadMore();
+      },
+      { root, rootMargin: '300px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [scrollRef, sentinelRef, hasMore, onLoadMore]);
+}
 
-  const body = (
+function FeedBody({
+  visible,
+  filtered,
+  hasMore,
+  membersById,
+  selectedMember,
+  onClearSelection,
+  onClose,
+  activeTab,
+  setActiveTab,
+  liveCount,
+  scrollRef,
+  sentinelRef,
+}) {
+  return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-4 pb-3 pt-4">
         <h2 className="font-display text-base font-semibold tracking-tight text-ink-100">알림 피드</h2>
@@ -101,26 +133,81 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
         })}
       </div>
 
-      <div className="feed-scroll flex-1 space-y-2 overflow-y-auto overflow-x-hidden px-4 pb-4">
+      <div ref={scrollRef} className="feed-scroll flex-1 space-y-2 overflow-y-auto overflow-x-hidden px-4 pb-4">
         <AnimatePresence mode="popLayout">
-          {filtered.map((n, i) => (
+          {visible.map((n, i) => (
             <NotificationCard key={n.id} notification={n} member={membersById[n.memberId]} index={i} />
           ))}
         </AnimatePresence>
+
         {filtered.length === 0 && (
           <p className="pt-8 text-center text-sm text-ink-500">
             {selectedMember ? '이 멤버의 활동이 없어요.' : EMPTY_MESSAGE[activeTab]}
           </p>
         )}
+
+        {hasMore && <div ref={sentinelRef} aria-hidden className="h-4" />}
+
+        {!hasMore && filtered.length > PAGE_SIZE && (
+          <p className="py-3 text-center text-[11px] text-ink-500">모두 불러왔어요 · 총 {filtered.length}건</p>
+        )}
       </div>
     </div>
   );
+}
+
+export default function NotificationSidebar({ notifications, membersById, isOpen, onClose, selectedMember, onClearSelection }) {
+  const [activeTab, setActiveTab] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // 데스크톱/모바일 컨테이너가 동시에 DOM에 있을 수 있어 ref를 따로 둔다
+  const desktopScrollRef = useRef(null);
+  const desktopSentinelRef = useRef(null);
+  const mobileScrollRef = useRef(null);
+  const mobileSentinelRef = useRef(null);
+
+  const filtered = useMemo(() => {
+    const match = TABS.find((t) => t.id === activeTab)?.match ?? (() => true);
+    return notifications.filter(match).sort(compareNotifications);
+  }, [notifications, activeTab]);
+
+  const liveCount = useMemo(
+    () => notifications.filter((n) => n.status === 'live').length,
+    [notifications]
+  );
+
+  // 탭이나 멤버 필터가 바뀌면 처음부터 다시 (스크롤 위치도 초기화)
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+    desktopScrollRef.current?.scrollTo({ top: 0 });
+    mobileScrollRef.current?.scrollTo({ top: 0 });
+  }, [activeTab, selectedMember?.id]);
+
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+  const loadMore = () => setVisibleCount((c) => Math.min(c + PAGE_SIZE, filtered.length));
+
+  useInfiniteScroll({ scrollRef: desktopScrollRef, sentinelRef: desktopSentinelRef, hasMore, onLoadMore: loadMore });
+  useInfiniteScroll({ scrollRef: mobileScrollRef, sentinelRef: mobileSentinelRef, hasMore, onLoadMore: loadMore });
+
+  const commonProps = {
+    visible,
+    filtered,
+    hasMore,
+    membersById,
+    selectedMember,
+    onClearSelection,
+    onClose,
+    activeTab,
+    setActiveTab,
+    liveCount,
+  };
 
   return (
     <>
       {/* 데스크톱: 고정 사이드바 */}
       <aside className="hidden h-full w-[360px] shrink-0 border-r border-stage-border bg-stage-800/70 backdrop-blur lg:flex">
-        {body}
+        <FeedBody {...commonProps} scrollRef={desktopScrollRef} sentinelRef={desktopSentinelRef} />
       </aside>
 
       {/* 모바일: 슬라이드 패널 */}
@@ -141,7 +228,7 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
               transition={{ type: 'tween', duration: 0.25 }}
               className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-[360px] border-r border-stage-border bg-stage-800 lg:hidden"
             >
-              {body}
+              <FeedBody {...commonProps} scrollRef={mobileScrollRef} sentinelRef={mobileSentinelRef} />
             </motion.aside>
           </>
         )}
