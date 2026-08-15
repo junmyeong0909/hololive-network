@@ -125,6 +125,11 @@ function toNotification(v) {
     if (daysAhead > MAX_UPCOMING_DAYS) return null;
   }
 
+  // 멤버십 한정 영상은 유튜브 자체가 비회원에게 페이지를 안 보여줘서
+  // Holodex도 시청자 수를 못 읽는다 — 0을 주는데, 이건 "진짜 0명"이 아니라
+  // "값을 못 가져옴"이다. 프론트에서 구분해서 보여주도록 플래그를 따로 둔다.
+  const membersOnly = topicId.toLowerCase() === 'membersonly';
+
   return {
     id: `yt:${v.id}`,
     memberId,
@@ -136,7 +141,8 @@ function toNotification(v) {
     timestamp,
     url: `https://www.youtube.com/watch?v=${v.id}`,
     thumbnail: `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`,
-    ...(v.live_viewers != null ? { liveViewers: v.live_viewers } : {}),
+    ...(membersOnly ? { membersOnly: true } : {}),
+    ...(!membersOnly && v.live_viewers != null ? { liveViewers: v.live_viewers } : {}),
   };
 }
 

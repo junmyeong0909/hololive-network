@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ExternalLink, Radio, Music2, Video, Clock, Eye } from 'lucide-react';
+import { ExternalLink, Radio, Music2, Video, Clock, Eye, Lock } from 'lucide-react';
 import MemberAvatar from '../MemberAvatar.jsx';
 
 const TYPE_META = {
@@ -76,7 +76,12 @@ export default function NotificationCard({ notification, member, index }) {
         )}
 
         <div className="mt-1.5 flex items-center justify-between">
-          {status === 'live' && (
+          {status === 'live' && notification.membersOnly && (
+            <span className="flex items-center gap-1 text-[11px] font-medium text-red-700 dark:text-red-400">
+              <Lock size={11} /> 멤버 한정 방송
+            </span>
+          )}
+          {status === 'live' && !notification.membersOnly && (
             <span className="flex items-center gap-1 text-[11px] font-medium text-red-700 dark:text-red-400">
               <Eye size={11} />
               {notification.liveViewers != null
