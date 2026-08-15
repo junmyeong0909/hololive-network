@@ -16,6 +16,17 @@ function pairKey(a, b) {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
 }
 
+/** LIVE 아이콘의 좌/우 대칭 신호 아치 하나의 SVG path (반지름 r, 중심 각도 centerDeg). */
+function signalArcPath(r, centerDeg, halfSpanDeg) {
+  const rad = (deg) => (deg * Math.PI) / 180;
+  const a1 = centerDeg - halfSpanDeg;
+  const a2 = centerDeg + halfSpanDeg;
+  const x1 = r * Math.cos(rad(a1));
+  const y1 = r * Math.sin(rad(a1));
+  const x2 = r * Math.cos(rad(a2));
+  const y2 = r * Math.sin(rad(a2));
+  return `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`;
+}
 
 // interactions -> 쌍(pair)별 감쇠 적용 친밀도 점수 + 원본 합방/커버 횟수
 function buildPairStats(interactions, now) {
@@ -202,8 +213,9 @@ export default function NetworkGraph({ members, interactions, liveMemberIds = EM
       // fill은 index.css(.node text.label)에서 테마 변수로 지정한다
       .style('pointer-events', 'none');
 
-    // LIVE 표시: 지금 방송 중인 멤버는 노드 전체를 두르는 빨간 파동 링으로
-    // 한눈에 보이게 한다 (소나 핑처럼 테두리에서 밖으로 퍼지는 애니메이션).
+    // LIVE 표시: 지금 방송 중인 멤버는 노드 좌우로 크게 뻗는 신호 아치로
+    // 멀리서도, 줌아웃해도 한눈에 들어오게 한다. 노드 자체(아바타)는 그대로
+    // 두고, 그 바깥을 감싸는 신호 아이콘을 겹쳐 그린다.
     // 항상 만들어두고 평소엔 숨겨뒀다가, liveMemberIds가 바뀔 때(60초 폴링)
     // updateLiveBadges()로 표시만 토글한다 — 그래프를 통째로 다시 그리지 않기 위해서다.
     const badgeSel = nodeSel
@@ -212,20 +224,17 @@ export default function NetworkGraph({ members, interactions, liveMemberIds = EM
       .style('pointer-events', 'none')
       .style('display', 'none');
 
-    // 밖으로 퍼지며 옅어지는 파동 2개 (위상차를 둬서 끊임없이 퍼지는 느낌)
-    badgeSel
-      .append('circle')
-      .attr('class', 'live-ring-pulse live-ring-pulse-1')
-      .attr('r', (d) => d.r);
-    badgeSel
-      .append('circle')
-      .attr('class', 'live-ring-pulse live-ring-pulse-2')
-      .attr('r', (d) => d.r);
-    // 노드 테두리에 딱 붙어 항상 보이는 고정 링 (파동이 옅어진 순간에도 LIVE임이 드러나게)
-    badgeSel
-      .append('circle')
-      .attr('class', 'live-ring-static')
-      .attr('r', (d) => d.r + 3);
+    // 노드 반지름의 1.2배~2.3배 지점에 좌우 대칭 아치 3겹. 바깥쪽일수록
+    // 굵고 살짝 늦게 깜빡여서(위상차) 신호가 퍼져나가는 느낌을 준다.
+    [0, 180].forEach((centerDeg) => {
+      [1.25, 1.65, 2.05].forEach((mul, i) => {
+        badgeSel
+          .append('path')
+          .attr('class', `live-badge-arc live-badge-arc-${i}`)
+          .attr('d', (d) => signalArcPath(d.r * mul, centerDeg, 30))
+          .attr('stroke-width', 3 + i * 1.2);
+      });
+    });
 
     function updateLiveBadges(liveIds) {
       nodeSel.select('.live-badge').style('display', (d) => (liveIds?.has(d.id) ? null : 'none'));
