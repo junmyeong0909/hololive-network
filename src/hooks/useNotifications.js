@@ -20,6 +20,9 @@ export function useNotifications(fallback = []) {
   const [notifications, setNotifications] = useState(enabled ? [] : fallback);
   // 곡 아카이브 (Worker가 KV에 무한 누적한 목록). 더미 모드에서는 없다.
   const [music, setMusic] = useState([]);
+  // 합방 아카이브 + 지금 진행 중인 합방 그룹
+  const [interactions, setInteractions] = useState([]);
+  const [liveCollabs, setLiveCollabs] = useState([]);
   const [updatedAt, setUpdatedAt] = useState(null);
   const [isStale, setIsStale] = useState(false); // 갱신 실패로 옛 데이터를 보여주는 중
   const [isLoading, setIsLoading] = useState(enabled);
@@ -38,6 +41,9 @@ export function useNotifications(fallback = []) {
 
       setNotifications(data.notifications);
       if (Array.isArray(data.music)) setMusic(data.music);
+      if (Array.isArray(data.interactions)) setInteractions(data.interactions);
+      // 진행 중인 합방이 없으면 빈 배열이 정상이므로 그대로 반영한다
+      setLiveCollabs(Array.isArray(data.liveCollabs) ? data.liveCollabs : []);
       setUpdatedAt(data.updatedAt ?? new Date().toISOString());
       setIsStale(false);
       hasLoadedRef.current = true;
@@ -67,6 +73,8 @@ export function useNotifications(fallback = []) {
   return {
     notifications,
     music,
+    interactions,
+    liveCollabs,
     updatedAt,
     isStale,
     isLoading,

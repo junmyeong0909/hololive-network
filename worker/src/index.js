@@ -9,16 +9,23 @@
 
 import channelIds from '../../src/data/channelIds.json';
 import seedSongs from '../../src/data/memberSongs.json';
+import seedInteractions from '../../src/data/memberInteractions.json';
+import { findCommonTopic } from '../../src/lib/topicExtract.js';
 
 const HOLODEX = 'https://holodex.net/api/v2';
 const CACHE_SECONDS = 60;
 const PAST_VIDEO_LIMIT = 50;
 const MUSIC_LIMIT = 25;
+const COLLAB_LIMIT = 50;
 
 // 곡 아카이브(무한 누적)의 안전 상한. KV 값 크기(25MB)에는 한참 못 미치지만,
 // 응답 payload가 끝없이 커지는 걸 막는다. 39명 x 활동량 기준 수년 치 분량.
 const MUSIC_ARCHIVE_CAP = 5000;
 const MUSIC_ARCHIVE_KEY = 'music-archive-v1';
+
+// 합방 아카이브도 같은 KV 바인딩에 키만 다르게 저장한다 (KV를 새로 만들지 않음)
+const INTERACTIONS_ARCHIVE_CAP = 3000;
+const INTERACTIONS_ARCHIVE_KEY = 'interactions-archive-v1';
 
 const ALLOWED_ORIGINS = [
   'https://junmyeong0909.github.io',
@@ -147,40 +154,114 @@ function toNotification(v) {
 }
 
 /**
- * 곡 아카이브를 KV에 영구 누적한다.
+ * Holodex 영상 하나에서 합방 기록을 뽑는다. 합방이 아니면 null.
  *
- * /api/feed의 다른 조회(라이브·예정·최근 영상)는 "현재 시점 기준 최근 것"만
- * 다시 받아오는 스냅샷이라 오래된 항목이 자연히 밀려난다. 곡은 그러면 안 되므로
- * (사용자가 무한 누적을 요청했다) 별도로 KV에 쌓아 올린다.
- *
- * KV가 비어 있으면(최초 배포 시) 저장소에 커밋된 정적 아카이브(seedSongs)로
- * 부트스트랩한다 — npm run setup:songs로 미리 모아둔 초기 데이터.
- * 새 곡이 없으면 KV에 쓰지 않는다(무료 쓰기 한도 하루 1,000회를 아끼기 위해).
+ * 판정 규칙 (실측으로 검증됨 — docs/DESIGN-interactions.md 2절):
+ *  - 업로더가 우리가 추적하는 멤버여야 한다. 이걸 빼면 팬 클립 채널이
+ *    두 멤버를 언급한 영상이 전부 "합방"으로 잡힌다 (실측 10건 중 10건 오탐).
+ *  - mentions에 걸린 다른 추적 멤버를 참가자로 본다.
+ *  - 참가자가 2명 미만이면 합방이 아니다.
  */
-async function accumulateMusicArchive(kv, freshMusic, debugOut) {
+function toInteraction(v) {
+  const owner = MEMBER_BY_CHANNEL[v.channel?.id ?? v.channel_id];
+  if (!owner) return null;
+
+  const participants = new Set([owner]);
+  for (const m of v.mentions ?? []) {
+    const id = MEMBER_BY_CHANNEL[m.id];
+    if (id) participants.add(id);
+  }
+  if (participants.size < 2) return null;
+
+  const topicId = String(v.topic_id ?? '').toLowerCase();
+  return {
+    id: `yt:${v.id}`,
+    type: MUSIC_TOPICS.has(topicId) ? 'cover' : 'collab',
+    participants: [...participants].sort(),
+    count: 1,
+    lastDate: String(v.available_at ?? v.published_at ?? '').slice(0, 10),
+    title: v.title ?? '',
+    url: `https://www.youtube.com/watch?v=${v.id}`,
+  };
+}
+
+/**
+ * 지금 방송 중인 합방을 그룹 단위로 묶는다.
+ *
+ * 주제는 참가자들이 각자 방송 제목에 공통으로 걸어둔 태그에서 뽑는다.
+ * 한 명만 방송을 켜고 나머지를 mentions에 태그한 경우엔 비교할 제목이
+ * 하나뿐이라 공통 태그를 못 찾을 수 있고, 그때는 topic이 null이 된다
+ * (프론트에서 "합동 방송"으로 대체).
+ */
+function buildLiveCollabs(liveList) {
+  // 멤버별로 지금 켜고 있는 방송 제목 (주제 교집합 계산용)
+  const titleByMember = new Map();
+  for (const v of liveList) {
+    if (v.status !== 'live') continue;
+    const owner = MEMBER_BY_CHANNEL[v.channel?.id ?? v.channel_id];
+    if (owner) titleByMember.set(owner, v.title ?? '');
+  }
+
+  const groups = [];
+  const seenKeys = new Set();
+
+  for (const v of liveList) {
+    if (v.status !== 'live') continue;
+    const iv = toInteraction(v);
+    if (!iv) continue;
+
+    // 같은 합방을 참가자들이 각자 방송하면 여러 영상이 같은 참가자 집합을
+    // 만든다. 같은 집합은 한 그룹으로만 표시한다.
+    const key = iv.participants.join('|');
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
+
+    const titles = iv.participants.map((id) => titleByMember.get(id)).filter(Boolean);
+    groups.push({
+      videoId: v.id,
+      topic: findCommonTopic(titles),
+      participants: iv.participants,
+    });
+  }
+
+  return groups;
+}
+
+/**
+ * 아카이브를 KV에 영구 누적한다 (곡·합방 공용).
+ *
+ * /api/feed의 일반 조회(라이브·예정·최근 영상)는 "현재 시점 기준 최근 것"만
+ * 다시 받아오는 스냅샷이라 오래된 항목이 자연히 밀려난다. 곡과 합방 기록은
+ * 그러면 안 되므로 별도로 KV에 쌓아 올린다.
+ *
+ * KV가 비어 있으면(최초 배포 시) 저장소에 커밋된 정적 시드로 부트스트랩한다
+ * — npm run setup:songs / setup:interactions로 미리 모아둔 초기 데이터.
+ * 새 항목이 없으면 KV에 쓰지 않는다(무료 쓰기 한도 하루 1,000회를 아끼기 위해).
+ */
+async function accumulateArchive({ kv, key, seed, fresh, sortKey, cap, debugOut, debugPrefix }) {
   let archive;
   try {
-    const stored = kv ? await kv.get(MUSIC_ARCHIVE_KEY, 'json') : null;
-    archive = Array.isArray(stored) ? stored : seedSongs;
+    const stored = kv ? await kv.get(key, 'json') : null;
+    archive = Array.isArray(stored) ? stored : seed;
   } catch (e) {
-    if (debugOut) debugOut.archiveReadError = e.message;
-    archive = seedSongs;
+    if (debugOut) debugOut[`${debugPrefix}ReadError`] = e.message;
+    archive = seed;
   }
 
   const seen = new Set(archive.map((s) => s.id));
-  const additions = freshMusic.filter((s) => !seen.has(s.id));
+  const additions = fresh.filter((s) => !seen.has(s.id));
 
   let result = archive;
   if (additions.length > 0) {
     result = [...additions, ...archive]
-      .sort((a, b) => String(b.timestamp ?? '').localeCompare(String(a.timestamp ?? '')))
-      .slice(0, MUSIC_ARCHIVE_CAP);
+      .sort((a, b) => String(b[sortKey] ?? '').localeCompare(String(a[sortKey] ?? '')))
+      .slice(0, cap);
   }
 
   if (debugOut) {
-    debugOut.archiveBaseSize = archive.length;
-    debugOut.archiveAdditions = additions.length;
-    debugOut.archiveFinalSize = result.length;
+    debugOut[`${debugPrefix}BaseSize`] = archive.length;
+    debugOut[`${debugPrefix}Additions`] = additions.length;
+    debugOut[`${debugPrefix}FinalSize`] = result.length;
   }
 
   return { archive: result, dirty: additions.length > 0 };
@@ -224,7 +305,36 @@ async function buildFeed(env, debug) {
     )
   ).then((lists) => lists.flat().filter(Boolean));
 
-  const [live, past, music] = await Promise.all([livePromise, pastPromise, musicPromise]);
+  // 4) 합방 감지용 조회.
+  // 2)와 달리 type=stream으로 좁힌다 — 그래야 팬 클립 채널이 걸러지고,
+  // 같은 50건 안에 실제 방송이 더 많이 담긴다. mentions로 참가자를 뽑는다.
+  const collabPastPromise = holodex(
+    `/videos?org=Hololive&status=past&type=stream&limit=${COLLAB_LIMIT}` +
+      `&include=mentions&sort=available_at&order=desc`,
+    apiKey
+  )
+    .then((r) => (Array.isArray(r) ? r : []))
+    .catch((e) => {
+      diagnostics.collabPastError = e.message;
+      return [];
+    });
+
+  // 5) 지금 방송 중/예정인 합방. /live는 기본이 type=stream, status=[live,upcoming]이다.
+  //    (/live?status=past는 API가 거부한다)
+  const collabLivePromise = holodex(`/live?org=Hololive&include=mentions`, apiKey)
+    .then((r) => (Array.isArray(r) ? r : []))
+    .catch((e) => {
+      diagnostics.collabLiveError = e.message;
+      return [];
+    });
+
+  const [live, past, music, collabPast, collabLive] = await Promise.all([
+    livePromise,
+    pastPromise,
+    musicPromise,
+    collabPastPromise,
+    collabLivePromise,
+  ]);
 
   const all = [...live, ...past, ...music];
 
@@ -270,20 +380,76 @@ async function buildFeed(env, debug) {
     throw new Error(diagnostics.liveError ?? diagnostics.pastError);
   }
 
+  // ---- 합방 추출 ----
+  // 지난 방송 + 지금 라이브 중인 방송에서 뽑는다. 예정(upcoming)은 아직
+  // 일어나지 않았으므로 아카이브에 넣지 않는다.
+  const freshInteractions = [];
+  const seenInteraction = new Set();
+  for (const v of [...collabPast, ...collabLive]) {
+    if (v.status === 'upcoming') continue;
+    const iv = toInteraction(v);
+    if (!iv || seenInteraction.has(iv.id)) continue;
+    seenInteraction.add(iv.id);
+    freshInteractions.push(iv);
+  }
+
+  const liveCollabs = buildLiveCollabs(collabLive);
+
   const freshMusic = notifications.filter((n) => n.type === 'music');
-  const { archive: musicArchive, dirty: archiveDirty } = await accumulateMusicArchive(
-    env.MUSIC_ARCHIVE,
-    freshMusic,
-    debug ? diagnostics : null
-  );
+
+  const [musicResult, interactionResult] = await Promise.all([
+    accumulateArchive({
+      kv: env.MUSIC_ARCHIVE,
+      key: MUSIC_ARCHIVE_KEY,
+      seed: seedSongs,
+      fresh: freshMusic,
+      sortKey: 'timestamp',
+      cap: MUSIC_ARCHIVE_CAP,
+      debugOut: debug ? diagnostics : null,
+      debugPrefix: 'musicArchive',
+    }),
+    accumulateArchive({
+      kv: env.MUSIC_ARCHIVE,
+      key: INTERACTIONS_ARCHIVE_KEY,
+      seed: seedInteractions,
+      fresh: freshInteractions,
+      sortKey: 'lastDate',
+      cap: INTERACTIONS_ARCHIVE_CAP,
+      debugOut: debug ? diagnostics : null,
+      debugPrefix: 'interactionArchive',
+    }),
+  ]);
+
+  if (debug) {
+    diagnostics.collabPastRaw = collabPast.length;
+    diagnostics.collabLiveRaw = collabLive.length;
+    diagnostics.freshInteractions = freshInteractions.length;
+    diagnostics.liveCollabs = liveCollabs;
+  }
 
   return {
     updatedAt: new Date().toISOString(),
     notifications,
-    music: musicArchive,
-    _archiveDirty: archiveDirty, // fetch 핸들러가 KV 쓰기 여부를 판단하는 데만 씀
+    music: musicResult.archive,
+    interactions: interactionResult.archive,
+    liveCollabs,
+    // fetch 핸들러가 KV 쓰기 여부를 판단하는 데만 쓴다 (응답에서는 제거됨)
+    _dirty: { music: musicResult.dirty, interactions: interactionResult.dirty },
     ...(debug ? { _debug: diagnostics } : {}),
   };
+}
+
+/** 새 항목이 있을 때만 KV에 쓴다. fetch와 scheduled 양쪽에서 쓴다. */
+function persistArchives(env, feed, ctx) {
+  if (!env.MUSIC_ARCHIVE) return;
+  if (feed._dirty?.music) {
+    ctx.waitUntil(env.MUSIC_ARCHIVE.put(MUSIC_ARCHIVE_KEY, JSON.stringify(feed.music)));
+  }
+  if (feed._dirty?.interactions) {
+    ctx.waitUntil(
+      env.MUSIC_ARCHIVE.put(INTERACTIONS_ARCHIVE_KEY, JSON.stringify(feed.interactions))
+    );
+  }
 }
 
 export default {
@@ -325,13 +491,10 @@ export default {
 
     try {
       const feed = await buildFeed(env, debug);
-      const { _archiveDirty, ...publicFeed } = feed;
-      const body = JSON.stringify(publicFeed);
+      persistArchives(env, feed, ctx);
 
-      // 새 곡을 찾았을 때만 KV에 쓴다 (무료 쓰기 한도 하루 1,000회를 아끼기 위해)
-      if (_archiveDirty && env.MUSIC_ARCHIVE) {
-        ctx.waitUntil(env.MUSIC_ARCHIVE.put(MUSIC_ARCHIVE_KEY, JSON.stringify(publicFeed.music)));
-      }
+      const { _dirty, ...publicFeed } = feed;
+      const body = JSON.stringify(publicFeed);
 
       if (!debug) {
         const cacheable = new Response(body, {
@@ -355,5 +518,19 @@ export default {
       // 업스트림 장애 — 프론트가 '갱신 실패'로 처리하고 이전 데이터를 유지한다
       return Response.json({ error: String(err.message ?? err) }, { status: 502, headers: cors });
     }
+  },
+
+  /**
+   * Cron 안전망. 요청 시점 폴링만으로는 방문자가 없는 시간대에 올라온 합방·곡을
+   * 놓칠 수 있어서, 주기적으로 직접 조회해 아카이브에 채워 넣는다.
+   * (스케줄은 wrangler.toml의 [triggers] 참고 — JST 08~22시 2시간 간격)
+   */
+  async scheduled(event, env, ctx) {
+    if (!env.HOLODEX_API_KEY) return;
+    ctx.waitUntil(
+      buildFeed(env, false)
+        .then((feed) => persistArchives(env, feed, ctx))
+        .catch((err) => console.error('scheduled refresh failed:', err.message ?? err))
+    );
   },
 };

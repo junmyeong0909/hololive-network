@@ -7,13 +7,21 @@ import { useTheme } from './hooks/useTheme.js';
 import data from './data/hololiveData.json';
 import channelIds from './data/channelIds.json';
 import memberSongs from './data/memberSongs.json';
+import seedInteractions from './data/memberInteractions.json';
 
 export default function App() {
   const [mobileFeedOpen, setMobileFeedOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const { theme, toggle } = useTheme();
 
-  const { notifications, music, isStale, source } = useNotifications(data.notifications);
+  const {
+    notifications,
+    music,
+    interactions: liveInteractions,
+    liveCollabs,
+    isStale,
+    source,
+  } = useNotifications(data.notifications);
 
   // 채널 ID는 스크립트로 생성되는 별도 파일이라 여기서 합쳐준다 (툴팁의 채널 링크용)
   const members = useMemo(
@@ -41,6 +49,20 @@ export default function App() {
     () => new Set(notifications.filter((n) => n.status === 'live').map((n) => n.memberId)),
     [notifications]
   );
+
+  // 합방 기록: Worker(KV 누적)가 있으면 그걸 쓰고, 없으면 저장소의 시드로 대체.
+  // hololiveData.json의 interactions는 더미 제거 후 빈 배열이라 더는 쓰지 않는다.
+  const rawInteractions = source === 'live' ? liveInteractions : seedInteractions;
+
+  /*
+   * 폴링(60초)마다 같은 내용이라도 새 배열 객체가 오는데, 그대로 넘기면
+   * NetworkGraph의 메인 effect가 매번 재실행되어 그래프를 통째로 다시 그린다
+   * (= 사용자가 맞춰둔 줌·위치가 리셋된다). 내용이 실제로 바뀌었을 때만
+   * 새 참조를 내려보낸다.
+   */
+  const interactionsKey = rawInteractions.map((i) => i.id).join('|');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const interactions = useMemo(() => rawInteractions, [interactionsKey]);
 
   const selectedMember = selectedMemberId ? membersById[selectedMemberId] : null;
   const feedNotifications = selectedMemberId
@@ -77,7 +99,7 @@ export default function App() {
             </span>
           )}
           <span className="hidden rounded-full border border-stage-border px-2.5 py-1 text-[11px] text-ink-500 sm:inline">
-            멤버 {members.length}명 · 교류 기록 {data.interactions.length}건
+            멤버 {members.length}명 · 교류 기록 {interactions.length}건
           </span>
 
           <button
@@ -104,8 +126,9 @@ export default function App() {
         <main className="relative min-w-0 flex-1 bg-stage-900">
           <NetworkGraph
             members={members}
-            interactions={data.interactions}
+            interactions={interactions}
             liveMemberIds={liveMemberIds}
+            liveCollabs={liveCollabs}
             selectedMemberId={selectedMemberId}
             onSelectMember={setSelectedMemberId}
           />

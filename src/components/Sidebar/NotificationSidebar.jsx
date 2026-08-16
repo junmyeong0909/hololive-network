@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, X, Radio, Music2, Clock } from 'lucide-react';
+import { Bell, X, Radio, Music2, Clock, Users } from 'lucide-react';
 import NotificationCard from './NotificationCard.jsx';
 import MemberAvatar from '../MemberAvatar.jsx';
+import { extractTags } from '../../lib/topicExtract.js';
 
 const TABS = [
   { id: 'all', label: '전체', icon: Bell, match: () => true },
@@ -66,6 +67,7 @@ function useInfiniteScroll({ scrollRef, sentinelRef, hasMore, onLoadMore }) {
 function FeedBody({
   visible,
   filtered,
+  groups,
   hasMore,
   membersById,
   selectedMember,
@@ -134,13 +136,39 @@ function FeedBody({
       </div>
 
       <div ref={scrollRef} className="feed-scroll flex-1 space-y-2 overflow-y-auto overflow-x-hidden px-4 pb-4">
+        {/* 예정 탭에서는 같은 기획(공통 태그)끼리 묶어서 합방임이 드러나게 한다 */}
+        {groups.map((g) => (
+          <div
+            key={g.topic}
+            className="rounded-2xl border border-sky-400/40 bg-sky-500/5 p-2"
+          >
+            <div className="flex items-center gap-1.5 px-1 pb-1.5">
+              <Users size={12} className="shrink-0 text-sky-700 dark:text-sky-400" />
+              <span className="truncate text-[11px] font-semibold text-sky-700 dark:text-sky-400">
+                {g.topic}
+              </span>
+              <span className="shrink-0 text-[10px] text-ink-500">{g.items.length}명 합방</span>
+            </div>
+            <div className="space-y-1.5">
+              {g.items.map((n, i) => (
+                <NotificationCard
+                  key={n.id}
+                  notification={n}
+                  member={membersById[n.memberId]}
+                  index={i}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
         <AnimatePresence mode="popLayout">
           {visible.map((n, i) => (
             <NotificationCard key={n.id} notification={n} member={membersById[n.memberId]} index={i} />
           ))}
         </AnimatePresence>
 
-        {filtered.length === 0 && (
+        {filtered.length === 0 && groups.length === 0 && (
           <p className="pt-8 text-center text-sm text-ink-500">
             {selectedMember ? '이 멤버의 활동이 없어요.' : EMPTY_MESSAGE[activeTab]}
           </p>
@@ -166,10 +194,45 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
   const mobileScrollRef = useRef(null);
   const mobileSentinelRef = useRef(null);
 
-  const filtered = useMemo(() => {
+  const matched = useMemo(() => {
     const match = TABS.find((t) => t.id === activeTab)?.match ?? (() => true);
     return notifications.filter(match).sort(compareNotifications);
   }, [notifications, activeTab]);
+
+  /*
+   * 예정 탭에서는 같은 기획 태그를 공유하는 방송을 묶어 보여준다.
+   * 여러 멤버가 같은 태그를 걸어두면 그게 곧 합방이라는 신호다.
+   * 묶인 항목은 아래 일반 목록에서 빼서 중복 표시를 피한다.
+   */
+  const { groups, filtered } = useMemo(() => {
+    if (activeTab !== 'upcoming') return { groups: [], filtered: matched };
+
+    const byTag = new Map(); // 태그 -> 알림 배열
+    for (const n of matched) {
+      for (const tag of extractTags(n.title)) {
+        const key = tag.toLowerCase();
+        if (!byTag.has(key)) byTag.set(key, { tag, items: [] });
+        byTag.get(key).items.push(n);
+      }
+    }
+
+    // 2명 이상이 같은 태그를 건 경우만 합방으로 본다
+    const picked = [...byTag.values()]
+      .filter((g) => new Set(g.items.map((n) => n.memberId)).size >= 2)
+      .sort((a, b) => b.items.length - a.items.length);
+
+    // 한 방송이 여러 태그에 걸릴 수 있어서, 가장 큰 그룹에만 넣는다
+    const claimed = new Set();
+    const result = [];
+    for (const g of picked) {
+      const items = g.items.filter((n) => !claimed.has(n.id));
+      if (new Set(items.map((n) => n.memberId)).size < 2) continue;
+      items.forEach((n) => claimed.add(n.id));
+      result.push({ topic: g.tag, items });
+    }
+
+    return { groups: result, filtered: matched.filter((n) => !claimed.has(n.id)) };
+  }, [matched, activeTab]);
 
   const liveCount = useMemo(
     () => notifications.filter((n) => n.status === 'live').length,
@@ -193,6 +256,7 @@ export default function NotificationSidebar({ notifications, membersById, isOpen
   const commonProps = {
     visible,
     filtered,
+    groups,
     hasMore,
     membersById,
     selectedMember,

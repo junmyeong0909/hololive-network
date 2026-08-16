@@ -95,6 +95,31 @@ body {
   fill: rgb(var(--ink-100));
 }
 
+/* 지금 진행 중인 합방을 잇는 선 (평소 교류선보다 눈에 띄게) */
+.links line.link-live {
+  stroke: #ef4444;
+  animation: live-link-glow 1.4s ease-in-out infinite;
+}
+@keyframes live-link-glow {
+  0%,
+  100% {
+    stroke-opacity: 0.95;
+  }
+  50% {
+    stroke-opacity: 0.45;
+  }
+}
+
+/* 3인 이상 합방의 주제 캡슐 (임시 허브 노드) */
+.node-hub .hub-box {
+  fill: rgb(var(--graph-node-bg));
+  stroke: #ef4444;
+  stroke-width: 2.5;
+}
+.node-hub .hub-label {
+  fill: rgb(var(--ink-100));
+}
+
 .node circle.node-bg {
   fill: rgb(var(--graph-node-bg));
 }

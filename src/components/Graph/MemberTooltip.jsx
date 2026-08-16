@@ -95,7 +95,11 @@ export default function MemberTooltip({ member, connections, x, y, onClose }) {
               </span>
             </div>
           ))}
-          {connections.length === 0 && <p className="py-2 text-center text-xs text-ink-500">아직 교류 기록이 없어요.</p>}
+          {connections.length === 0 && (
+            <p className="py-2 text-center text-xs leading-relaxed text-ink-500">
+              함께한 기록이 아직 충분하지 않아요.
+            </p>
+          )}
         </div>
       </div>
     </motion.div>
