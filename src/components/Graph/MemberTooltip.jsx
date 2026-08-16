@@ -29,7 +29,7 @@ function clampPosition(el, x, y) {
  * 그래서 위치는 ref로 노출한 reposition()이 DOM style을 직접 건드리는 방식으로
  * 바꿨다. React state(부모의 tooltip 상태)는 "열림/내용"이 바뀔 때만 관여한다.
  */
-const MemberTooltip = forwardRef(function MemberTooltip({ member, connections, x, y, onClose }, ref) {
+const MemberTooltip = forwardRef(function MemberTooltip({ member, connections, x, y, onClose, onSelectConnection }, ref) {
   const elRef = useRef(null);
   // 팝업이 뒤의 교류선을 가려서, 목록을 접어 최소화할 수 있게 한다.
   const [connectionsOpen, setConnectionsOpen] = useState(true);
@@ -118,7 +118,12 @@ const MemberTooltip = forwardRef(function MemberTooltip({ member, connections, x
         {connectionsOpen && (
           <div className="space-y-1.5">
             {connections.map((c) => (
-              <div key={c.member.id} className="flex items-center justify-between rounded-lg bg-stage-700/50 px-2 py-1.5">
+              <button
+                key={c.member.id}
+                onClick={(e) => onSelectConnection?.(c.member.id, e)}
+                title={`${member.name} × ${c.member.name} 함께한 활동 보기`}
+                className="flex w-full items-center justify-between rounded-lg bg-stage-700/50 px-2 py-1.5 text-left transition-colors hover:bg-stage-600/70"
+              >
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.member.color }} />
                   <span className="text-xs font-medium text-ink-100">{c.member.name}</span>
@@ -126,7 +131,7 @@ const MemberTooltip = forwardRef(function MemberTooltip({ member, connections, x
                 <span className="flex items-center gap-1 text-[10px] text-ink-500">
                   합방 {c.collabCount} · <Music2 size={10} /> {c.coverCount}
                 </span>
-              </div>
+              </button>
             ))}
             {connections.length === 0 && (
               <p className="py-2 text-center text-xs leading-relaxed text-ink-500">

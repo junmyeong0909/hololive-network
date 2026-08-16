@@ -129,6 +129,9 @@ export default function NetworkGraph({
   // 위치를 React state로 두면 시뮬레이션이 도는 동안(또는 줌·팬 중) 매 프레임
   // setState가 발생해 눈에 띄게 렉이 생긴다 — MemberTooltip.jsx 주석 참고.
   const tooltipRef = useRef(null);
+  // 팝업의 "자주 함께하는 멤버" 클릭 핸들러. 이펙트 안에서 만들어지는 클로저라
+  // JSX(이펙트 밖)에서 부르려면 ref로 우회해야 한다 — applyHighlightRef와 같은 패턴.
+  const onConnectionClickRef = useRef(null);
 
   const membersById = Object.fromEntries(members.map((m) => [m.id, m]));
 
@@ -461,6 +464,33 @@ export default function NetworkGraph({
       });
     }
 
+    /**
+     * 멤버 팝업의 "자주 함께하는 멤버" 목록에서 한 명을 클릭했을 때.
+     * onLinkClick과 동일하게 두 멤버가 함께한 합방/커버 기록만 보여준다 —
+     * 지금 열려 있는 멤버 팝업 기준(selectedIdRef.current)과 클릭한 멤버 사이의 교류.
+     */
+    function onConnectionClick(otherId, event) {
+      const aId = selectedIdRef.current;
+      if (!aId) return;
+      const a = membersById[aId];
+      const b = membersById[otherId];
+      if (!a || !b) return;
+
+      selectedIdRef.current = null;
+      applyHighlight(null);
+      onSelectMember?.(null);
+      setTooltip(null);
+
+      const rect = container.getBoundingClientRect();
+      setEdgeTooltip({
+        pair: { a, b },
+        events: pairEvents.get(pairKey(aId, otherId)) ?? [],
+        x: event.clientX - rect.left + 12,
+        y: event.clientY - rect.top - 20,
+      });
+    }
+    onConnectionClickRef.current = onConnectionClick;
+
     function applyHighlight(selectedId) {
       if (!selectedId) {
         nodeSel.attr('opacity', 1);
@@ -785,6 +815,7 @@ export default function NetworkGraph({
               applyHighlightRef.current?.(null);
               onSelectMember?.(null);
             }}
+            onSelectConnection={(otherId, event) => onConnectionClickRef.current?.(otherId, event)}
           />
         )}
         {edgeTooltip && (
