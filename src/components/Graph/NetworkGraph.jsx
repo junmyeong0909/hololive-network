@@ -8,11 +8,6 @@ import { asset } from '../../lib/asset.js';
 
 const NODE_RADIUS = 24;
 
-// 교류 점수: 참여 인원이 많을수록 쌍당 기여도가 낮아짐 (2인 = 10, 5인 = 4 ...)
-const BASE_SCORE = 20;
-// 반감기: 이 일수가 지날 때마다 과거 교류의 기여도가 절반으로 줄어듦
-const HALF_LIFE_DAYS = 90;
-
 // 이 횟수 미만으로 함께한 쌍은 선을 그리지 않는다.
 // (한 번 스쳐간 조합까지 다 그리면 39명 그래프가 실뭉치가 된다)
 // 백필 데이터(349건)로 실측: 2회 기준 383개 선(가능한 쌍의 52%)은 너무 빽빽해서
@@ -20,10 +15,9 @@ const HALF_LIFE_DAYS = 90;
 // 멤버도 없음(하아토는 어느 기준에서도 고립 — raise가 원인이 아님).
 const MIN_EDGE_EVENTS = 3;
 
-// 노드 클릭 시 뜨는 "자주 함께하는 멤버" 목록. 다 보여주면 압도적이라
-// 상위 몇 명, 그것도 어느 정도 의미 있는 횟수만 보여준다.
-const TOOLTIP_MIN_COLLABS = 5;
-const TOOLTIP_TOP_N = 5;
+// 선을 "진하게" 계산할 때 후보로 넣을 최소 횟수. 이보다 적게 함께한 쌍은
+// 어느 노드 기준으로도 항상 옅게 남는다(노드별 상대 순위 계산에서 제외).
+const LOCAL_MIN_COUNT = 5;
 
 // 합방 중 붙는 거리. 클릭 가능하도록 노드가 완전히 겹치지는 않게 둔다.
 const LIVE_PAIR_DISTANCE = 85;
@@ -35,13 +29,16 @@ function pairKey(a, b) {
 }
 
 /**
- * interactions -> 쌍별 친밀도 점수 + 원본 이벤트 목록.
+ * interactions -> 쌍별 원본 합방/커버 횟수 + 이벤트 목록.
  *
- * 점수는 시간 감쇠를 적용한 값(그래프 거리 계산용)이고, 이벤트 목록은
- * 교류선을 클릭했을 때 보여줄 실제 합방 기록이다.
+ * 예전엔 시간 감쇠를 적용한 "친밀도 점수"로 거리를 정했는데, 그러면 전체
+ * 그래프에서의 절대적인 점수 크기가 아니라 "이 멤버 기준으로 누가 가장
+ * 자주 함께했는가"가 거리에 반영되지 않는 문제가 있었다(예: 오래 활동한
+ * 멤버의 특정 파트너가 절대 횟수는 낮아도 그 멤버에겐 압도적 1위인 경우).
+ * 그래서 거리·장력·선 굵기는 전부 원본 횟수(count) 기반의 "노드별 상대
+ * 순위"로 계산한다 — 아래 buildLocalRanks 참고.
  */
-function buildPairStats(interactions, now) {
-  const closeness = new Map();
+function buildPairStats(interactions) {
   const rawCounts = new Map();
   const pairEvents = new Map();
 
@@ -50,15 +47,9 @@ function buildPairStats(interactions, now) {
     const n = parts.length;
     if (n < 2) return;
 
-    const contribution = (BASE_SCORE / n) * (ev.count ?? 1);
-    const ageDays = Math.max(0, (now - new Date(ev.lastDate)) / 86400000);
-    const decay = Math.pow(0.5, ageDays / HALF_LIFE_DAYS);
-    const weighted = contribution * decay;
-
     for (let i = 0; i < n; i++) {
       for (let j = i + 1; j < n; j++) {
         const key = pairKey(parts[i], parts[j]);
-        closeness.set(key, (closeness.get(key) || 0) + weighted);
 
         const counts = rawCounts.get(key) || { collabCount: 0, coverCount: 0, total: 0 };
         if (ev.type === 'cover') counts.coverCount += ev.count ?? 1;
@@ -77,7 +68,41 @@ function buildPairStats(interactions, now) {
     list.sort((a, b) => String(b.lastDate ?? '').localeCompare(String(a.lastDate ?? '')));
   }
 
-  return { closeness, rawCounts, pairEvents };
+  return { rawCounts, pairEvents };
+}
+
+/**
+ * 링크 목록(각 {source, target, count})에서 "노드별 상대 순위 점수"를 만든다.
+ * 한 노드의 이웃들을 횟수 내림차순으로 줄 세워 1등=1.0, 꼴찌=0.0으로 매긴다.
+ * (절대 횟수가 아니라 그 노드 안에서의 등수를 쓰기 때문에, 오래 활동해서
+ * 전체적으로 합방 횟수가 많은 멤버의 그래프가 상대적으로 부풀지 않는다 — 점 1, 2.)
+ *
+ * minCount 미만인 이웃은 후보에서 아예 뺀다(순위 계산 자체에 안 낀다).
+ */
+function buildLocalRanks(baseLinks, minCount) {
+  const adj = new Map();
+  for (const l of baseLinks) {
+    if (l.count < minCount) continue;
+    if (!adj.has(l.source)) adj.set(l.source, []);
+    if (!adj.has(l.target)) adj.set(l.target, []);
+    adj.get(l.source).push({ other: l.target, count: l.count });
+    adj.get(l.target).push({ other: l.source, count: l.count });
+  }
+
+  const rank = new Map(); // `${node}|${other}` -> 0~1 (1이 그 노드의 최다 합방 상대)
+  for (const [node, neighbors] of adj) {
+    const sorted = [...neighbors].sort((a, b) => b.count - a.count);
+    const n = sorted.length;
+    sorted.forEach((nb, idx) => {
+      rank.set(`${node}|${nb.other}`, n <= 1 ? 1 : 1 - idx / (n - 1));
+    });
+  }
+  return rank;
+}
+
+/** 링크 양쪽 노드 중 어느 한쪽이라도 상대를 상위로 친다면 그 링크도 그렇게 대접한다. */
+function localScore(rankMap, aId, bId) {
+  return Math.max(rankMap.get(`${aId}|${bId}`) ?? 0, rankMap.get(`${bId}|${aId}`) ?? 0);
 }
 
 const EMPTY_SET = new Set();
@@ -107,18 +132,25 @@ export default function NetworkGraph({
 
   const membersById = Object.fromEntries(members.map((m) => [m.id, m]));
 
+  /**
+   * 고정된 상위 N명이 아니라, 이 멤버의 파트너들 중 "평균 합방 횟수보다 많이
+   * 함께한" 사람만 보여준다(점 3, 4). 예: 교류 횟수가 15,13,8,4,3,2,2면
+   * 평균 6.7회를 넘는 15/13/8만 남는다 — 인원 수가 고정되지 않는다.
+   */
   const buildConnections = useCallback(
     (memberId, rawCounts) => {
-      return members
+      const list = members
         .filter((m) => m.id !== memberId)
         .map((m) => {
           const counts = rawCounts.get(pairKey(memberId, m.id));
-          if (!counts || counts.total < TOOLTIP_MIN_COLLABS) return null;
+          if (!counts) return null;
           return { member: m, collabCount: counts.collabCount, coverCount: counts.coverCount, total: counts.total };
         })
-        .filter(Boolean)
-        .sort((a, b) => b.total - a.total)
-        .slice(0, TOOLTIP_TOP_N);
+        .filter(Boolean);
+
+      if (list.length === 0) return [];
+      const avg = list.reduce((sum, c) => sum + c.total, 0) / list.length;
+      return list.filter((c) => c.total > avg).sort((a, b) => b.total - a.total);
     },
     [members]
   );
@@ -137,46 +169,46 @@ export default function NetworkGraph({
     const svgEl = svgRef.current;
     const width = container.clientWidth;
     const height = container.clientHeight;
-    const now = new Date();
 
-    const { closeness, rawCounts, pairEvents } = buildPairStats(interactions, now);
-    const maxCloseness = Math.max(1, ...closeness.values());
+    const { rawCounts, pairEvents } = buildPairStats(interactions);
 
     // 배치 크기를 캔버스에 맞춰 늘리고 줄이는 배율.
     // 이게 없으면 큰 화면에서는 가운데만 쓰고, 작은 화면에서는 넘쳐난다.
     const spread = Math.min(Math.max(Math.min(width / 920, height / 664), 0.8), 1.8);
 
-    // 상대적인 친밀도 점수를 거리로 환산 (선은 아주 옅게 유지).
-    // 하한이 최소 간격을 보장해서 노드가 서로 겹쳐 클릭이 어려워지지 않는다.
-    // 기존(430~120)보다 넓혀서 캔버스 사용 면적을 약 2배로 키웠다(헤드리스 시뮬레이션 실측).
-    const distanceScale = d3
-      .scaleLinear()
-      .domain([0, maxCloseness])
-      .range([690 * spread, 190 * spread])
-      .clamp(true);
-
     const baseNodes = members.map((m) => ({ ...m, r: NODE_RADIUS }));
     const baseById = new Map(baseNodes.map((n) => [n.id, n]));
 
-    const baseLinks = Array.from(closeness.entries())
-      .filter(([key]) => (rawCounts.get(key)?.total ?? 0) >= MIN_EDGE_EVENTS)
-      .map(([key, score]) => {
+    const baseLinks = Array.from(rawCounts.entries())
+      .filter(([, counts]) => counts.total >= MIN_EDGE_EVENTS)
+      .map(([key, counts]) => {
         const [source, target] = key.split('|');
-        const count = rawCounts.get(key)?.total ?? 0;
-        return { key, source, target, score, count };
+        return { key, source, target, count: counts.total };
       });
 
-    // 실측 합방 횟수 분포(3~23회, 최소값 근처에 몰림)를 반영해 굵기/투명도는
-    // 급격한 지수 곡선(4제곱)으로, 물리적 장력은 완만한 곡선(1.6제곱)으로 스케일한다.
-    // 이러면 1~2등 쌍만 두드러지고 나머지는 고르게 옅어져(점 5), 동시에
-    // 많이 합방한 쌍일수록 링크가 실제로 단단해져 위치가 유지된다(점 3).
-    const maxCount = Math.max(MIN_EDGE_EVENTS, ...baseLinks.map((l) => l.count));
-    const countRange = Math.max(1, maxCount - MIN_EDGE_EVENTS);
-    const normCount = (count) => Math.min(1, Math.max(0, (count - MIN_EDGE_EVENTS) / countRange));
+    /*
+     * distRank: 모든 표시 링크 대상으로 "이 노드에게 이 상대가 몇 등 파트너인가".
+     * visRank: LOCAL_MIN_COUNT 이상인 링크만 후보로 삼은 같은 순위 계산(선 굵기/진하기용).
+     * 둘 다 노드별 상대 순위라서, 절대 횟수가 많은 멤버의 링크가 무조건 두껍고
+     * 가까워지는 문제 없이 "그 멤버 안에서 얼마나 특별한 파트너인가"를 반영한다(점 1, 2).
+     */
+    const distRank = buildLocalRanks(baseLinks, MIN_EDGE_EVENTS);
+    const visRank = buildLocalRanks(baseLinks, LOCAL_MIN_COUNT);
+    for (const l of baseLinks) {
+      l.distScore = localScore(distRank, l.source, l.target);
+      l.visScore = localScore(visRank, l.source, l.target);
+    }
 
-    const linkWidthScale = (count) => 1 + (4.5 - 1) * Math.pow(normCount(count), 4);
-    const linkOpacityScale = (count) => 0.05 + (0.85 - 0.05) * Math.pow(normCount(count), 4);
-    const linkStrengthScale = (count) => 0.12 + 0.8 * Math.pow(normCount(count), 1.6);
+    // distScore(0~1, 1=그 노드의 최다 파트너)를 거리로 환산. 캔버스 사용 면적을
+    // 기존 대비 약 2배로 넓힌 범위(190~690 * spread)는 그대로 유지한다(점 1 하위 요건).
+    const distanceScale = (score) => 690 * spread - (690 - 190) * spread * score;
+
+    // visScore는 후보에서 빠지면(둘 다 LOCAL_MIN_COUNT 미만) 0이라 자동으로 옅게 남는다.
+    // 지수 곡선(4제곱)으로 1등만 확실히 두드러지게 하고, 장력은 완만한 곡선(1.6제곱)으로
+    // distScore를 반영해 자주 합방한 쌍일수록 위치가 실제로 단단히 고정된다(점 3).
+    const linkWidthScale = (score) => 1 + (4.5 - 1) * Math.pow(score, 4);
+    const linkOpacityScale = (score) => 0.05 + (0.85 - 0.05) * Math.pow(score, 4);
+    const linkStrengthScale = (score) => 0.12 + 0.8 * Math.pow(score, 1.6);
 
     // 라이브 합방으로 추가되는 허브 노드. 살아있는 동안 같은 객체를 유지해야
     // 좌표가 보존된다.
@@ -225,8 +257,8 @@ export default function NetworkGraph({
         .data(links, (d) => d.key)
         .join('line')
         .attr('class', (d) => (d.isLive ? 'link-live' : null))
-        .attr('stroke-width', (d) => (d.isLive ? 3.5 : linkWidthScale(d.count)))
-        .attr('stroke-opacity', (d) => (d.isLive ? 0.95 : linkOpacityScale(d.count)))
+        .attr('stroke-width', (d) => (d.isLive ? 3.5 : linkWidthScale(d.visScore)))
+        .attr('stroke-opacity', (d) => (d.isLive ? 0.95 : linkOpacityScale(d.visScore)))
         .attr('stroke-linecap', 'round');
 
       // 라이브 선은 임시 표시라 클릭 대상에서 뺀다 (합방 기록 팝업은 누적 교류선용)
@@ -432,7 +464,7 @@ export default function NetworkGraph({
     function applyHighlight(selectedId) {
       if (!selectedId) {
         nodeSel.attr('opacity', 1);
-        linkSel.attr('opacity', (d) => (d.isLive ? 1 : linkOpacityScale(d.count)));
+        linkSel.attr('opacity', (d) => (d.isLive ? 1 : linkOpacityScale(d.visScore)));
         return;
       }
       const connectedIds = new Set([selectedId]);
@@ -448,7 +480,7 @@ export default function NetworkGraph({
         const t = d.target.id ?? d.target;
         const touches = s === selectedId || t === selectedId;
         if (!touches) return 0.03;
-        return d.isLive ? 1 : linkOpacityScale(d.count);
+        return d.isLive ? 1 : linkOpacityScale(d.visScore);
       });
     }
     applyHighlightRef.current = applyHighlight;
@@ -569,11 +601,11 @@ export default function NetworkGraph({
           .forceLink(links)
           .id((d) => d.id)
           .distance((d) => {
-            if (!d.isLive) return distanceScale(d.score);
+            if (!d.isLive) return distanceScale(d.distScore);
             const isSpoke = d.source.isHub || d.target.isHub;
             return isSpoke ? HUB_SPOKE_DISTANCE : LIVE_PAIR_DISTANCE;
           })
-          .strength((d) => (d.isLive ? LIVE_LINK_STRENGTH : linkStrengthScale(d.count)))
+          .strength((d) => (d.isLive ? LIVE_LINK_STRENGTH : linkStrengthScale(d.distScore)))
       )
       /*
        * 39개 노드가 중앙에 뭉치지 않도록 반발력을 키웠다.

@@ -25,7 +25,7 @@ const CHANNELS_PATH = resolve(ROOT, 'src/data/channelIds.json');
 const OUT_PATH = resolve(ROOT, 'src/data/memberInteractions.json');
 
 const API = 'https://holodex.net/api/v2';
-const PER_MEMBER = 50;
+const PER_MEMBER = 100;
 
 // 곡(커버/오리지널) 토픽이면 collab이 아니라 cover로 분류한다
 const MUSIC_TOPICS = new Set(['music_cover', 'original_song']);
