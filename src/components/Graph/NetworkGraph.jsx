@@ -20,6 +20,11 @@ const HALF_LIFE_DAYS = 90;
 // 멤버도 없음(하아토는 어느 기준에서도 고립 — raise가 원인이 아님).
 const MIN_EDGE_EVENTS = 3;
 
+// 노드 클릭 시 뜨는 "자주 함께하는 멤버" 목록. 다 보여주면 압도적이라
+// 상위 몇 명, 그것도 어느 정도 의미 있는 횟수만 보여준다.
+const TOOLTIP_MIN_COLLABS = 5;
+const TOOLTIP_TOP_N = 5;
+
 // 합방 중 붙는 거리. 클릭 가능하도록 노드가 완전히 겹치지는 않게 둔다.
 const LIVE_PAIR_DISTANCE = 85;
 const HUB_SPOKE_DISTANCE = 78;
@@ -95,6 +100,10 @@ export default function NetworkGraph({
   const applyHighlightRef = useRef(null);
   const updateLiveBadgesRef = useRef(null);
   const updateLiveCollabsRef = useRef(null);
+  // MemberTooltip에 노출된 reposition()을 직접 호출하는 용도.
+  // 위치를 React state로 두면 시뮬레이션이 도는 동안(또는 줌·팬 중) 매 프레임
+  // setState가 발생해 눈에 띄게 렉이 생긴다 — MemberTooltip.jsx 주석 참고.
+  const tooltipRef = useRef(null);
 
   const membersById = Object.fromEntries(members.map((m) => [m.id, m]));
 
@@ -104,11 +113,12 @@ export default function NetworkGraph({
         .filter((m) => m.id !== memberId)
         .map((m) => {
           const counts = rawCounts.get(pairKey(memberId, m.id));
-          if (!counts || counts.total < MIN_EDGE_EVENTS) return null;
-          return { member: m, collabCount: counts.collabCount, coverCount: counts.coverCount };
+          if (!counts || counts.total < TOOLTIP_MIN_COLLABS) return null;
+          return { member: m, collabCount: counts.collabCount, coverCount: counts.coverCount, total: counts.total };
         })
         .filter(Boolean)
-        .sort((a, b) => b.collabCount + b.coverCount - (a.collabCount + a.coverCount));
+        .sort((a, b) => b.total - a.total)
+        .slice(0, TOOLTIP_TOP_N);
     },
     [members]
   );
@@ -136,15 +146,14 @@ export default function NetworkGraph({
     // 이게 없으면 큰 화면에서는 가운데만 쓰고, 작은 화면에서는 넘쳐난다.
     const spread = Math.min(Math.max(Math.min(width / 920, height / 664), 0.8), 1.8);
 
-    // 상대적인 친밀도 점수를 거리/굵기/투명도로 환산 (선은 아주 옅게 유지).
+    // 상대적인 친밀도 점수를 거리로 환산 (선은 아주 옅게 유지).
     // 하한이 최소 간격을 보장해서 노드가 서로 겹쳐 클릭이 어려워지지 않는다.
+    // 기존(430~120)보다 넓혀서 캔버스 사용 면적을 약 2배로 키웠다(헤드리스 시뮬레이션 실측).
     const distanceScale = d3
       .scaleLinear()
       .domain([0, maxCloseness])
-      .range([430 * spread, 120 * spread])
+      .range([690 * spread, 190 * spread])
       .clamp(true);
-    const strokeScale = d3.scaleLinear().domain([0, maxCloseness]).range([1, 4]).clamp(true);
-    const opacityScale = d3.scaleLinear().domain([0, maxCloseness]).range([0.06, 0.3]).clamp(true);
 
     const baseNodes = members.map((m) => ({ ...m, r: NODE_RADIUS }));
     const baseById = new Map(baseNodes.map((n) => [n.id, n]));
@@ -153,8 +162,21 @@ export default function NetworkGraph({
       .filter(([key]) => (rawCounts.get(key)?.total ?? 0) >= MIN_EDGE_EVENTS)
       .map(([key, score]) => {
         const [source, target] = key.split('|');
-        return { key, source, target, score };
+        const count = rawCounts.get(key)?.total ?? 0;
+        return { key, source, target, score, count };
       });
+
+    // 실측 합방 횟수 분포(3~23회, 최소값 근처에 몰림)를 반영해 굵기/투명도는
+    // 급격한 지수 곡선(4제곱)으로, 물리적 장력은 완만한 곡선(1.6제곱)으로 스케일한다.
+    // 이러면 1~2등 쌍만 두드러지고 나머지는 고르게 옅어져(점 5), 동시에
+    // 많이 합방한 쌍일수록 링크가 실제로 단단해져 위치가 유지된다(점 3).
+    const maxCount = Math.max(MIN_EDGE_EVENTS, ...baseLinks.map((l) => l.count));
+    const countRange = Math.max(1, maxCount - MIN_EDGE_EVENTS);
+    const normCount = (count) => Math.min(1, Math.max(0, (count - MIN_EDGE_EVENTS) / countRange));
+
+    const linkWidthScale = (count) => 1 + (4.5 - 1) * Math.pow(normCount(count), 4);
+    const linkOpacityScale = (count) => 0.05 + (0.85 - 0.05) * Math.pow(normCount(count), 4);
+    const linkStrengthScale = (count) => 0.12 + 0.8 * Math.pow(normCount(count), 1.6);
 
     // 라이브 합방으로 추가되는 허브 노드. 살아있는 동안 같은 객체를 유지해야
     // 좌표가 보존된다.
@@ -203,8 +225,8 @@ export default function NetworkGraph({
         .data(links, (d) => d.key)
         .join('line')
         .attr('class', (d) => (d.isLive ? 'link-live' : null))
-        .attr('stroke-width', (d) => (d.isLive ? 3.5 : strokeScale(d.score)))
-        .attr('stroke-opacity', (d) => (d.isLive ? 0.95 : opacityScale(d.score)))
+        .attr('stroke-width', (d) => (d.isLive ? 3.5 : linkWidthScale(d.count)))
+        .attr('stroke-opacity', (d) => (d.isLive ? 0.95 : linkOpacityScale(d.count)))
         .attr('stroke-linecap', 'round');
 
       // 라이브 선은 임시 표시라 클릭 대상에서 뺀다 (합방 기록 팝업은 누적 교류선용)
@@ -410,7 +432,7 @@ export default function NetworkGraph({
     function applyHighlight(selectedId) {
       if (!selectedId) {
         nodeSel.attr('opacity', 1);
-        linkSel.attr('opacity', (d) => (d.isLive ? 1 : opacityScale(d.score)));
+        linkSel.attr('opacity', (d) => (d.isLive ? 1 : linkOpacityScale(d.count)));
         return;
       }
       const connectedIds = new Set([selectedId]);
@@ -426,7 +448,7 @@ export default function NetworkGraph({
         const t = d.target.id ?? d.target;
         const touches = s === selectedId || t === selectedId;
         if (!touches) return 0.03;
-        return d.isLive ? 1 : opacityScale(d.score);
+        return d.isLive ? 1 : linkOpacityScale(d.count);
       });
     }
     applyHighlightRef.current = applyHighlight;
@@ -456,11 +478,7 @@ export default function NetworkGraph({
       const d = nodes.find((n) => n.id === id);
       if (!d || d.x == null) return;
       const { x, y } = tooltipAnchor(d);
-      setTooltip((prev) => {
-        if (!prev) return prev;
-        if (prev.x === x && prev.y === y) return prev; // 불필요한 리렌더 방지
-        return { ...prev, x, y };
-      });
+      tooltipRef.current?.reposition(x, y);
     }
 
     /**
@@ -555,26 +573,28 @@ export default function NetworkGraph({
             const isSpoke = d.source.isHub || d.target.isHub;
             return isSpoke ? HUB_SPOKE_DISTANCE : LIVE_PAIR_DISTANCE;
           })
-          .strength((d) =>
-            d.isLive ? LIVE_LINK_STRENGTH : Math.min(0.9, 0.15 + d.score / maxCloseness)
-          )
+          .strength((d) => (d.isLive ? LIVE_LINK_STRENGTH : linkStrengthScale(d.count)))
       )
       /*
        * 39개 노드가 중앙에 뭉치지 않도록 반발력을 키웠다.
        * distanceMax가 없으면 링크 없는 노드가 무한정 밀려나 화면 밖으로 나간다
        * (실측: 화면의 3~4배까지 흩어짐). 가까운 거리에서만 밀어내게 제한한다.
-       * 세로 당김(0.12)을 가로(0.045)보다 세게 준 건 캔버스가 가로로 넓어서다.
-       * 값은 현재 데이터와 백필 후를 가정한 조밀한 데이터 양쪽에서
-       * 전원이 화면 안에 들어오도록 시뮬레이션으로 맞췄다.
+       * 세로 당김을 가로보다 세게 준 건 캔버스가 가로로 넓어서다.
+       * 값은 캔버스 사용 면적을 기존 대비 약 2배로 넓히도록(점 1) 헤드리스
+       * 시뮬레이션으로 실측·조정했다. 링크 장력은 위 linkStrengthScale이
+       * 담당하므로(점 3) x/y 중심 당김은 오히려 약화했다 — 그래야 자주
+       * 합방한 쌍끼리의 인력이 상대적으로 더 지배적으로 느껴진다.
        */
-      .force('charge', d3.forceManyBody().strength(-380 * spread).distanceMax(310 * spread))
+      .force('charge', d3.forceManyBody().strength(-610 * spread).distanceMax(500 * spread))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('x', d3.forceX(width / 2).strength(0.045))
-      .force('y', d3.forceY(height / 2).strength(0.12))
+      .force('x', d3.forceX(width / 2).strength(0.025))
+      .force('y', d3.forceY(height / 2).strength(0.06))
       .force(
         'collide',
         d3.forceCollide().radius((d) => d.r + 24)
-      );
+      )
+      // 기본값(0.0228)보다 빨리 식혀서 흔들림이 멎는 시점을 앞당긴다 (점 4)
+      .alphaDecay(0.05);
 
     // 드래그 (허브도 잡아서 옮길 수 있다)
     const drag = d3
@@ -594,12 +614,7 @@ export default function NetworkGraph({
         d.fy = null;
       });
 
-    renderLinks();
-    renderNodes();
-    applyHighlight(selectedIdRef.current);
-    updateLiveCollabs(liveCollabs);
-
-    simulation.on('tick', () => {
+    function renderPositions() {
       const x1 = (d) => d.source.x;
       const y1 = (d) => d.source.y;
       const x2 = (d) => d.target.x;
@@ -610,9 +625,9 @@ export default function NetworkGraph({
       nodeSel.attr('transform', (d) => `translate(${d.x},${d.y})`);
 
       syncTooltipPosition();
-    });
+    }
 
-    // 줌 & 팬
+    // 줌 & 팬. fitToView()가 초기 변환을 걸 수 있도록 미리 만들어둔다.
     const zoom = d3
       .zoom()
       .scaleExtent([0.3, 2.5])
@@ -623,6 +638,51 @@ export default function NetworkGraph({
       });
     svg.call(zoom);
     zoomRef.current = zoom;
+
+    /** 현재 노드들의 바운딩 박스를 구해 화면에 맞는 초기 줌/팬을 건다. */
+    function fitToView() {
+      const xs = nodes.map((d) => d.x).filter((v) => v != null);
+      const ys = nodes.map((d) => d.y).filter((v) => v != null);
+      if (xs.length === 0) return;
+
+      const pad = 60;
+      const minX = Math.min(...xs) - pad;
+      const maxX = Math.max(...xs) + pad;
+      const minY = Math.min(...ys) - pad;
+      const maxY = Math.max(...ys) + pad;
+      const boxW = Math.max(1, maxX - minX);
+      const boxH = Math.max(1, maxY - minY);
+
+      const scale = Math.min(2.5, Math.max(0.3, Math.min(width / boxW, height / boxH)));
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+      const transform = d3.zoomIdentity
+        .translate(width / 2, height / 2)
+        .scale(scale)
+        .translate(-cx, -cy);
+
+      svg.call(zoom.transform, transform);
+    }
+
+    renderLinks();
+    renderNodes();
+    applyHighlight(selectedIdRef.current);
+    updateLiveCollabs(liveCollabs);
+
+    /*
+     * 브라우저의 비동기 타이머로 매 프레임 조금씩 안정화되길 기다리면 그동안
+     * 렉처럼 느껴지고, 처음 화면도 계속 흔들린다. 시뮬레이션을 만들자마자
+     * 동기적으로 여러 틱을 미리 돌려 거의 정착된 상태로 시작한다(점 4).
+     * 그 상태의 바운딩 박스로 초기 줌을 맞추면(점 1) 노드가 중앙에 뭉쳐
+     * 보이지 않고 처음부터 넓게 퍼진 모습으로 보인다.
+     */
+    simulation.stop();
+    for (let i = 0; i < 300; i++) simulation.tick();
+    renderPositions();
+    fitToView();
+
+    simulation.on('tick', renderPositions);
+    simulation.alpha(0.2).restart();
 
     return () => {
       simulation.stop();
@@ -682,6 +742,7 @@ export default function NetworkGraph({
       <AnimatePresence>
         {tooltip && (
           <MemberTooltip
+            ref={tooltipRef}
             member={tooltip.member}
             connections={tooltip.connections}
             x={tooltip.x}
