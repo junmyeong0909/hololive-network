@@ -449,9 +449,10 @@ export default function NetworkGraph({
       const b = membersById[bId];
       if (!a || !b) return;
 
-      // 노드 선택 상태는 정리하고 교류선 팝업만 띄운다
+      // 노드 선택 상태는 정리하고 교류선 팝업만 띄운다. 이 둘을 잇는 선만 보이게
+      // 나머지 노드·선은 옅게 죽인다(applyPairHighlight) — 전체 하이라이트 해제가 아니다.
       selectedIdRef.current = null;
-      applyHighlight(null);
+      applyPairHighlight(aId, bId);
       onSelectMember?.(null);
       setTooltip(null);
 
@@ -477,7 +478,7 @@ export default function NetworkGraph({
       if (!a || !b) return;
 
       selectedIdRef.current = null;
-      applyHighlight(null);
+      applyPairHighlight(aId, otherId);
       onSelectMember?.(null);
       setTooltip(null);
 
@@ -514,6 +515,22 @@ export default function NetworkGraph({
       });
     }
     applyHighlightRef.current = applyHighlight;
+
+    /**
+     * 교류선(또는 팝업의 연결 목록)을 클릭했을 때: 그 두 멤버를 잇는 선만 보이고
+     * 나머지 노드·선은 다 죽인다. applyHighlight(selectedId)는 "한 노드에 닿은
+     * 모든 선"을 보여주는 거라 다른 목적 — 이건 딱 그 쌍 하나만 남긴다.
+     */
+    function applyPairHighlight(aId, bId) {
+      const pair = new Set([aId, bId]);
+      nodeSel.attr('opacity', (d) => (pair.has(d.id) ? 1 : 0.15));
+      linkSel.attr('opacity', (d) => {
+        const s = d.source.id ?? d.source;
+        const t = d.target.id ?? d.target;
+        const isPairLink = (s === aId && t === bId) || (s === bId && t === aId);
+        return isPairLink ? 1 : 0.03;
+      });
+    }
 
     function updateLiveBadges(liveIds) {
       nodeSel
@@ -824,7 +841,10 @@ export default function NetworkGraph({
             events={edgeTooltip.events}
             x={edgeTooltip.x}
             y={edgeTooltip.y}
-            onClose={() => setEdgeTooltip(null)}
+            onClose={() => {
+              setEdgeTooltip(null);
+              applyHighlightRef.current?.(null);
+            }}
           />
         )}
       </AnimatePresence>
