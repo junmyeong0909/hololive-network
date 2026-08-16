@@ -1,7 +1,7 @@
 {
   "name": "hololive-network",
   "private": true,
-  "version": "0.3.4",
+  "version": "0.3.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "setup:channels": "node scripts/holodex-setup.mjs",
     "setup:songs": "node scripts/fetch-member-songs.mjs",
-    "setup:interactions": "node scripts/fetch-interactions.mjs"
+    "setup:interactions": "node scripts/fetch-interactions.mjs",
+    "setup:streams": "node scripts/fetch-member-streams.mjs"
   },
   "dependencies": {
     "d3": "^7.9.0",

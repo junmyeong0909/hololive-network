@@ -5,9 +5,16 @@ import NotificationCard from './NotificationCard.jsx';
 import MemberAvatar from '../MemberAvatar.jsx';
 import { extractTags } from '../../lib/topicExtract.js';
 
+// LIVE 탭은 지금 방송 중인 것뿐 아니라, 지난 라이브 방송(아카이브)까지 포함한다.
+// 곡(music)이나 업로드 영상(video)은 제외 — 실제 방송 기록만.
 const TABS = [
   { id: 'all', label: '전체', icon: Bell, match: () => true },
-  { id: 'live', label: 'LIVE', icon: Radio, match: (n) => n.status === 'live' },
+  {
+    id: 'live',
+    label: 'LIVE',
+    icon: Radio,
+    match: (n) => n.status === 'live' || (n.type === 'stream' && n.status === 'past'),
+  },
   { id: 'upcoming', label: '예정', icon: Clock, match: (n) => n.status === 'upcoming' },
   { id: 'music', label: '음악', icon: Music2, match: (n) => n.type === 'music' },
 ];
@@ -28,7 +35,7 @@ function compareNotifications(a, b) {
 
 const EMPTY_MESSAGE = {
   all: '표시할 활동이 없어요.',
-  live: '지금 방송 중인 멤버가 없어요.',
+  live: '라이브 방송 기록이 없어요.',
   upcoming: '예정된 방송이 없어요.',
   music: '최근 올라온 음악이 없어요.',
 };

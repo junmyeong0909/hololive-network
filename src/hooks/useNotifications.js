@@ -20,6 +20,8 @@ export function useNotifications(fallback = []) {
   const [notifications, setNotifications] = useState(enabled ? [] : fallback);
   // 곡 아카이브 (Worker가 KV에 무한 누적한 목록). 더미 모드에서는 없다.
   const [music, setMusic] = useState([]);
+  // 지난 라이브 아카이브 (역시 KV에 무한 누적). LIVE 탭에서 과거 방송까지 보여주는 데 쓴다.
+  const [streams, setStreams] = useState([]);
   // 합방 아카이브 + 지금 진행 중인 합방 그룹
   const [interactions, setInteractions] = useState([]);
   const [liveCollabs, setLiveCollabs] = useState([]);
@@ -41,6 +43,7 @@ export function useNotifications(fallback = []) {
 
       setNotifications(data.notifications);
       if (Array.isArray(data.music)) setMusic(data.music);
+      if (Array.isArray(data.streams)) setStreams(data.streams);
       if (Array.isArray(data.interactions)) setInteractions(data.interactions);
       // 진행 중인 합방이 없으면 빈 배열이 정상이므로 그대로 반영한다
       setLiveCollabs(Array.isArray(data.liveCollabs) ? data.liveCollabs : []);
@@ -73,6 +76,7 @@ export function useNotifications(fallback = []) {
   return {
     notifications,
     music,
+    streams,
     interactions,
     liveCollabs,
     updatedAt,

@@ -10,6 +10,7 @@
 import channelIds from '../../src/data/channelIds.json';
 import seedSongs from '../../src/data/memberSongs.json';
 import seedInteractions from '../../src/data/memberInteractions.json';
+import seedStreams from '../../src/data/memberStreams.json';
 import { findCommonTopic } from '../../src/lib/topicExtract.js';
 
 const HOLODEX = 'https://holodex.net/api/v2';
@@ -26,6 +27,12 @@ const MUSIC_ARCHIVE_KEY = 'music-archive-v1';
 // 합방 아카이브도 같은 KV 바인딩에 키만 다르게 저장한다 (KV를 새로 만들지 않음)
 const INTERACTIONS_ARCHIVE_CAP = 3000;
 const INTERACTIONS_ARCHIVE_KEY = 'interactions-archive-v1';
+
+// 지난 라이브(방송) 아카이브. 음악과 마찬가지로 /api/feed의 일반 조회는
+// 최근 스냅샷이라 오래된 방송이 자연히 밀려나므로, LIVE 탭에서 "지난 라이브"를
+// 계속 볼 수 있도록 KV에 따로 누적한다.
+const STREAM_ARCHIVE_CAP = 5000;
+const STREAM_ARCHIVE_KEY = 'stream-archive-v1';
 
 const ALLOWED_ORIGINS = [
   'https://junmyeong0909.github.io',
@@ -396,8 +403,11 @@ async function buildFeed(env, debug) {
   const liveCollabs = buildLiveCollabs(collabLive);
 
   const freshMusic = notifications.filter((n) => n.type === 'music');
+  // 지난 라이브: 곡(music)이나 업로드 영상(video)이 아니라 실제 방송이었던 것만.
+  // upcoming/live는 아직 "지난" 게 아니므로 past만 아카이브에 넣는다.
+  const freshStreams = notifications.filter((n) => n.type === 'stream' && n.status === 'past');
 
-  const [musicResult, interactionResult] = await Promise.all([
+  const [musicResult, interactionResult, streamResult] = await Promise.all([
     accumulateArchive({
       kv: env.MUSIC_ARCHIVE,
       key: MUSIC_ARCHIVE_KEY,
@@ -418,12 +428,23 @@ async function buildFeed(env, debug) {
       debugOut: debug ? diagnostics : null,
       debugPrefix: 'interactionArchive',
     }),
+    accumulateArchive({
+      kv: env.MUSIC_ARCHIVE,
+      key: STREAM_ARCHIVE_KEY,
+      seed: seedStreams,
+      fresh: freshStreams,
+      sortKey: 'timestamp',
+      cap: STREAM_ARCHIVE_CAP,
+      debugOut: debug ? diagnostics : null,
+      debugPrefix: 'streamArchive',
+    }),
   ]);
 
   if (debug) {
     diagnostics.collabPastRaw = collabPast.length;
     diagnostics.collabLiveRaw = collabLive.length;
     diagnostics.freshInteractions = freshInteractions.length;
+    diagnostics.freshStreams = freshStreams.length;
     diagnostics.liveCollabs = liveCollabs;
   }
 
@@ -432,9 +453,10 @@ async function buildFeed(env, debug) {
     notifications,
     music: musicResult.archive,
     interactions: interactionResult.archive,
+    streams: streamResult.archive,
     liveCollabs,
     // fetch 핸들러가 KV 쓰기 여부를 판단하는 데만 쓴다 (응답에서는 제거됨)
-    _dirty: { music: musicResult.dirty, interactions: interactionResult.dirty },
+    _dirty: { music: musicResult.dirty, interactions: interactionResult.dirty, streams: streamResult.dirty },
     ...(debug ? { _debug: diagnostics } : {}),
   };
 }
@@ -449,6 +471,9 @@ function persistArchives(env, feed, ctx) {
     ctx.waitUntil(
       env.MUSIC_ARCHIVE.put(INTERACTIONS_ARCHIVE_KEY, JSON.stringify(feed.interactions))
     );
+  }
+  if (feed._dirty?.streams) {
+    ctx.waitUntil(env.MUSIC_ARCHIVE.put(STREAM_ARCHIVE_KEY, JSON.stringify(feed.streams)));
   }
 }
 

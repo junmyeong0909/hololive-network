@@ -17,6 +17,7 @@ export default function App() {
   const {
     notifications,
     music,
+    streams,
     interactions: liveInteractions,
     liveCollabs,
     isStale,
@@ -31,17 +32,18 @@ export default function App() {
   const membersById = useMemo(() => Object.fromEntries(members.map((m) => [m.id, m])), [members]);
 
   /**
-   * 실시간 피드(라이브·예정·최근 영상) + 곡 아카이브(무한 누적)를 합친다.
-   * 곡 아카이브는 Worker가 KV에 계속 쌓아온 전체 목록이라 그 자체로
+   * 실시간 피드(라이브·예정·최근 영상) + 곡 아카이브 + 지난 라이브 아카이브(둘 다 무한 누적)를 합친다.
+   * 두 아카이브 모두 Worker가 KV에 계속 쌓아온 전체 목록이라 그 자체로
    * 활동이 뜸한 멤버까지 포함하므로, 더미 정적 파일을 따로 병합할 필요가 없다.
-   * (Worker가 없는 더미 모드에서만 로컬 memberSongs.json으로 보완한다.)
+   * (Worker가 없는 더미 모드에서만 로컬 memberSongs.json으로 보완한다. 지난 라이브는
+   * 더미 모드에서 hololiveData.json의 notifications 안에 이미 몇 건 섞여 있다.)
    * 같은 영상이 양쪽에 있으면 실시간 쪽을 남긴다(라이브 상태 등 최신 정보 유지).
    */
   const allNotifications = useMemo(() => {
     const seen = new Set(notifications.map((n) => n.id));
-    const archive = source === 'live' ? music : memberSongs;
+    const archive = source === 'live' ? [...music, ...streams] : memberSongs;
     return [...notifications, ...archive.filter((s) => !seen.has(s.id))];
-  }, [notifications, music, source]);
+  }, [notifications, music, streams, source]);
 
   // 그래프 노드에 LIVE 표시를 하기 위한 집합. 곡 아카이브는 전부 status:'past'라
   // 여기 섞여도 무해하지만, 굳이 합칠 필요 없이 실시간 알림에서만 뽑는다.
