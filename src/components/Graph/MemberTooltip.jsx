@@ -1,6 +1,6 @@
-import { forwardRef, useImperativeHandle, useLayoutEffect, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Users, Music2, ExternalLink } from 'lucide-react';
+import { X, Users, Music2, ExternalLink, ChevronDown } from 'lucide-react';
 import MemberAvatar from '../MemberAvatar.jsx';
 
 const MARGIN = 8;
@@ -31,6 +31,8 @@ function clampPosition(el, x, y) {
  */
 const MemberTooltip = forwardRef(function MemberTooltip({ member, connections, x, y, onClose }, ref) {
   const elRef = useRef(null);
+  // 팝업이 뒤의 교류선을 가려서, 목록을 접어 최소화할 수 있게 한다.
+  const [connectionsOpen, setConnectionsOpen] = useState(true);
 
   useImperativeHandle(
     ref,
@@ -54,7 +56,7 @@ const MemberTooltip = forwardRef(function MemberTooltip({ member, connections, x
     el.style.left = `${left}px`;
     el.style.top = `${top}px`;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [member?.id, connections?.length]);
+  }, [member?.id, connections?.length, connectionsOpen]);
 
   if (!member) return null;
 
@@ -66,7 +68,7 @@ const MemberTooltip = forwardRef(function MemberTooltip({ member, connections, x
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.15 }}
       style={{ left: x, top: y }}
-      className="pointer-events-auto absolute z-30 w-[280px] rounded-2xl border border-stage-border bg-stage-800/95 p-4 shadow-2xl backdrop-blur"
+      className="pointer-events-auto absolute z-30 w-[280px] rounded-2xl border border-stage-border bg-stage-800/60 p-4 shadow-2xl backdrop-blur-sm"
     >
       <button onClick={onClose} className="absolute right-3 top-3 text-ink-500 hover:text-ink-100">
         <X size={14} />
@@ -104,27 +106,35 @@ const MemberTooltip = forwardRef(function MemberTooltip({ member, connections, x
       )}
 
       <div className="mt-3 border-t border-stage-border pt-3">
-        <p className="mb-2 flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-ink-500">
-          <Users size={12} /> 자주 함께하는 멤버 ({connections.length})
-        </p>
-        <div className="space-y-1.5">
-          {connections.map((c) => (
-            <div key={c.member.id} className="flex items-center justify-between rounded-lg bg-stage-700/60 px-2 py-1.5">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.member.color }} />
-                <span className="text-xs font-medium text-ink-100">{c.member.name}</span>
+        <button
+          onClick={() => setConnectionsOpen((v) => !v)}
+          className="mb-2 flex w-full items-center justify-between text-[11px] font-medium uppercase tracking-wide text-ink-500 hover:text-ink-300"
+        >
+          <span className="flex items-center gap-1">
+            <Users size={12} /> 자주 함께하는 멤버 ({connections.length})
+          </span>
+          <ChevronDown size={13} className={`transition-transform ${connectionsOpen ? '' : '-rotate-90'}`} />
+        </button>
+        {connectionsOpen && (
+          <div className="space-y-1.5">
+            {connections.map((c) => (
+              <div key={c.member.id} className="flex items-center justify-between rounded-lg bg-stage-700/50 px-2 py-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.member.color }} />
+                  <span className="text-xs font-medium text-ink-100">{c.member.name}</span>
+                </div>
+                <span className="flex items-center gap-1 text-[10px] text-ink-500">
+                  합방 {c.collabCount} · <Music2 size={10} /> {c.coverCount}
+                </span>
               </div>
-              <span className="flex items-center gap-1 text-[10px] text-ink-500">
-                합방 {c.collabCount} · <Music2 size={10} /> {c.coverCount}
-              </span>
-            </div>
-          ))}
-          {connections.length === 0 && (
-            <p className="py-2 text-center text-xs leading-relaxed text-ink-500">
-              함께한 기록이 아직 충분하지 않아요.
-            </p>
-          )}
-        </div>
+            ))}
+            {connections.length === 0 && (
+              <p className="py-2 text-center text-xs leading-relaxed text-ink-500">
+                함께한 기록이 아직 충분하지 않아요.
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </motion.div>
   );
