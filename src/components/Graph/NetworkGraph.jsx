@@ -39,6 +39,10 @@ const LIVE_LINK_STRENGTH = 0.9;
 const MOBILE_MAX_WIDTH = 768;
 const MOBILE_INITIAL_SCALE = 0.9;
 
+// 모바일 배치 배율의 하한. 화면이 좁다고 배치까지 좁히면 노드 간격이
+// 충돌 하한에 눌려 균일해진다 — 자세한 근거는 spread 계산부 주석 참고.
+const MOBILE_SPREAD_FLOOR = 1.2;
+
 /*
  * 이 배율 아래에서는 이름 라벨(11.5px)이 읽히지 않고 겹치기만 하므로 숨긴다.
  * 값을 정할 때 실측한 맞춤 배율: 모바일 0.40~0.45(라벨 4.8~5.2px, 판독 불가),
@@ -204,9 +208,27 @@ export default function NetworkGraph({
 
     const { rawCounts, pairEvents } = buildPairStats(interactions);
 
-    // 배치 크기를 캔버스에 맞춰 늘리고 줄이는 배율.
-    // 이게 없으면 큰 화면에서는 가운데만 쓰고, 작은 화면에서는 넘쳐난다.
-    const spread = Math.min(Math.max(Math.min(width / 920, height / 664), 0.8), 1.8);
+    const isMobile = width < MOBILE_MAX_WIDTH;
+
+    /*
+     * 배치 크기를 캔버스에 맞춰 늘리고 줄이는 배율.
+     * 이게 없으면 큰 화면에서는 가운데만 쓰고, 작은 화면에서는 넘쳐난다.
+     *
+     * 하한을 모바일에서만 따로 두는 이유: 링크 목표 거리는 전부 spread에
+     * 비례하는데 collide 반경(노드 반경 + 여백 = 48)은 절대값이라 같이 줄지
+     * 않는다. 그래서 폰에서 spread가 0.8까지 떨어지면 목표 거리만 좁아지고
+     * 충돌 하한(96)은 그대로라, 가까운 쌍들이 스프링이 아니라 충돌 하한에
+     * 눌려 멈춰버린다. 충돌력은 친밀도와 무관하게 모두 똑같은 거리로
+     * 밀어내므로 간격이 균일한 격자처럼 보이게 된다.
+     *
+     * 실측(7회 평균, 최근접이웃 간격 변동계수 / 충돌 하한에 눌린 쌍):
+     *   하한 0.8 -> 0.118 / 67.9쌍   (데스크톱 0.220 / 27.3쌍 대비 확연히 균일)
+     *   하한 1.1 -> 0.219 / 24.4쌍   (데스크톱과 거의 동일)
+     *   하한 1.2 -> 0.250 / 19.7쌍   (데스크톱보다 간격 차이가 더 뚜렷)
+     * 노드 크기는 그대로 두고 간격 쪽을 벌리는 방향이라 1.2를 택했다.
+     */
+    const spreadFloor = isMobile ? MOBILE_SPREAD_FLOOR : 0.8;
+    const spread = Math.min(Math.max(Math.min(width / 920, height / 664), spreadFloor), 1.8);
 
     const baseNodes = members.map((m) => ({ ...m, r: NODE_RADIUS }));
     const baseById = new Map(baseNodes.map((n) => [n.id, n]));
@@ -249,7 +271,6 @@ export default function NetworkGraph({
     let links = [...baseLinks];
     let lastCollabSignature = '';
 
-    const isMobile = width < MOBILE_MAX_WIDTH;
     // 현재 카메라 배율. 라벨을 숨길지 판단하는 데 쓰며 zoom 이벤트에서 갱신한다.
     let viewScale = 1;
 
