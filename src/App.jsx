@@ -9,6 +9,18 @@ import channelIds from './data/channelIds.json';
 import memberSongs from './data/memberSongs.json';
 import seedInteractions from './data/memberInteractions.json';
 
+/**
+ * 아카이브에 예약 공개(프리미어) 상태로 굳어버린 항목을 바로잡는다.
+ * Worker도 같은 보정을 하지만(healStalePremiere), KV가 아직 안 고쳐졌거나
+ * 캐시된 응답을 받는 동안에도 "곧 시작"이 남지 않도록 화면 쪽에서도 막는다.
+ */
+function healStalePremiere(item) {
+  if (item.status === 'past') return item;
+  const at = item.timestamp ? new Date(item.timestamp).getTime() : NaN;
+  if (!Number.isFinite(at) || at > Date.now()) return item;
+  return { ...item, status: 'past' };
+}
+
 export default function App() {
   const [mobileFeedOpen, setMobileFeedOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState(null);
@@ -42,7 +54,7 @@ export default function App() {
   const allNotifications = useMemo(() => {
     const seen = new Set(notifications.map((n) => n.id));
     const archive = source === 'live' ? [...music, ...streams] : memberSongs;
-    return [...notifications, ...archive.filter((s) => !seen.has(s.id))];
+    return [...notifications, ...archive.filter((s) => !seen.has(s.id)).map(healStalePremiere)];
   }, [notifications, music, streams, source]);
 
   // 그래프 노드에 LIVE 표시를 하기 위한 집합. 곡 아카이브는 전부 status:'past'라

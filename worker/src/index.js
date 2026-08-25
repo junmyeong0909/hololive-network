@@ -245,7 +245,7 @@ function buildLiveCollabs(liveList) {
  * — npm run setup:songs / setup:interactions로 미리 모아둔 초기 데이터.
  * 새 항목이 없으면 KV에 쓰지 않는다(무료 쓰기 한도 하루 1,000회를 아끼기 위해).
  */
-async function accumulateArchive({ kv, key, seed, fresh, sortKey, cap, debugOut, debugPrefix }) {
+async function accumulateArchive({ kv, key, seed, fresh, sortKey, cap, heal, debugOut, debugPrefix }) {
   let archive;
   try {
     const stored = kv ? await kv.get(key, 'json') : null;
@@ -253,6 +253,17 @@ async function accumulateArchive({ kv, key, seed, fresh, sortKey, cap, debugOut,
   } catch (e) {
     if (debugOut) debugOut[`${debugPrefix}ReadError`] = e.message;
     archive = seed;
+  }
+
+  // 이미 저장된 항목의 상태를 바로잡는다. 아카이브는 id 기준으로 중복을 걸러
+  // 기존 항목을 갱신하지 않기 때문에, 한 번 잘못 들어간 값은 스스로 낫지 않는다.
+  let healed = 0;
+  if (heal) {
+    archive = archive.map((item) => {
+      const fixed = heal(item);
+      if (fixed !== item) healed += 1;
+      return fixed;
+    });
   }
 
   const seen = new Set(archive.map((s) => s.id));
@@ -268,10 +279,25 @@ async function accumulateArchive({ kv, key, seed, fresh, sortKey, cap, debugOut,
   if (debugOut) {
     debugOut[`${debugPrefix}BaseSize`] = archive.length;
     debugOut[`${debugPrefix}Additions`] = additions.length;
+    debugOut[`${debugPrefix}Healed`] = healed;
     debugOut[`${debugPrefix}FinalSize`] = result.length;
   }
 
-  return { archive: result, dirty: additions.length > 0 };
+  return { archive: result, dirty: additions.length > 0 || healed > 0 };
+}
+
+/**
+ * 예약 공개(프리미어)로 아카이브에 들어간 항목은 공개 시각이 지나도 status가
+ * 'upcoming'인 채로 굳어버린다 — 그러면 프론트가 영원히 "곧 시작"으로 표시한다.
+ * 예정 시각이 이미 지났으면 past로 바로잡는다. (liveViewers는 예정/라이브에서만
+ * 의미가 있으므로 같이 떼어낸다)
+ */
+function healStalePremiere(item) {
+  if (item.status === 'past') return item;
+  const at = item.timestamp ? new Date(item.timestamp).getTime() : NaN;
+  if (!Number.isFinite(at) || at > Date.now()) return item;
+  const { liveViewers, ...rest } = item;
+  return { ...rest, status: 'past' };
 }
 
 async function buildFeed(env, debug) {
@@ -402,7 +428,9 @@ async function buildFeed(env, debug) {
 
   const liveCollabs = buildLiveCollabs(collabLive);
 
-  const freshMusic = notifications.filter((n) => n.type === 'music');
+  // 공개 예정(프리미어)인 곡은 아카이브에 넣지 않는다. 한 번 들어가면 id 기준
+  // 중복 제거 때문에 갱신되지 않아, 공개된 뒤에도 계속 "곧 시작"으로 남는다.
+  const freshMusic = notifications.filter((n) => n.type === 'music' && n.status === 'past');
   // 지난 라이브: 곡(music)이나 업로드 영상(video)이 아니라 실제 방송이었던 것만.
   // upcoming/live는 아직 "지난" 게 아니므로 past만 아카이브에 넣는다.
   const freshStreams = notifications.filter((n) => n.type === 'stream' && n.status === 'past');
@@ -415,6 +443,7 @@ async function buildFeed(env, debug) {
       fresh: freshMusic,
       sortKey: 'timestamp',
       cap: MUSIC_ARCHIVE_CAP,
+      heal: healStalePremiere,
       debugOut: debug ? diagnostics : null,
       debugPrefix: 'musicArchive',
     }),
@@ -435,6 +464,7 @@ async function buildFeed(env, debug) {
       fresh: freshStreams,
       sortKey: 'timestamp',
       cap: STREAM_ARCHIVE_CAP,
+      heal: healStalePremiere,
       debugOut: debug ? diagnostics : null,
       debugPrefix: 'streamArchive',
     }),

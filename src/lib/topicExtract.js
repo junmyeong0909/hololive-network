@@ -20,6 +20,15 @@ const NOISE = /ホロライブ|hololive|holo\s*live|ホロlive|dev_is|regloss|fl
 const MIN_LEN = 2;
 const MAX_LEN = 24;
 
+// "大神ミオ×戌神ころね×宝鐘マリン" 처럼 출연자를 나열한 태그는 주제가 아니라
+// 크레딧이다. 구분자로 3토막 이상 갈라지고 각 토막이 짧으면 이름 나열로 본다.
+const NAME_LIST_SEP = /[×✕／/・]/;
+
+function isPerformerList(tag) {
+  const parts = tag.split(NAME_LIST_SEP).map((s) => s.trim());
+  return parts.length >= 3 && parts.every((p) => p.length > 0 && p.length <= 8);
+}
+
 /** 제목에서 괄호 태그를 뽑아 정규화한 배열로 돌려준다. */
 export function extractTags(title) {
   if (!title) return [];
@@ -35,6 +44,7 @@ export function extractTags(title) {
     // "#" 해시태그 표기나 잉여 공백을 정리
     const tag = raw.replace(/^#+/, '').trim();
     if (!tag) continue;
+    if (isPerformerList(tag)) continue;
 
     const key = tag.toLowerCase();
     if (seen.has(key)) continue;
@@ -53,6 +63,16 @@ export function extractTags(title) {
 export function findCommonTopic(titles) {
   const lists = titles.map(extractTags).filter((l) => l.length > 0);
   if (lists.length === 0) return null;
+
+  /*
+   * 비교할 제목이 하나뿐이면 "공통" 태그를 따질 대상이 없다. 예전엔 여기서
+   * null을 돌려줘 호출부가 늘 "합동 방송"으로 대체했는데, 합방은 대개 한 명만
+   * 방송을 켜고 나머지를 mentions로 태그하기 때문에 사실상 항상 이 경우다
+   * (실측: 저장된 3인+ 합방 365건 전부 제목 1개 → 전부 null).
+   * 제목이 하나라도 그 기획 태그가 곧 합방 주제이므로 첫 태그를 채택한다.
+   * (일본어 방송 제목은 관례적으로 맨 앞 괄호에 기획명을 넣는다)
+   */
+  if (lists.length === 1) return lists[0][0] ?? null;
 
   const count = new Map(); // 정규화 키 -> { tag(원문), n }
   for (const tags of lists) {
