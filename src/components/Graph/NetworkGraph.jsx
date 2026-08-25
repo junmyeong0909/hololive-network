@@ -71,26 +71,6 @@ const LINK_DISTANCE_MAX = 1500;
  */
 const DRAWN_TOP_N = 4;
 
-/*
- * 교류선을 노드 중심이 아니라 원 둘레의 "포트"에서 출발시키고, 한 노드에서
- * 나가는 선들의 각도를 최소 이만큼 벌린다.
- *
- * 직선을 중심에 그대로 꽂으면 파트너 방향이 비슷한 선들이 노드 근처에서 겹쳐
- * 몇 가닥인지 분간이 안 된다(실측: 인접 선 쌍의 31.2%가 15° 미만, 최소 0.3°).
- * 각도를 벌리면 그 겹침이 0%가 된다.
- */
-const PORT_MIN_SEPARATION = (20 * Math.PI) / 180;
-const PORT_RELAX_ITERATIONS = 12;
-
-/*
- * 곡률(선 길이 대비 제어점 거리). 곡선으로 빼면 중간에 낀 무관한 노드를 타고
- * 넘어가 "저 노드에 연결된 것처럼" 보이는 오해가 줄어든다
- * (실측: 무관한 노드를 관통하는 선 21.8% -> 15.1%).
- * 0.3까지 올리면 관통은 조금 더 줄지만 직선 대비 105px까지 벌어져 방향을
- * 오해할 수 있어 0.2로 둔다(최대 이탈 72px).
- */
-const LINK_CURVE = 0.2;
-
 // 거리 점수에서 "절대 합방 횟수"가 최소한 이만큼은 반영되게 하는 하한.
 // 0이면 최소 기준(3회)만 넘긴 쌍이 무관계와 똑같이 0점이 되어버린다.
 const ABS_WEIGHT_FLOOR = 0.15;
@@ -407,124 +387,34 @@ export default function NetworkGraph({
     const hitLayer = root.append('g').attr('class', 'link-hits');
     const nodeLayer = root.append('g').attr('class', 'nodes');
 
-    let linkSel = linkLayer.selectAll('path');
-    let hitSel = hitLayer.selectAll('path');
+    let linkSel = linkLayer.selectAll('line');
+    let hitSel = hitLayer.selectAll('line');
     let nodeSel = nodeLayer.selectAll('g.node');
-
-    // 노드별로 "이 노드에 붙은 그려지는 선"들의 목록. 포트 각도 계산에 쓴다.
-    let portIndex = new Map();
 
     // ---------- 렌더링 ----------
 
     function renderLinks() {
       linkSel = linkLayer
-        .selectAll('path')
+        .selectAll('line')
         .data(links, (d) => d.key)
-        .join('path')
+        .join('line')
         .attr('class', (d) => (d.isLive ? 'link-live' : null))
-        .attr('fill', 'none')
         .attr('stroke-width', (d) => (d.isLive ? 3.5 : linkWidthScale(d.visScore)))
         .attr('stroke-opacity', (d) => (d.isLive ? 0.95 : linkOpacityScale(d.visScore)))
         .attr('stroke-linecap', 'round');
 
       // 라이브 선은 임시 표시라 클릭 대상에서 뺀다 (합방 기록 팝업은 누적 교류선용)
       hitSel = hitLayer
-        .selectAll('path')
+        .selectAll('line')
         .data(
           links.filter((d) => !d.isLive),
           (d) => d.key
         )
-        .join('path')
-        .attr('fill', 'none')
+        .join('line')
         .attr('stroke', 'transparent')
         .attr('stroke-width', 16)
         .style('cursor', 'pointer')
         .on('click', onLinkClick);
-
-      rebuildPortIndex();
-    }
-
-    /** links가 바뀔 때마다(라이브 합방 등) 노드별 부착 선 목록을 다시 만든다. */
-    function rebuildPortIndex() {
-      portIndex = new Map();
-      for (const l of links) {
-        const s = l.source.id ?? l.source;
-        const t = l.target.id ?? l.target;
-        if (!portIndex.has(s)) portIndex.set(s, []);
-        if (!portIndex.has(t)) portIndex.set(t, []);
-        portIndex.get(s).push({ link: l, atSource: true });
-        portIndex.get(t).push({ link: l, atSource: false });
-      }
-    }
-
-    /**
-     * 각 노드에서 나가는 선들의 출발 각도를 최소 PORT_MIN_SEPARATION 이상 벌린다.
-     * 원래 각도 순서는 유지한 채 서로 밀어내기만 하므로, 어느 방향에 있는
-     * 파트너인지는 그대로 읽힌다.
-     */
-    function updatePortAngles() {
-      for (const entries of portIndex.values()) {
-        const n = entries.length;
-        const natural = entries.map(({ link, atSource }) => {
-          const from = atSource ? link.source : link.target;
-          const to = atSource ? link.target : link.source;
-          return Math.atan2(to.y - from.y, to.x - from.x);
-        });
-
-        if (n === 1) {
-          entries[0].angle = natural[0];
-          continue;
-        }
-
-        const order = natural.map((_, i) => i).sort((a, b) => natural[a] - natural[b]);
-        const spread = order.map((i) => natural[i]);
-        const sep = Math.min(PORT_MIN_SEPARATION, ((Math.PI * 2) / n) * 0.95);
-        for (let iter = 0; iter < PORT_RELAX_ITERATIONS; iter++) {
-          for (let k = 0; k < n; k++) {
-            const j = (k + 1) % n;
-            let gap = spread[j] - spread[k];
-            if (j === 0) gap += Math.PI * 2;
-            if (gap < sep) {
-              const push = (sep - gap) / 2;
-              spread[k] -= push;
-              spread[j] += push;
-            }
-          }
-        }
-        order.forEach((originalIndex, k) => {
-          entries[originalIndex].angle = spread[k];
-        });
-      }
-
-      // 계산한 각도를 링크 객체에 옮겨 담는다 (경로 생성에서 바로 쓰려고)
-      for (const entries of portIndex.values()) {
-        for (const e of entries) {
-          if (e.atSource) e.link.angleSource = e.angle;
-          else e.link.angleTarget = e.angle;
-        }
-      }
-    }
-
-    /** 포트에서 출발해 포트로 들어가는 3차 베지어 경로 문자열. */
-    function linkPath(l) {
-      const a = l.source;
-      const b = l.target;
-      const ra = a.r ?? NODE_RADIUS;
-      const rb = b.r ?? NODE_RADIUS;
-      const aA = l.angleSource ?? Math.atan2(b.y - a.y, b.x - a.x);
-      const aB = l.angleTarget ?? Math.atan2(a.y - b.y, a.x - b.x);
-
-      const x0 = a.x + Math.cos(aA) * ra;
-      const y0 = a.y + Math.sin(aA) * ra;
-      const x3 = b.x + Math.cos(aB) * rb;
-      const y3 = b.y + Math.sin(aB) * rb;
-      const h = Math.hypot(b.x - a.x, b.y - a.y) * LINK_CURVE;
-
-      const x1 = x0 + Math.cos(aA) * h;
-      const y1 = y0 + Math.sin(aA) * h;
-      const x2 = x3 + Math.cos(aB) * h;
-      const y2 = y3 + Math.sin(aB) * h;
-      return `M${x0},${y0}C${x1},${y1} ${x2},${y2} ${x3},${y3}`;
     }
 
     /** 허브(합방 주제) 노드의 캡슐 + 라벨. 텍스트 길이를 재서 박스 폭을 맞춘다. */
@@ -949,14 +839,14 @@ export default function NetworkGraph({
       });
 
     function renderPositions() {
-      updatePortAngles();
-      // 경로 문자열은 한 번만 만들어 선/히트영역이 함께 쓴다
-      for (const l of links) l.pathD = linkPath(l);
+      const x1 = (d) => d.source.x;
+      const y1 = (d) => d.source.y;
+      const x2 = (d) => d.target.x;
+      const y2 = (d) => d.target.y;
 
-      const d = (l) => l.pathD;
-      linkSel.attr('d', d);
-      hitSel.attr('d', d);
-      nodeSel.attr('transform', (n) => `translate(${n.x},${n.y})`);
+      linkSel.attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
+      hitSel.attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
+      nodeSel.attr('transform', (d) => `translate(${d.x},${d.y})`);
 
       syncTooltipPosition();
     }
