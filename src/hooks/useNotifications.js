@@ -2,6 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const POLL_INTERVAL_MS = 60_000;
 
+/*
+ * 아카이브(음악 205건 + 지난 라이브 3995건 + 합방 448건)는 응답의 대부분인 1.6MB를
+ * 차지하는데, 하루에 몇 건 늘 뿐이라 60초마다 다시 받을 이유가 없다. 실제로 폴링에
+ * 필요한 건 notifications와 liveCollabs(합쳐 8KB)뿐이다.
+ *
+ * 매 폴링마다 1.6MB를 받아 파싱(폰 기준 75~125ms)하고 4천 건짜리 배열을 새로 만들어
+ * 정렬하던 것이 렉의 원인이었다. 첫 로드에서 전체를 받고 이후 폴링은 light로 돌린다.
+ * 다만 새로 올라온 곡·방송이 새로고침 없이도 들어오도록 이 횟수마다 한 번은 전체를 받는다.
+ */
+const FULL_REFRESH_EVERY = 10; // 10회 x 60초 = 10분
+
 // 3단계에서 Worker 주소를 .env의 VITE_FEED_ENDPOINT에 넣으면 실데이터로 전환된다.
 // 비어 있으면 fallback(더미)을 그대로 쓴다.
 const FEED_ENDPOINT = import.meta.env.VITE_FEED_ENDPOINT ?? '';
@@ -32,10 +43,15 @@ export function useNotifications(fallback = []) {
   // 한 번이라도 성공했는지 (최초 실패와 갱신 실패를 구분하기 위해)
   const hasLoadedRef = useRef(false);
 
-  const refresh = useCallback(async (signal) => {
+  const refresh = useCallback(async (signal, { full = false } = {}) => {
     if (!enabled) return;
     try {
-      const res = await fetch(FEED_ENDPOINT, { signal });
+      // light 응답에는 music/streams/interactions가 아예 없다. 아래 setter들이
+      // Array.isArray로 가드하고 있어서, 없으면 기존 상태를 그대로 유지한다.
+      const url = full
+        ? FEED_ENDPOINT
+        : `${FEED_ENDPOINT}${FEED_ENDPOINT.includes('?') ? '&' : '?'}light=1`;
+      const res = await fetch(url, { signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
@@ -64,9 +80,14 @@ export function useNotifications(fallback = []) {
     if (!enabled) return;
 
     const controller = new AbortController();
-    refresh(controller.signal);
+    // 첫 로드만 전체(아카이브 포함)를 받는다
+    refresh(controller.signal, { full: true });
 
-    const timer = setInterval(() => refresh(controller.signal), POLL_INTERVAL_MS);
+    let polls = 0;
+    const timer = setInterval(() => {
+      polls += 1;
+      refresh(controller.signal, { full: polls % FULL_REFRESH_EVERY === 0 });
+    }, POLL_INTERVAL_MS);
     return () => {
       controller.abort();
       clearInterval(timer);
@@ -83,6 +104,7 @@ export function useNotifications(fallback = []) {
     isStale,
     isLoading,
     source: enabled ? 'live' : 'dummy',
-    refresh: () => refresh(),
+    // 수동 새로고침은 아카이브까지 최신으로 받는다
+    refresh: () => refresh(undefined, { full: true }),
   };
 }

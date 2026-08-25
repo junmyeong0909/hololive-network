@@ -530,9 +530,22 @@ export default {
 
     const debug = url.searchParams.get('debug') === '1';
 
-    // 엣지 캐시 (debug 요청은 캐시하지 않음)
+    /*
+     * light=1이면 아카이브(music/streams/interactions)를 빼고 보낸다.
+     *
+     * 아카이브는 전부 합쳐 1.6MB인데(streams만 3995건 1.2MB) 하루에 몇 건 늘 뿐이라
+     * 60초 폴링마다 다시 받을 이유가 없다. 실제로 폴링에 필요한 건 notifications와
+     * liveCollabs(합쳐 8KB)뿐이다. 프론트는 첫 로드와 가끔만 전체를 받고
+     * 그 사이 폴링은 light로 돌린다 (useNotifications.js 참고).
+     */
+    const light = url.searchParams.get('light') === '1';
+
+    // 엣지 캐시 (debug 요청은 캐시하지 않음).
+    // light 여부가 응답 내용을 바꾸므로 캐시 키에도 반드시 반영해야 한다.
     const cache = caches.default;
-    const cacheKey = new Request(`${url.origin}/api/feed`, { method: 'GET' });
+    const cacheKey = new Request(`${url.origin}/api/feed${light ? '?light=1' : ''}`, {
+      method: 'GET',
+    });
 
     if (!debug) {
       const hit = await cache.match(cacheKey);
@@ -548,8 +561,11 @@ export default {
       const feed = await buildFeed(env, debug);
       persistArchives(env, feed, ctx);
 
-      const { _dirty, ...publicFeed } = feed;
-      const body = JSON.stringify(publicFeed);
+      // 아카이브 누적(KV 저장)은 light 여부와 무관하게 늘 그대로 수행하고,
+      // 응답 본문에서만 무거운 아카이브를 뺀다.
+      // rest = { updatedAt, notifications, liveCollabs, (_debug) }
+      const { _dirty, music, streams, interactions, ...rest } = feed;
+      const body = JSON.stringify(light ? rest : { ...rest, music, streams, interactions });
 
       if (!debug) {
         const cacheable = new Response(body, {
