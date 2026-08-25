@@ -25,30 +25,40 @@ const HUB_SPOKE_DISTANCE = 78;
 const LIVE_LINK_STRENGTH = 0.9;
 
 /*
- * 모바일 대응.
+ * 첫 화면은 "전부 한 화면에"가 아니라 "읽을 수 있는 배율"로 시작한다.
  *
- * 39개 노드를 폰 화면(390px)에 다 넣으면 맞춤 배율이 0.45까지 떨어져
- * 노드 22px / 라벨 5.2px가 된다(실측). 라벨은 못 읽고 서로 겹치기만 해서
- * 그래프가 "따닥따닥" 붙어 보인다. 배치 파라미터를 아무리 조정해도
- * (세로형 배치 + 노드 축소 + spread 완화 전부 합쳐도 라벨 7.5px) 39개를
- * 읽히게 넣으려면 ~1400px가 필요해 물리적으로 불가능하다.
- *
- * 그래서 "전부 한 화면에"를 포기하고, 읽을 수 있는 배율로 시작해 팬·핀치로
- * 탐색하게 한다. 전체 조망이 필요하면 리셋 버튼이 맞춤 배율로 되돌린다.
+ * 관계가 거리로 제대로 드러나려면 배치를 넓게 써야 하는데(LINK_DISTANCE_* 주석 참고),
+ * 그러면 배치가 화면보다 훨씬 커진다. 이걸 억지로 다 담으면 배율이 0.11~0.25까지
+ * 떨어져 라벨이 1~3px이 되어 아무것도 못 읽는다.
+ * 그래서 읽히는 배율로 시작하고 팬·핀치로 탐색하게 한다.
+ * 전체 조망이 필요하면 리셋 버튼이 맞춤 배율로 되돌린다.
  */
 const MOBILE_MAX_WIDTH = 768;
-const MOBILE_INITIAL_SCALE = 0.9;
+const INITIAL_SCALE = 0.85;
 
-// 모바일 배치 배율의 하한. 화면이 좁다고 배치까지 좁히면 노드 간격이
-// 충돌 하한에 눌려 균일해진다 — 자세한 근거는 spread 계산부 주석 참고.
+// 모바일 배치 배율의 하한. 화면이 좁다고 배치까지 좁히면 관계 표현이 뭉개진다.
 const MOBILE_SPREAD_FLOOR = 1.2;
+
+// 배치가 화면보다 훨씬 커서, 리셋(전체 맞춤)이 0.11까지 내려갈 수 있어야 한다.
+const MIN_ZOOM = 0.08;
+const MAX_ZOOM = 2.5;
 
 // 노드를 탭했을 때 이웃까지 담되, 최소한 이 배율(=라벨이 읽히는 크기)은 지킨다.
 const FOCUS_MIN_SCALE = 0.9;
 
-// 링크 목표 거리 범위(가장 가까운 사이 ~ 무관계). spread가 곱해진다.
-const LINK_DISTANCE_MIN = 70;
-const LINK_DISTANCE_MAX = 580;
+/*
+ * 링크 목표 거리 범위(가장 가까운 사이 ~ 무관계). spread가 곱해진다.
+ *
+ * 배치를 좁게 잡으면 거리들이 충돌 하한(96)에 눌려 관계가 뭉개진다.
+ * 넓힐수록 거리가 온전히 관계로만 정해지는데, 실측상 250~2000에서 정점을 찍는다:
+ *   70~580   역전 4.8%  충돌하한에 눌린 쌍 44.2개
+ *   180~1500 역전 3.6%  눌린 쌍  1.4개
+ *   250~2000 역전 3.0%  눌린 쌍  0.2개  <- 채택 (이보다 넓혀도 개선 미미)
+ * 배치가 화면보다 훨씬 커지지만, 한눈에 다 볼 필요는 없다는 전제다.
+ * (전체 조망은 리셋 버튼이 맞춤 배율로 보여준다)
+ */
+const LINK_DISTANCE_MIN = 250;
+const LINK_DISTANCE_MAX = 2000;
 
 // 거리 점수에서 "절대 합방 횟수"가 최소한 이만큼은 반영되게 하는 하한.
 // 0이면 최소 기준(3회)만 넘긴 쌍이 무관계와 똑같이 0점이 되어버린다.
@@ -810,7 +820,7 @@ export default function NetworkGraph({
     // 줌 & 팬. 아래 카메라 헬퍼들이 초기 변환을 걸 수 있도록 미리 만들어둔다.
     const zoom = d3
       .zoom()
-      .scaleExtent([0.3, 2.5])
+      .scaleExtent([MIN_ZOOM, MAX_ZOOM])
       .on('zoom', (event) => {
         root.attr('transform', event.transform);
         // 시뮬레이션이 멈춘 뒤에도 툴팁이 노드를 따라오도록
@@ -854,24 +864,20 @@ export default function NetworkGraph({
     function fitToView(duration = 0) {
       const b = nodeBounds(nodes);
       if (!b) return;
-      const scale = Math.min(2.5, Math.max(0.3, Math.min(width / b.boxW, height / b.boxH)));
+      const scale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.min(width / b.boxW, height / b.boxH)));
       applyCamera(cameraAt(b.cx, b.cy, scale), duration);
     }
     fitToViewRef.current = fitToView;
 
     /**
-     * 첫 화면. 데스크톱은 전체를 맞춰 보여주지만, 모바일에서 그러면 배율이
-     * 0.45까지 떨어져 아무것도 못 읽는다(위 상수 주석 참고). 모바일은 그래프
-     * 중앙에서 읽을 수 있는 배율로 시작하고 나머지는 팬·핀치로 보게 한다.
+     * 첫 화면. 데스크톱·모바일 모두 그래프 중앙에서 읽을 수 있는 배율로 시작한다.
+     * 관계가 거리로 드러나도록 배치를 넓게 쓰기 때문에(LINK_DISTANCE_* 참고)
+     * 전체를 맞추면 배율이 0.11~0.25까지 떨어져 라벨이 사라진다.
      */
     function applyInitialView() {
       const b = nodeBounds(nodes);
       if (!b) return;
-      if (!isMobile) {
-        fitToView();
-        return;
-      }
-      applyCamera(cameraAt(b.cx, b.cy, MOBILE_INITIAL_SCALE));
+      applyCamera(cameraAt(b.cx, b.cy, INITIAL_SCALE));
     }
 
     /**
@@ -900,7 +906,7 @@ export default function NetworkGraph({
         applyCamera(cameraAt(d.x, d.y, FOCUS_MIN_SCALE), duration);
         return;
       }
-      applyCamera(cameraAt(b.cx, b.cy, Math.min(2.5, fitScale)), duration);
+      applyCamera(cameraAt(b.cx, b.cy, Math.min(MAX_ZOOM, fitScale)), duration);
     }
 
     renderLinks();
