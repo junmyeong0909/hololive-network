@@ -71,10 +71,6 @@ const LINK_DISTANCE_MAX = 1500;
  */
 const DRAWN_TOP_N = 4;
 
-// 거리 점수에서 "절대 합방 횟수"가 최소한 이만큼은 반영되게 하는 하한.
-// 0이면 최소 기준(3회)만 넘긴 쌍이 무관계와 똑같이 0점이 되어버린다.
-const ABS_WEIGHT_FLOOR = 0.15;
-
 // 함께한 기록이 없는 쌍을 서로 밀어내는 스프링 세기.
 // 이게 없으면 무관계 쌍이 충돌 하한까지 붙는다(실측 거리 96).
 const UNRELATED_STRENGTH = 0.3;
@@ -158,6 +154,27 @@ function buildLocalRanks(baseLinks, minCount) {
 /** 링크 양쪽 노드 중 어느 한쪽이라도 상대를 상위로 친다면 그 링크도 그렇게 대접한다. */
 function localScore(rankMap, aId, bId) {
   return Math.max(rankMap.get(`${aId}|${bId}`) ?? 0, rankMap.get(`${bId}|${aId}`) ?? 0);
+}
+
+/**
+ * 양방향 순위의 기하평균 = "서로에게 얼마나 중요한 사이인가".
+ *
+ * 관계는 비대칭이다. 활동량이 다르면 같은 횟수라도 순위가 갈린다
+ * (실측: 후부키-토와 15회인데 토와에겐 1위, 후부키에겐 19/33위).
+ * 그런데 거리는 하나뿐이라 한쪽 입장만 반영할 수 없다.
+ *
+ * 예전엔 max를 썼는데, 그러면 "누군가 나를 1위로 꼽으면 무조건 옆에 붙는다"가 되어
+ * 인기 많은 멤버 주변으로 다들 몰리고, 순위가 한두 계단 바뀔 때 거리가 확 튀었다.
+ * 기하평균은 양쪽이 모두 중요하게 여길 때만 가까워지고, 한쪽만의 짝사랑은
+ * 중간 거리에 놓인다 — 하나의 거리로 표현할 수 있는 가장 정직한 값이다.
+ *
+ * 실측(같은 횟수 쌍의 거리 편차 / 역전율): max 0.399·3.2% -> 기하평균 0.364·2.9%
+ * (코사인·자카드처럼 활동량으로 나누는 방식도 재봤지만 역전율이 20%로 뛰어 탈락)
+ */
+function mutualScore(rankMap, aId, bId) {
+  const ab = rankMap.get(`${aId}|${bId}`) ?? 0;
+  const ba = rankMap.get(`${bId}|${aId}`) ?? 0;
+  return Math.sqrt(ab * ba);
 }
 
 const EMPTY_SET = new Set();
@@ -305,23 +322,15 @@ export default function NetworkGraph({
      * distRank: "이 노드에게 이 상대가 몇 등 파트너인가"(노드별 상대 순위).
      * visRank: LOCAL_MIN_COUNT 이상만 후보로 삼은 같은 순위 계산(선 굵기/진하기용).
      *
-     * 거리에는 순위만 쓰면 안 된다. 순위는 절대 횟수를 무시해서, 파트너가 31명인
-     * 사교적인 멤버는 12회나 함께한 상대도 21등으로 밀려 "먼 사이"로 취급된다
-     * (실측: 미코-마츠리 12회인데 순위점수 0.72 -> 목표거리 354). 그래서 거리는
-     * 순위와 전체 분포에서의 백분위를 곱해(기하평균) 쓴다. 그러면 순위가 낮아도
-     * 절대 횟수가 많으면 가까워진다.
+     * 거리는 양방향 순위의 기하평균(mutualScore)을 쓴다 — 근거는 그 함수 주석 참고.
+     * 선 굵기/진하기는 예전처럼 max(localScore)를 유지한다. "마린 노드에서는
+     * 페코라가 1위"처럼 한쪽 기준으로도 특별한 관계면 진하게 보여야 하기 때문이다.
+     *
+     * 순위는 그리는 선이 아니라 "관계가 있는 모든 쌍"에서 계산해야 한다.
+     * 그리는 선만 쓰면 화면 정리(top-N)가 배치까지 바꿔버린다.
      */
-    // 순위·백분위는 그리는 선이 아니라 "관계가 있는 모든 쌍"에서 계산해야 한다.
-    // 그리는 선만 쓰면 화면 정리(top-N)가 배치까지 바꿔버린다.
     const distRank = buildLocalRanks(relatedLinks, MIN_EDGE_EVENTS);
     const visRank = buildLocalRanks(relatedLinks, LOCAL_MIN_COUNT);
-    const sortedCounts = relatedLinks.map((l) => l.count).sort((a, b) => a - b);
-    const countPercentile = (count) => {
-      if (sortedCounts.length <= 1) return 1;
-      let below = 0;
-      while (below < sortedCounts.length && sortedCounts[below] < count) below += 1;
-      return below / (sortedCounts.length - 1);
-    };
 
     for (const l of physicsLinks) {
       if (l.count < MIN_EDGE_EVENTS) {
@@ -329,10 +338,7 @@ export default function NetworkGraph({
         l.visScore = 0;
         continue;
       }
-      const rank = localScore(distRank, l.source, l.target);
-      // 하한을 둬서 최소 기준(3회)만 넘긴 쌍도 완전한 무관계(0점)와는 구분되게 한다
-      const magnitude = ABS_WEIGHT_FLOOR + (1 - ABS_WEIGHT_FLOOR) * countPercentile(l.count);
-      l.distScore = Math.sqrt(rank * magnitude);
+      l.distScore = mutualScore(distRank, l.source, l.target);
       l.visScore = localScore(visRank, l.source, l.target);
     }
 
