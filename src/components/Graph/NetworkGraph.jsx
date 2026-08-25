@@ -24,6 +24,33 @@ const LIVE_PAIR_DISTANCE = 85;
 const HUB_SPOKE_DISTANCE = 78;
 const LIVE_LINK_STRENGTH = 0.9;
 
+/*
+ * 모바일 대응.
+ *
+ * 39개 노드를 폰 화면(390px)에 다 넣으면 맞춤 배율이 0.45까지 떨어져
+ * 노드 22px / 라벨 5.2px가 된다(실측). 라벨은 못 읽고 서로 겹치기만 해서
+ * 그래프가 "따닥따닥" 붙어 보인다. 배치 파라미터를 아무리 조정해도
+ * (세로형 배치 + 노드 축소 + spread 완화 전부 합쳐도 라벨 7.5px) 39개를
+ * 읽히게 넣으려면 ~1400px가 필요해 물리적으로 불가능하다.
+ *
+ * 그래서 "전부 한 화면에"를 포기하고, 읽을 수 있는 배율로 시작해 팬·핀치로
+ * 탐색하게 한다. 전체 조망이 필요하면 리셋 버튼이 맞춤 배율로 되돌린다.
+ */
+const MOBILE_MAX_WIDTH = 768;
+const MOBILE_INITIAL_SCALE = 0.9;
+
+/*
+ * 이 배율 아래에서는 이름 라벨(11.5px)이 읽히지 않고 겹치기만 하므로 숨긴다.
+ * 값을 정할 때 실측한 맞춤 배율: 모바일 0.40~0.45(라벨 4.8~5.2px, 판독 불가),
+ * 데스크톱 0.67~0.86(라벨 7.7~9.9px, 읽힘). 0.55로 두면 그 사이를 갈라서
+ * 모바일 전체 조망에서만 라벨이 사라지고 데스크톱 기본 화면은 그대로 유지된다.
+ * (0.7로 잡았더니 920x664 창에서도 라벨이 전부 사라져서 낮췄다)
+ */
+const LABEL_MIN_SCALE = 0.55;
+
+// 노드를 탭했을 때 이웃까지 담되, 최소한 이 배율(=라벨이 읽히는 크기)은 지킨다.
+const FOCUS_MIN_SCALE = 0.9;
+
 function pairKey(a, b) {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
 }
@@ -132,6 +159,8 @@ export default function NetworkGraph({
   // 팝업의 "자주 함께하는 멤버" 클릭 핸들러. 이펙트 안에서 만들어지는 클로저라
   // JSX(이펙트 밖)에서 부르려면 ref로 우회해야 한다 — applyHighlightRef와 같은 패턴.
   const onConnectionClickRef = useRef(null);
+  // 리셋 버튼이 "전체 맞춤"으로 되돌리는 데 쓴다 (같은 이유로 ref 경유)
+  const fitToViewRef = useRef(null);
 
   const membersById = Object.fromEntries(members.map((m) => [m.id, m]));
 
@@ -219,6 +248,10 @@ export default function NetworkGraph({
     let nodes = [...baseNodes];
     let links = [...baseLinks];
     let lastCollabSignature = '';
+
+    const isMobile = width < MOBILE_MAX_WIDTH;
+    // 현재 카메라 배율. 라벨을 숨길지 판단하는 데 쓰며 zoom 이벤트에서 갱신한다.
+    let viewScale = 1;
 
     const svg = d3.select(svgEl).attr('viewBox', [0, 0, width, height]);
     svg.selectAll('*').remove();
@@ -408,6 +441,17 @@ export default function NetworkGraph({
       nodeSel.style('cursor', 'pointer').on('click', onNodeClick);
       nodeSel.call(drag);
       updateLiveBadges(liveMemberIds);
+      // 새로 만들어진 라벨에도 현재 배율 기준을 그대로 적용한다
+      updateLabelVisibility();
+    }
+
+    /**
+     * 줌아웃 상태에서 이름 라벨을 숨긴다.
+     * 배율 0.45에서 라벨은 5px라 읽히지 않고 서로 겹치기만 해서, 오히려
+     * 관계 구조를 가린다. 허브(합방 주제) 라벨은 개수가 적고 정보량이 커서 남긴다.
+     */
+    function updateLabelVisibility() {
+      nodeSel.selectAll('text.label').style('display', viewScale < LABEL_MIN_SCALE ? 'none' : null);
     }
 
     // ---------- 상호작용 ----------
@@ -436,6 +480,11 @@ export default function NetworkGraph({
         setTooltip(null);
         return;
       }
+
+      // 모바일은 화면이 좁아 탭한 멤버가 가장자리에 있으면 팝업과 겹친다.
+      // 해당 멤버와 이웃이 보이도록 카메라를 옮겨준다(줌 이벤트가 팝업 위치도 따라 갱신).
+      if (isMobile) focusOnNode(d);
+
       const { x, y } = tooltipAnchor(d);
       setTooltip({ member: d, connections: buildConnections(d.id, rawCounts), x, y });
     }
@@ -706,41 +755,104 @@ export default function NetworkGraph({
       syncTooltipPosition();
     }
 
-    // 줌 & 팬. fitToView()가 초기 변환을 걸 수 있도록 미리 만들어둔다.
+    // 줌 & 팬. 아래 카메라 헬퍼들이 초기 변환을 걸 수 있도록 미리 만들어둔다.
     const zoom = d3
       .zoom()
       .scaleExtent([0.3, 2.5])
       .on('zoom', (event) => {
         root.attr('transform', event.transform);
+        if (event.transform.k !== viewScale) {
+          viewScale = event.transform.k;
+          updateLabelVisibility();
+        }
         // 시뮬레이션이 멈춘 뒤에도 툴팁이 노드를 따라오도록
         syncTooltipPosition();
       });
     svg.call(zoom);
     zoomRef.current = zoom;
 
-    /** 현재 노드들의 바운딩 박스를 구해 화면에 맞는 초기 줌/팬을 건다. */
-    function fitToView() {
-      const xs = nodes.map((d) => d.x).filter((v) => v != null);
-      const ys = nodes.map((d) => d.y).filter((v) => v != null);
-      if (xs.length === 0) return;
+    /** 주어진 노드들을 감싸는 사각형(여백 포함)과 그 중심. */
+    function nodeBounds(list, pad = 60) {
+      const xs = list.map((d) => d.x).filter((v) => v != null);
+      const ys = list.map((d) => d.y).filter((v) => v != null);
+      if (xs.length === 0) return null;
 
-      const pad = 60;
       const minX = Math.min(...xs) - pad;
       const maxX = Math.max(...xs) + pad;
       const minY = Math.min(...ys) - pad;
       const maxY = Math.max(...ys) + pad;
-      const boxW = Math.max(1, maxX - minX);
-      const boxH = Math.max(1, maxY - minY);
+      return {
+        cx: (minX + maxX) / 2,
+        cy: (minY + maxY) / 2,
+        boxW: Math.max(1, maxX - minX),
+        boxH: Math.max(1, maxY - minY),
+      };
+    }
 
-      const scale = Math.min(2.5, Math.max(0.3, Math.min(width / boxW, height / boxH)));
-      const cx = (minX + maxX) / 2;
-      const cy = (minY + maxY) / 2;
-      const transform = d3.zoomIdentity
+    /** (cx, cy)를 화면 중앙에 두는 배율 scale의 카메라 변환. */
+    function cameraAt(cx, cy, scale) {
+      return d3.zoomIdentity
         .translate(width / 2, height / 2)
         .scale(scale)
         .translate(-cx, -cy);
+    }
 
-      svg.call(zoom.transform, transform);
+    function applyCamera(transform, duration = 0) {
+      if (duration > 0) svg.transition().duration(duration).call(zoom.transform, transform);
+      else svg.call(zoom.transform, transform);
+    }
+
+    /** 전체 노드가 화면에 들어오도록 맞춘다 (리셋 버튼이 쓰는 "전체 조망"). */
+    function fitToView(duration = 0) {
+      const b = nodeBounds(nodes);
+      if (!b) return;
+      const scale = Math.min(2.5, Math.max(0.3, Math.min(width / b.boxW, height / b.boxH)));
+      applyCamera(cameraAt(b.cx, b.cy, scale), duration);
+    }
+    fitToViewRef.current = fitToView;
+
+    /**
+     * 첫 화면. 데스크톱은 전체를 맞춰 보여주지만, 모바일에서 그러면 배율이
+     * 0.45까지 떨어져 아무것도 못 읽는다(위 상수 주석 참고). 모바일은 그래프
+     * 중앙에서 읽을 수 있는 배율로 시작하고 나머지는 팬·핀치로 보게 한다.
+     */
+    function applyInitialView() {
+      const b = nodeBounds(nodes);
+      if (!b) return;
+      if (!isMobile) {
+        fitToView();
+        return;
+      }
+      applyCamera(cameraAt(b.cx, b.cy, MOBILE_INITIAL_SCALE));
+    }
+
+    /**
+     * 노드를 탭했을 때 그 멤버가 화면 중앙에 오도록 카메라를 옮긴다.
+     *
+     * 이웃까지 한 화면에 담을 수 있으면 담지만, 실측상 39명 중 38명은 이웃이
+     * 24~31명이라 다 담으려면 배율이 0.53까지 떨어져(=라벨 6px) 읽을 수 없다.
+     * 그런 경우엔 담는 것보다 읽히는 게 중요하므로 탭한 노드를 중앙에 두고
+     * FOCUS_MIN_SCALE을 지킨다. 어느 쪽이든 배율은 항상 0.9 이상이라
+     * 라벨이 숨겨지는 일은 없다.
+     */
+    function focusOnNode(d, duration = 400) {
+      const ids = new Set([d.id]);
+      links.forEach((l) => {
+        const s = l.source.id ?? l.source;
+        const t = l.target.id ?? l.target;
+        if (s === d.id) ids.add(t);
+        if (t === d.id) ids.add(s);
+      });
+
+      const b = nodeBounds(nodes.filter((n) => ids.has(n.id)), 80);
+      if (!b) return;
+
+      const fitScale = Math.min(width / b.boxW, height / b.boxH);
+      if (fitScale < FOCUS_MIN_SCALE) {
+        applyCamera(cameraAt(d.x, d.y, FOCUS_MIN_SCALE), duration);
+        return;
+      }
+      applyCamera(cameraAt(b.cx, b.cy, Math.min(2.5, fitScale)), duration);
     }
 
     renderLinks();
@@ -758,7 +870,7 @@ export default function NetworkGraph({
     simulation.stop();
     for (let i = 0; i < 300; i++) simulation.tick();
     renderPositions();
-    fitToView();
+    applyInitialView();
 
     simulation.on('tick', renderPositions);
     simulation.alpha(0.2).restart();
@@ -785,14 +897,23 @@ export default function NetworkGraph({
     svg.transition().duration(200).call(zoomRef.current.scaleBy, factor);
   };
 
+  /*
+   * 예전엔 zoomIdentity(배율 1.0)로 되돌렸는데, 실제 첫 화면은 맞춤 배율
+   * (데스크톱 0.86 / 모바일은 그보다 훨씬 낮음)이라 리셋할 때마다 엉뚱한
+   * 배율로 튀고 그래프가 화면 밖으로 벗어났다. 전체 맞춤으로 되돌린다.
+   */
   const handleReset = () => {
-    const svg = d3.select(svgRef.current);
-    svg.transition().duration(300).call(zoomRef.current.transform, d3.zoomIdentity);
+    fitToViewRef.current?.(300);
   };
 
   return (
     <div ref={containerRef} className="relative h-full w-full">
-      <svg ref={svgRef} className="h-full w-full" />
+      {/*
+        touch-none: 이게 없으면 모바일에서 핀치/드래그를 브라우저가 페이지 확대·스크롤로
+        먼저 가로채 d3의 줌·팬이 제대로 먹지 않는다. select-none은 드래그 중 라벨 텍스트가
+        선택되는 것을 막는다.
+      */}
+      <svg ref={svgRef} className="h-full w-full touch-none select-none" />
 
       <div className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 text-center">
         <p className="font-display text-lg font-semibold text-ink-100">멤버 교류 네트워크</p>
