@@ -43,15 +43,6 @@ const MOBILE_INITIAL_SCALE = 0.9;
 // 충돌 하한에 눌려 균일해진다 — 자세한 근거는 spread 계산부 주석 참고.
 const MOBILE_SPREAD_FLOOR = 1.2;
 
-/*
- * 이 배율 아래에서는 이름 라벨(11.5px)이 읽히지 않고 겹치기만 하므로 숨긴다.
- * 값을 정할 때 실측한 맞춤 배율: 모바일 0.40~0.45(라벨 4.8~5.2px, 판독 불가),
- * 데스크톱 0.67~0.86(라벨 7.7~9.9px, 읽힘). 0.55로 두면 그 사이를 갈라서
- * 모바일 전체 조망에서만 라벨이 사라지고 데스크톱 기본 화면은 그대로 유지된다.
- * (0.7로 잡았더니 920x664 창에서도 라벨이 전부 사라져서 낮췄다)
- */
-const LABEL_MIN_SCALE = 0.55;
-
 // 노드를 탭했을 때 이웃까지 담되, 최소한 이 배율(=라벨이 읽히는 크기)은 지킨다.
 const FOCUS_MIN_SCALE = 0.9;
 
@@ -271,9 +262,6 @@ export default function NetworkGraph({
     let links = [...baseLinks];
     let lastCollabSignature = '';
 
-    // 현재 카메라 배율. 라벨을 숨길지 판단하는 데 쓰며 zoom 이벤트에서 갱신한다.
-    let viewScale = 1;
-
     const svg = d3.select(svgEl).attr('viewBox', [0, 0, width, height]);
     svg.selectAll('*').remove();
 
@@ -462,17 +450,6 @@ export default function NetworkGraph({
       nodeSel.style('cursor', 'pointer').on('click', onNodeClick);
       nodeSel.call(drag);
       updateLiveBadges(liveMemberIds);
-      // 새로 만들어진 라벨에도 현재 배율 기준을 그대로 적용한다
-      updateLabelVisibility();
-    }
-
-    /**
-     * 줌아웃 상태에서 이름 라벨을 숨긴다.
-     * 배율 0.45에서 라벨은 5px라 읽히지 않고 서로 겹치기만 해서, 오히려
-     * 관계 구조를 가린다. 허브(합방 주제) 라벨은 개수가 적고 정보량이 커서 남긴다.
-     */
-    function updateLabelVisibility() {
-      nodeSel.selectAll('text.label').style('display', viewScale < LABEL_MIN_SCALE ? 'none' : null);
     }
 
     // ---------- 상호작용 ----------
@@ -782,10 +759,6 @@ export default function NetworkGraph({
       .scaleExtent([0.3, 2.5])
       .on('zoom', (event) => {
         root.attr('transform', event.transform);
-        if (event.transform.k !== viewScale) {
-          viewScale = event.transform.k;
-          updateLabelVisibility();
-        }
         // 시뮬레이션이 멈춘 뒤에도 툴팁이 노드를 따라오도록
         syncTooltipPosition();
       });
