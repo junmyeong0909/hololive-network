@@ -50,15 +50,26 @@ const FOCUS_MIN_SCALE = 0.9;
  * 링크 목표 거리 범위(가장 가까운 사이 ~ 무관계). spread가 곱해진다.
  *
  * 배치를 좁게 잡으면 거리들이 충돌 하한(96)에 눌려 관계가 뭉개진다.
- * 넓힐수록 거리가 온전히 관계로만 정해지는데, 실측상 250~2000에서 정점을 찍는다:
+ * 넓힐수록 거리가 관계로만 정해지는데, 실측상 이렇게 움직인다:
  *   70~580   역전 4.8%  충돌하한에 눌린 쌍 44.2개
- *   180~1500 역전 3.6%  눌린 쌍  1.4개
- *   250~2000 역전 3.0%  눌린 쌍  0.2개  <- 채택 (이보다 넓혀도 개선 미미)
- * 배치가 화면보다 훨씬 커지지만, 한눈에 다 볼 필요는 없다는 전제다.
- * (전체 조망은 리셋 버튼이 맞춤 배율로 보여준다)
+ *   180~1500 역전 3.6%  눌린 쌍  1.4개   <- 채택
+ *   250~2000 역전 3.0%  눌린 쌍  0.2개
+ * 250~2000이 수치는 가장 좋지만 배치가 3800px까지 커져 팬 이동이 과하다.
+ * 180~1500이면 충실도는 거의 그대로면서 배치가 30% 작아진다.
  */
-const LINK_DISTANCE_MIN = 250;
-const LINK_DISTANCE_MAX = 2000;
+const LINK_DISTANCE_MIN = 180;
+const LINK_DISTANCE_MAX = 1500;
+
+/*
+ * 화면에 실제로 그리는 선: 각 멤버의 상위 몇 명까지만.
+ *
+ * 물리 계산에는 모든 쌍이 들어가므로(아래 physicsLinks) 선을 줄여도 배치는
+ * 전혀 달라지지 않는다 — 순수하게 시각적 정리다.
+ * 기준(3회 이상)대로 다 그리면 491개, 노드당 평균 25개라 화면이 거미줄이 된다.
+ * top4면 117개 / 노드당 6개로 줄고, 전역 임곗값과 달리 활동이 적은 멤버도
+ * 자기 핵심 관계선은 유지한다.
+ */
+const DRAWN_TOP_N = 4;
 
 // 거리 점수에서 "절대 합방 횟수"가 최소한 이만큼은 반영되게 하는 하한.
 // 0이면 최소 기준(3회)만 넘긴 쌍이 무관계와 똑같이 0점이 되어버린다.
@@ -265,9 +276,30 @@ export default function NetworkGraph({
         physicsLinks.push({ key, source, target, count: rawCounts.get(key)?.total ?? 0 });
       }
     }
-    // 화면에 실제로 그리는 링크는 예전과 같은 기준. physicsLinks와 같은 객체를 공유해야
-    // forceLink가 source/target을 노드 객체로 바꿔줄 때 그리기 쪽도 함께 해석된다.
-    const baseLinks = physicsLinks.filter((l) => l.count >= MIN_EDGE_EVENTS);
+    // "관계가 있다"고 볼 쌍. 아래 순위/점수 계산의 모집단이다.
+    const relatedLinks = physicsLinks.filter((l) => l.count >= MIN_EDGE_EVENTS);
+
+    /*
+     * 화면에 그리는 링크는 각 멤버의 상위 DRAWN_TOP_N 파트너만 추린 합집합.
+     * physicsLinks와 같은 객체를 공유해야 forceLink가 source/target을 노드 객체로
+     * 바꿔줄 때 그리기 쪽도 함께 해석된다. (물리는 여전히 모든 쌍을 쓰므로
+     * 선을 줄여도 배치는 그대로다 — DRAWN_TOP_N 주석 참고)
+     */
+    const neighborsByNode = new Map();
+    for (const l of relatedLinks) {
+      if (!neighborsByNode.has(l.source)) neighborsByNode.set(l.source, []);
+      if (!neighborsByNode.has(l.target)) neighborsByNode.set(l.target, []);
+      neighborsByNode.get(l.source).push(l);
+      neighborsByNode.get(l.target).push(l);
+    }
+    const drawnKeys = new Set();
+    for (const ls of neighborsByNode.values()) {
+      [...ls]
+        .sort((a, b) => b.count - a.count)
+        .slice(0, DRAWN_TOP_N)
+        .forEach((l) => drawnKeys.add(l.key));
+    }
+    const baseLinks = relatedLinks.filter((l) => drawnKeys.has(l.key));
 
     /*
      * distRank: "이 노드에게 이 상대가 몇 등 파트너인가"(노드별 상대 순위).
@@ -279,9 +311,11 @@ export default function NetworkGraph({
      * 순위와 전체 분포에서의 백분위를 곱해(기하평균) 쓴다. 그러면 순위가 낮아도
      * 절대 횟수가 많으면 가까워진다.
      */
-    const distRank = buildLocalRanks(baseLinks, MIN_EDGE_EVENTS);
-    const visRank = buildLocalRanks(baseLinks, LOCAL_MIN_COUNT);
-    const sortedCounts = baseLinks.map((l) => l.count).sort((a, b) => a - b);
+    // 순위·백분위는 그리는 선이 아니라 "관계가 있는 모든 쌍"에서 계산해야 한다.
+    // 그리는 선만 쓰면 화면 정리(top-N)가 배치까지 바꿔버린다.
+    const distRank = buildLocalRanks(relatedLinks, MIN_EDGE_EVENTS);
+    const visRank = buildLocalRanks(relatedLinks, LOCAL_MIN_COUNT);
+    const sortedCounts = relatedLinks.map((l) => l.count).sort((a, b) => a - b);
     const countPercentile = (count) => {
       if (sortedCounts.length <= 1) return 1;
       let below = 0;
