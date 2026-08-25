@@ -46,6 +46,18 @@ const MOBILE_SPREAD_FLOOR = 1.2;
 // 노드를 탭했을 때 이웃까지 담되, 최소한 이 배율(=라벨이 읽히는 크기)은 지킨다.
 const FOCUS_MIN_SCALE = 0.9;
 
+// 링크 목표 거리 범위(가장 가까운 사이 ~ 무관계). spread가 곱해진다.
+const LINK_DISTANCE_MIN = 70;
+const LINK_DISTANCE_MAX = 580;
+
+// 거리 점수에서 "절대 합방 횟수"가 최소한 이만큼은 반영되게 하는 하한.
+// 0이면 최소 기준(3회)만 넘긴 쌍이 무관계와 똑같이 0점이 되어버린다.
+const ABS_WEIGHT_FLOOR = 0.15;
+
+// 함께한 기록이 없는 쌍을 서로 밀어내는 스프링 세기.
+// 이게 없으면 무관계 쌍이 충돌 하한까지 붙는다(실측 거리 96).
+const UNRELATED_STRENGTH = 0.3;
+
 function pairKey(a, b) {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
 }
@@ -224,42 +236,83 @@ export default function NetworkGraph({
     const baseNodes = members.map((m) => ({ ...m, r: NODE_RADIUS }));
     const baseById = new Map(baseNodes.map((n) => [n.id, n]));
 
-    const baseLinks = Array.from(rawCounts.entries())
-      .filter(([, counts]) => counts.total >= MIN_EDGE_EVENTS)
-      .map(([key, counts]) => {
-        const [source, target] = key.split('|');
-        return { key, source, target, count: counts.total };
-      });
+    /*
+     * 물리 계산에는 "모든 쌍"을 넣는다 (그리는 건 아래 baseLinks만).
+     *
+     * 예전엔 함께한 기록이 있는 쌍만 링크로 만들었는데, 그러면 무관계한 쌍에는
+     * 서로 떨어뜨리는 제약이 아예 없어서 다른 노드들의 인력에 밀려 충돌 하한(96)까지
+     * 붙어버렸다. 실측: 합방 0회 쌍의 최소 거리가 96인데 15회+ 쌍의 최대 거리는 483 —
+     * "관계 없는 멤버가 더 가까이 보이는" 원인이 바로 이것이다.
+     * 모든 쌍에 목표 거리를 주면(=MDS에 가까운 배치) 무관계 쌍도 제 자리로 밀려난다.
+     */
+    const memberIds = members.map((m) => m.id);
+    const physicsLinks = [];
+    for (let i = 0; i < memberIds.length; i++) {
+      for (let j = i + 1; j < memberIds.length; j++) {
+        const source = memberIds[i];
+        const target = memberIds[j];
+        const key = pairKey(source, target);
+        physicsLinks.push({ key, source, target, count: rawCounts.get(key)?.total ?? 0 });
+      }
+    }
+    // 화면에 실제로 그리는 링크는 예전과 같은 기준. physicsLinks와 같은 객체를 공유해야
+    // forceLink가 source/target을 노드 객체로 바꿔줄 때 그리기 쪽도 함께 해석된다.
+    const baseLinks = physicsLinks.filter((l) => l.count >= MIN_EDGE_EVENTS);
 
     /*
-     * distRank: 모든 표시 링크 대상으로 "이 노드에게 이 상대가 몇 등 파트너인가".
-     * visRank: LOCAL_MIN_COUNT 이상인 링크만 후보로 삼은 같은 순위 계산(선 굵기/진하기용).
-     * 둘 다 노드별 상대 순위라서, 절대 횟수가 많은 멤버의 링크가 무조건 두껍고
-     * 가까워지는 문제 없이 "그 멤버 안에서 얼마나 특별한 파트너인가"를 반영한다(점 1, 2).
+     * distRank: "이 노드에게 이 상대가 몇 등 파트너인가"(노드별 상대 순위).
+     * visRank: LOCAL_MIN_COUNT 이상만 후보로 삼은 같은 순위 계산(선 굵기/진하기용).
+     *
+     * 거리에는 순위만 쓰면 안 된다. 순위는 절대 횟수를 무시해서, 파트너가 31명인
+     * 사교적인 멤버는 12회나 함께한 상대도 21등으로 밀려 "먼 사이"로 취급된다
+     * (실측: 미코-마츠리 12회인데 순위점수 0.72 -> 목표거리 354). 그래서 거리는
+     * 순위와 전체 분포에서의 백분위를 곱해(기하평균) 쓴다. 그러면 순위가 낮아도
+     * 절대 횟수가 많으면 가까워진다.
      */
     const distRank = buildLocalRanks(baseLinks, MIN_EDGE_EVENTS);
     const visRank = buildLocalRanks(baseLinks, LOCAL_MIN_COUNT);
-    for (const l of baseLinks) {
-      l.distScore = localScore(distRank, l.source, l.target);
+    const sortedCounts = baseLinks.map((l) => l.count).sort((a, b) => a - b);
+    const countPercentile = (count) => {
+      if (sortedCounts.length <= 1) return 1;
+      let below = 0;
+      while (below < sortedCounts.length && sortedCounts[below] < count) below += 1;
+      return below / (sortedCounts.length - 1);
+    };
+
+    for (const l of physicsLinks) {
+      if (l.count < MIN_EDGE_EVENTS) {
+        l.distScore = 0;
+        l.visScore = 0;
+        continue;
+      }
+      const rank = localScore(distRank, l.source, l.target);
+      // 하한을 둬서 최소 기준(3회)만 넘긴 쌍도 완전한 무관계(0점)와는 구분되게 한다
+      const magnitude = ABS_WEIGHT_FLOOR + (1 - ABS_WEIGHT_FLOOR) * countPercentile(l.count);
+      l.distScore = Math.sqrt(rank * magnitude);
       l.visScore = localScore(visRank, l.source, l.target);
     }
 
-    // distScore(0~1, 1=그 노드의 최다 파트너)를 거리로 환산. 캔버스 사용 면적을
-    // 기존 대비 약 2배로 넓힌 범위(190~690 * spread)는 그대로 유지한다(점 1 하위 요건).
-    const distanceScale = (score) => 690 * spread - (690 - 190) * spread * score;
+    // distScore(0~1, 1=가장 가까운 사이)를 거리로 환산.
+    // 범위는 배치 전체 크기가 예전과 비슷하게 유지되도록 실측으로 맞췄다
+    // (70~580이면 데스크톱 맞춤 배율 0.76 / 라벨 8.8px로 기존과 사실상 동일).
+    const distanceScale = (score) =>
+      LINK_DISTANCE_MAX * spread - (LINK_DISTANCE_MAX - LINK_DISTANCE_MIN) * spread * score;
 
     // visScore는 후보에서 빠지면(둘 다 LOCAL_MIN_COUNT 미만) 0이라 자동으로 옅게 남는다.
-    // 지수 곡선(4제곱)으로 1등만 확실히 두드러지게 하고, 장력은 완만한 곡선(1.6제곱)으로
-    // distScore를 반영해 자주 합방한 쌍일수록 위치가 실제로 단단히 고정된다(점 3).
+    // 지수 곡선(4제곱)으로 1등만 확실히 두드러지게 한다.
     const linkWidthScale = (score) => 1 + (4.5 - 1) * Math.pow(score, 4);
     const linkOpacityScale = (score) => 0.05 + (0.85 - 0.05) * Math.pow(score, 4);
-    const linkStrengthScale = (score) => 0.12 + 0.8 * Math.pow(score, 1.6);
+    // 무관계 쌍(0점)은 "먼 거리를 유지하라"는 약한 스프링으로 밀어낸다.
+    const linkStrengthScale = (score) =>
+      score === 0 ? UNRELATED_STRENGTH : 0.1 + 0.9 * score * score;
 
     // 라이브 합방으로 추가되는 허브 노드. 살아있는 동안 같은 객체를 유지해야
     // 좌표가 보존된다.
     const hubNodes = new Map();
     let nodes = [...baseNodes];
+    // links = 화면에 그리는 것, simLinks = 물리 계산에 넣는 것(무관계 쌍 포함)
     let links = [...baseLinks];
+    let simLinks = [...physicsLinks];
     let lastCollabSignature = '';
 
     const svg = d3.select(svgEl).attr('viewBox', [0, 0, width, height]);
@@ -672,12 +725,13 @@ export default function NetworkGraph({
 
       nodes = [...baseNodes, ...hubNodes.values()];
       links = [...baseLinks, ...liveLinks];
+      simLinks = [...physicsLinks, ...liveLinks];
 
       renderLinks();
       renderNodes();
 
       simulation.nodes(nodes);
-      simulation.force('link').links(links);
+      simulation.force('link').links(simLinks);
       applyHighlight(selectedIdRef.current);
       simulation.alpha(0.3).restart();
     }
@@ -692,7 +746,7 @@ export default function NetworkGraph({
       .force(
         'link',
         d3
-          .forceLink(links)
+          .forceLink(simLinks)
           .id((d) => d.id)
           .distance((d) => {
             if (!d.isLive) return distanceScale(d.distScore);
