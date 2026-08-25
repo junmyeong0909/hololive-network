@@ -87,7 +87,7 @@ body {
  * 그래프는 D3가 그리므로 색을 인라인 속성으로 박으면 테마 전환에 반응하지 않는다.
  * 색만 CSS로 빼서 변수로 처리한다. (굵기/투명도 등 데이터에 따라 달라지는 값은 인라인 유지)
  */
-.links line {
+.links path {
   stroke: rgb(var(--graph-link));
 }
 
@@ -96,7 +96,7 @@ body {
 }
 
 /* 지금 진행 중인 합방을 잇는 선 (평소 교류선보다 눈에 띄게) */
-.links line.link-live {
+.links path.link-live {
   stroke: #ef4444;
   animation: live-link-glow 1.4s ease-in-out infinite;
 }
