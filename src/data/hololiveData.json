@@ -1,64 +1,631 @@
 {
   "members": [
-    { "id": "sora", "name": "토키노 소라", "nameEn": "Tokino Sora", "unit": "0기생", "color": "#4fc3f7", "initials": "ソラ", "profileImg": "/profile_img/sora.jpg" },
-    { "id": "suisei", "name": "호시마치 스이세이", "nameEn": "Hoshimachi Suisei", "unit": "0기생", "color": "#00e5ff", "initials": "スイ", "profileImg": "/profile_img/suisei.jpg" },
-    { "id": "roboco", "name": "로보코상", "nameEn": "Robocosan", "unit": "0기생", "color": "#90a4ae", "initials": "ロボ", "profileImg": "/profile_img/roboko.jpg" },
-    { "id": "azki", "name": "아즈키", "nameEn": "AZKi", "unit": "0기생", "color": "#26c6da", "initials": "AZ", "profileImg": "/profile_img/azki.jpg" },
-    { "id": "miko", "name": "사쿠라 미코", "nameEn": "Sakura Miko", "unit": "0기생", "color": "#ff8fab", "initials": "ミコ", "profileImg": "/profile_img/miko.jpg" },
-    { "id": "fubuki", "name": "시라카미 후부키", "nameEn": "Shirakami Fubuki", "unit": "1기생", "color": "#e3e1f5", "initials": "フブ", "profileImg": "/profile_img/fubuki.jpg" },
-    { "id": "mio", "name": "오오카미 미오", "nameEn": "Ookami Mio", "unit": "1기생", "color": "#9a94b8", "initials": "ミオ", "profileImg": "/profile_img/mio.jpg" },
-    { "id": "aki", "name": "아키 로젠탈", "nameEn": "Aki Rosenthal", "unit": "1기생", "color": "#ba68c8", "initials": "アキ", "profileImg": "/profile_img/akirozental.jpg" },
-    { "id": "haato", "name": "아카이 하아토", "nameEn": "Akai Haato", "unit": "1기생", "color": "#ff5252", "initials": "ハア", "profileImg": "/profile_img/haachama.jpg" },
-    { "id": "matsuri", "name": "나츠이로 마츠리", "nameEn": "Natsuiro Matsuri", "unit": "1기생", "color": "#ff8a65", "initials": "マツ", "profileImg": "/profile_img/matsuri.jpg" },
-    { "id": "korone", "name": "이누가미 코로네", "nameEn": "Inugami Korone", "unit": "Gamers", "color": "#ffca28", "initials": "コロ", "profileImg": "/profile_img/korone.jpg" },
-    { "id": "ayame", "name": "나키리 아야메", "nameEn": "Nakiri Ayame", "unit": "2기생", "color": "#7e57c2", "initials": "アヤ", "profileImg": "/profile_img/ayame.jpg" },
-    { "id": "choco", "name": "유즈키 쵸코", "nameEn": "Yuzuki Choco", "unit": "2기생", "color": "#ec407a", "initials": "チョ", "profileImg": "/profile_img/choco.jpg" },
-    { "id": "subaru", "name": "오오조라 스바루", "nameEn": "Oozora Subaru", "unit": "2기생", "color": "#2196f3", "initials": "スバ", "profileImg": "/profile_img/subaru.jpg" },
-    { "id": "pekora", "name": "우사다 페코라", "nameEn": "Usada Pekora", "unit": "3기생", "color": "#7fd0ff", "initials": "ペコ", "profileImg": "/profile_img/pekora.jpg" },
-    { "id": "flare", "name": "시라누이 플레어", "nameEn": "Shiranui Flare", "unit": "3기생", "color": "#ff5722", "initials": "フレ", "profileImg": "/profile_img/flare.jpg" },
-    { "id": "noel", "name": "시로가네 노엘", "nameEn": "Shirogane Noel", "unit": "3기생", "color": "#5c6bc0", "initials": "ノエ", "profileImg": "/profile_img/noel.jpg" },
-    { "id": "marine", "name": "호쇼 마린", "nameEn": "Houshou Marine", "unit": "3기생", "color": "#e53935", "initials": "マリ", "profileImg": "/profile_img/marin.jpg" },
-    { "id": "okayu", "name": "네코마타 오카유", "nameEn": "Nekomata Okayu", "unit": "4기생", "color": "#ff9e4a", "initials": "オカ", "profileImg": "/profile_img/okayu.jpg" },
-    { "id": "watame", "name": "츠노마키 와타메", "nameEn": "Tsunomaki Watame", "unit": "4기생", "color": "#fff176", "initials": "ワタ", "profileImg": "/profile_img/watame.jpg" },
-    { "id": "towa", "name": "토코야미 토와", "nameEn": "Tokoyami Towa", "unit": "4기생", "color": "#5e35b1", "initials": "トワ", "profileImg": "/profile_img/towa.jpg" },
-    { "id": "luna", "name": "히메모리 루나", "nameEn": "Himemori Luna", "unit": "4기생", "color": "#ce93d8", "initials": "ルナ", "profileImg": "/profile_img/luna.jpg" },
-    { "id": "lamy", "name": "유키하나 라미", "nameEn": "Yukihana Lamy", "unit": "5기생", "color": "#b39ddb", "initials": "ラミ", "profileImg": "/profile_img/lamy.jpg" },
-    { "id": "nene", "name": "모모스즈 네네", "nameEn": "Momosuzu Nene", "unit": "5기생", "color": "#f48fb1", "initials": "ネネ", "profileImg": "/profile_img/nene.jpg" },
-    { "id": "botan", "name": "시시로 보탄", "nameEn": "Shishiro Botan", "unit": "5기생", "color": "#66bb6a", "initials": "ボタ", "profileImg": "/profile_img/botan.jpg" },
-    { "id": "polka", "name": "오마루 폴카", "nameEn": "Omaru Polka", "unit": "5기생", "color": "#8e24aa", "initials": "ポル", "profileImg": "/profile_img/polka.jpg" },
-    { "id": "laplus", "name": "라플라스 다크니스", "nameEn": "La+ Darknesss", "unit": "holoX", "color": "#9575cd", "initials": "ラプ", "profileImg": "/profile_img/laplus.jpg" },
-    { "id": "lui", "name": "타카네 루이", "nameEn": "Takane Lui", "unit": "holoX", "color": "#8d6e63", "initials": "ルイ", "profileImg": "/profile_img/lui.jpg" },
-    { "id": "koyori", "name": "하쿠이 코요리", "nameEn": "Hakui Koyori", "unit": "holoX", "color": "#f06292", "initials": "コヨ", "profileImg": "/profile_img/koyori.jpg" },
-    { "id": "iroha", "name": "카자마 이로하", "nameEn": "Kazama Iroha", "unit": "holoX", "color": "#7c5cff", "initials": "イロ", "profileImg": "/profile_img/iroha.jpg" },
-    { "id": "raden", "name": "주후우테이 라덴", "nameEn": "Juufuutei Raden", "unit": "ReGLOSS", "color": "#ff4fa3", "initials": "ラデ", "profileImg": "/profile_img/raden.jpg" },
-    { "id": "kanade", "name": "오토노세 카나데", "nameEn": "Otonose Kanade", "unit": "ReGLOSS", "color": "#ffd54f", "initials": "カナ", "profileImg": "/profile_img/kanade.jpg" },
-    { "id": "ririka", "name": "이치조 리리카", "nameEn": "Ichijou Ririka", "unit": "ReGLOSS", "color": "#ffb300", "initials": "リリ", "profileImg": "/profile_img/ririka.jpg" },
-    { "id": "hajime", "name": "토도로키 하지메", "nameEn": "Todoroki Hajime", "unit": "ReGLOSS", "color": "#4dd0e1", "initials": "ハジ", "profileImg": "/profile_img/hajime.jpg" },
-    { "id": "riona", "name": "이사키 리오나", "nameEn": "Isaki Riona", "unit": "FLOW GLOW", "color": "#ff80ab", "initials": "リオ", "profileImg": "/profile_img/riona.jpg" },
-    { "id": "niko", "name": "코가네이 니코", "nameEn": "Koganei Niko", "unit": "FLOW GLOW", "color": "#ff7043", "initials": "ニコ", "profileImg": "/profile_img/niko.jpg" },
-    { "id": "su", "name": "미즈미야 스우", "nameEn": "Mizumiya Su", "unit": "FLOW GLOW", "color": "#90caf9", "initials": "スウ", "profileImg": "/profile_img/su.jpg" },
-    { "id": "chihaya", "name": "린도 치하야", "nameEn": "Rindo Chihaya", "unit": "FLOW GLOW", "color": "#26a69a", "initials": "チハ", "profileImg": "/profile_img/chihaya.jpg" },
-    { "id": "vivi", "name": "키키라라 비비", "nameEn": "Kikirara Vivi", "unit": "FLOW GLOW", "color": "#ab47bc", "initials": "ヴィ", "profileImg": "/profile_img/vivi.jpg" }
+    {
+      "id": "sora",
+      "name": "토키노 소라",
+      "nameEn": "Tokino Sora",
+      "unit": "0기생",
+      "color": "#4fc3f7",
+      "initials": "ソラ",
+      "profileImg": "/profile_img/sora.jpg"
+    },
+    {
+      "id": "suisei",
+      "name": "호시마치 스이세이",
+      "nameEn": "Hoshimachi Suisei",
+      "unit": "0기생",
+      "color": "#00e5ff",
+      "initials": "スイ",
+      "profileImg": "/profile_img/suisei.jpg"
+    },
+    {
+      "id": "roboco",
+      "name": "로보코상",
+      "nameEn": "Robocosan",
+      "unit": "0기생",
+      "color": "#90a4ae",
+      "initials": "ロボ",
+      "profileImg": "/profile_img/roboko.jpg"
+    },
+    {
+      "id": "azki",
+      "name": "아즈키",
+      "nameEn": "AZKi",
+      "unit": "0기생",
+      "color": "#26c6da",
+      "initials": "AZ",
+      "profileImg": "/profile_img/azki.jpg"
+    },
+    {
+      "id": "miko",
+      "name": "사쿠라 미코",
+      "nameEn": "Sakura Miko",
+      "unit": "0기생",
+      "color": "#ff8fab",
+      "initials": "ミコ",
+      "profileImg": "/profile_img/miko.jpg"
+    },
+    {
+      "id": "fubuki",
+      "name": "시라카미 후부키",
+      "nameEn": "Shirakami Fubuki",
+      "unit": "1기생",
+      "color": "#e3e1f5",
+      "initials": "フブ",
+      "profileImg": "/profile_img/fubuki.jpg"
+    },
+    {
+      "id": "mio",
+      "name": "오오카미 미오",
+      "nameEn": "Ookami Mio",
+      "unit": "1기생",
+      "color": "#9a94b8",
+      "initials": "ミオ",
+      "profileImg": "/profile_img/mio.jpg"
+    },
+    {
+      "id": "aki",
+      "name": "아키 로젠탈",
+      "nameEn": "Aki Rosenthal",
+      "unit": "1기생",
+      "color": "#ba68c8",
+      "initials": "アキ",
+      "profileImg": "/profile_img/akirozental.jpg"
+    },
+    {
+      "id": "haato",
+      "name": "아카이 하아토",
+      "nameEn": "Akai Haato",
+      "unit": "1기생",
+      "color": "#ff5252",
+      "initials": "ハア",
+      "profileImg": "/profile_img/haachama.jpg"
+    },
+    {
+      "id": "matsuri",
+      "name": "나츠이로 마츠리",
+      "nameEn": "Natsuiro Matsuri",
+      "unit": "1기생",
+      "color": "#ff8a65",
+      "initials": "マツ",
+      "profileImg": "/profile_img/matsuri.jpg"
+    },
+    {
+      "id": "korone",
+      "name": "이누가미 코로네",
+      "nameEn": "Inugami Korone",
+      "unit": "Gamers",
+      "color": "#ffca28",
+      "initials": "コロ",
+      "profileImg": "/profile_img/korone.jpg"
+    },
+    {
+      "id": "ayame",
+      "name": "나키리 아야메",
+      "nameEn": "Nakiri Ayame",
+      "unit": "2기생",
+      "color": "#7e57c2",
+      "initials": "アヤ",
+      "profileImg": "/profile_img/ayame.jpg"
+    },
+    {
+      "id": "choco",
+      "name": "유즈키 쵸코",
+      "nameEn": "Yuzuki Choco",
+      "unit": "2기생",
+      "color": "#ec407a",
+      "initials": "チョ",
+      "profileImg": "/profile_img/choco.jpg"
+    },
+    {
+      "id": "subaru",
+      "name": "오오조라 스바루",
+      "nameEn": "Oozora Subaru",
+      "unit": "2기생",
+      "color": "#2196f3",
+      "initials": "スバ",
+      "profileImg": "/profile_img/subaru.jpg"
+    },
+    {
+      "id": "pekora",
+      "name": "우사다 페코라",
+      "nameEn": "Usada Pekora",
+      "unit": "3기생",
+      "color": "#7fd0ff",
+      "initials": "ペコ",
+      "profileImg": "/profile_img/pekora.jpg"
+    },
+    {
+      "id": "flare",
+      "name": "시라누이 플레어",
+      "nameEn": "Shiranui Flare",
+      "unit": "3기생",
+      "color": "#ff5722",
+      "initials": "フレ",
+      "profileImg": "/profile_img/flare.jpg"
+    },
+    {
+      "id": "noel",
+      "name": "시로가네 노엘",
+      "nameEn": "Shirogane Noel",
+      "unit": "3기생",
+      "color": "#5c6bc0",
+      "initials": "ノエ",
+      "profileImg": "/profile_img/noel.jpg"
+    },
+    {
+      "id": "marine",
+      "name": "호쇼 마린",
+      "nameEn": "Houshou Marine",
+      "unit": "3기생",
+      "color": "#e53935",
+      "initials": "マリ",
+      "profileImg": "/profile_img/marin.jpg"
+    },
+    {
+      "id": "okayu",
+      "name": "네코마타 오카유",
+      "nameEn": "Nekomata Okayu",
+      "unit": "4기생",
+      "color": "#ff9e4a",
+      "initials": "オカ",
+      "profileImg": "/profile_img/okayu.jpg"
+    },
+    {
+      "id": "watame",
+      "name": "츠노마키 와타메",
+      "nameEn": "Tsunomaki Watame",
+      "unit": "4기생",
+      "color": "#fff176",
+      "initials": "ワタ",
+      "profileImg": "/profile_img/watame.jpg"
+    },
+    {
+      "id": "towa",
+      "name": "토코야미 토와",
+      "nameEn": "Tokoyami Towa",
+      "unit": "4기생",
+      "color": "#5e35b1",
+      "initials": "トワ",
+      "profileImg": "/profile_img/towa.jpg"
+    },
+    {
+      "id": "luna",
+      "name": "히메모리 루나",
+      "nameEn": "Himemori Luna",
+      "unit": "4기생",
+      "color": "#ce93d8",
+      "initials": "ルナ",
+      "profileImg": "/profile_img/luna.jpg"
+    },
+    {
+      "id": "lamy",
+      "name": "유키하나 라미",
+      "nameEn": "Yukihana Lamy",
+      "unit": "5기생",
+      "color": "#b39ddb",
+      "initials": "ラミ",
+      "profileImg": "/profile_img/lamy.jpg"
+    },
+    {
+      "id": "nene",
+      "name": "모모스즈 네네",
+      "nameEn": "Momosuzu Nene",
+      "unit": "5기생",
+      "color": "#f48fb1",
+      "initials": "ネネ",
+      "profileImg": "/profile_img/nene.jpg"
+    },
+    {
+      "id": "botan",
+      "name": "시시로 보탄",
+      "nameEn": "Shishiro Botan",
+      "unit": "5기생",
+      "color": "#66bb6a",
+      "initials": "ボタ",
+      "profileImg": "/profile_img/botan.jpg"
+    },
+    {
+      "id": "polka",
+      "name": "오마루 폴카",
+      "nameEn": "Omaru Polka",
+      "unit": "5기생",
+      "color": "#8e24aa",
+      "initials": "ポル",
+      "profileImg": "/profile_img/polka.jpg"
+    },
+    {
+      "id": "laplus",
+      "name": "라플라스 다크니스",
+      "nameEn": "La+ Darknesss",
+      "unit": "holoX",
+      "color": "#9575cd",
+      "initials": "ラプ",
+      "profileImg": "/profile_img/laplus.jpg"
+    },
+    {
+      "id": "lui",
+      "name": "타카네 루이",
+      "nameEn": "Takane Lui",
+      "unit": "holoX",
+      "color": "#8d6e63",
+      "initials": "ルイ",
+      "profileImg": "/profile_img/lui.jpg"
+    },
+    {
+      "id": "koyori",
+      "name": "하쿠이 코요리",
+      "nameEn": "Hakui Koyori",
+      "unit": "holoX",
+      "color": "#f06292",
+      "initials": "コヨ",
+      "profileImg": "/profile_img/koyori.jpg"
+    },
+    {
+      "id": "iroha",
+      "name": "카자마 이로하",
+      "nameEn": "Kazama Iroha",
+      "unit": "holoX",
+      "color": "#7c5cff",
+      "initials": "イロ",
+      "profileImg": "/profile_img/iroha.jpg"
+    },
+    {
+      "id": "raden",
+      "name": "주후우테이 라덴",
+      "nameEn": "Juufuutei Raden",
+      "unit": "ReGLOSS",
+      "color": "#ff4fa3",
+      "initials": "ラデ",
+      "profileImg": "/profile_img/raden.jpg"
+    },
+    {
+      "id": "kanade",
+      "name": "오토노세 카나데",
+      "nameEn": "Otonose Kanade",
+      "unit": "ReGLOSS",
+      "color": "#ffd54f",
+      "initials": "カナ",
+      "profileImg": "/profile_img/kanade.jpg"
+    },
+    {
+      "id": "ririka",
+      "name": "이치조 리리카",
+      "nameEn": "Ichijou Ririka",
+      "unit": "ReGLOSS",
+      "color": "#ffb300",
+      "initials": "リリ",
+      "profileImg": "/profile_img/ririka.jpg"
+    },
+    {
+      "id": "hajime",
+      "name": "토도로키 하지메",
+      "nameEn": "Todoroki Hajime",
+      "unit": "ReGLOSS",
+      "color": "#4dd0e1",
+      "initials": "ハジ",
+      "profileImg": "/profile_img/hajime.jpg"
+    },
+    {
+      "id": "riona",
+      "name": "이사키 리오나",
+      "nameEn": "Isaki Riona",
+      "unit": "FLOW GLOW",
+      "color": "#ff80ab",
+      "initials": "リオ",
+      "profileImg": "/profile_img/riona.jpg"
+    },
+    {
+      "id": "niko",
+      "name": "코가네이 니코",
+      "nameEn": "Koganei Niko",
+      "unit": "FLOW GLOW",
+      "color": "#ff7043",
+      "initials": "ニコ",
+      "profileImg": "/profile_img/niko.jpg"
+    },
+    {
+      "id": "su",
+      "name": "미즈미야 스우",
+      "nameEn": "Mizumiya Su",
+      "unit": "FLOW GLOW",
+      "color": "#90caf9",
+      "initials": "スウ",
+      "profileImg": "/profile_img/su.jpg"
+    },
+    {
+      "id": "chihaya",
+      "name": "린도 치하야",
+      "nameEn": "Rindo Chihaya",
+      "unit": "FLOW GLOW",
+      "color": "#26a69a",
+      "initials": "チハ",
+      "profileImg": "/profile_img/chihaya.jpg"
+    },
+    {
+      "id": "vivi",
+      "name": "키키라라 비비",
+      "nameEn": "Kikirara Vivi",
+      "unit": "FLOW GLOW",
+      "color": "#ab47bc",
+      "initials": "ヴィ",
+      "profileImg": "/profile_img/vivi.jpg"
+    },
+    {
+      "id": "calli",
+      "name": "모리 칼리오페",
+      "nameEn": "Mori Calliope",
+      "unit": "Myth",
+      "color": "#d64161",
+      "initials": "Ca"
+    },
+    {
+      "id": "kiara",
+      "name": "타카나시 키아라",
+      "nameEn": "Takanashi Kiara",
+      "unit": "Myth",
+      "color": "#f5821f",
+      "initials": "Ki"
+    },
+    {
+      "id": "ina",
+      "name": "니노마에 이나니스",
+      "nameEn": "Ninomae Ina'nis",
+      "unit": "Myth",
+      "color": "#6f5bd4",
+      "initials": "In"
+    },
+    {
+      "id": "irys",
+      "name": "이리스",
+      "nameEn": "IRyS",
+      "unit": "Promise",
+      "color": "#c2456e",
+      "initials": "Iry"
+    },
+    {
+      "id": "kronii",
+      "name": "오로 크로니",
+      "nameEn": "Ouro Kronii",
+      "unit": "Promise",
+      "color": "#4a6fa5",
+      "initials": "Kr"
+    },
+    {
+      "id": "mumei",
+      "name": "나나시 무메이",
+      "nameEn": "Nanashi Mumei",
+      "unit": "Promise",
+      "color": "#a68a64",
+      "initials": "Mu"
+    },
+    {
+      "id": "bae",
+      "name": "하코스 벨즈",
+      "nameEn": "Hakos Baelz",
+      "unit": "Promise",
+      "color": "#d64550",
+      "initials": "Ba"
+    },
+    {
+      "id": "shiori",
+      "name": "시오리 노벨라",
+      "nameEn": "Shiori Novella",
+      "unit": "Advent",
+      "color": "#8e6bbf",
+      "initials": "Sh"
+    },
+    {
+      "id": "bijou",
+      "name": "코세키 비쥬",
+      "nameEn": "Koseki Bijou",
+      "unit": "Advent",
+      "color": "#b06ab3",
+      "initials": "Bi"
+    },
+    {
+      "id": "nerissa",
+      "name": "네리사 레이븐크로프트",
+      "nameEn": "Nerissa Ravencroft",
+      "unit": "Advent",
+      "color": "#4a5aa8",
+      "initials": "Ne"
+    },
+    {
+      "id": "fuwawa",
+      "name": "후와와 어비스가드",
+      "nameEn": "Fuwawa Abyssgard",
+      "unit": "Advent",
+      "color": "#ff9ec4",
+      "initials": "Fu"
+    },
+    {
+      "id": "mococo",
+      "name": "모코코 어비스가드",
+      "nameEn": "Mococo Abyssgard",
+      "unit": "Advent",
+      "color": "#7ec8e3",
+      "initials": "Mo"
+    },
+    {
+      "id": "erb",
+      "name": "엘리자베스 로즈 블러드플레임",
+      "nameEn": "Elizabeth Rose Bloodflame",
+      "unit": "Justice",
+      "color": "#c9a227",
+      "initials": "ER"
+    },
+    {
+      "id": "gigi",
+      "name": "지지 무린",
+      "nameEn": "Gigi Murin",
+      "unit": "Justice",
+      "color": "#f2a65a",
+      "initials": "Gi"
+    },
+    {
+      "id": "cecilia",
+      "name": "세실리아 이머그린",
+      "nameEn": "Cecilia Immergreen",
+      "unit": "Justice",
+      "color": "#9db4c0",
+      "initials": "Ce"
+    },
+    {
+      "id": "raora",
+      "name": "라오라 판테라",
+      "nameEn": "Raora Panthera",
+      "unit": "Justice",
+      "color": "#ef8354",
+      "initials": "Ra"
+    }
   ],
   "_interactionsNote": "더미 데이터 제거됨. 실제 합방 기록으로 채우는 로직은 아직 없어서, 지금은 그래프에 연결선 없이 노드만 표시된다.",
   "interactions": [],
   "_notificationsNote": "3단계에서 Holodex 실데이터로 교체됨. 지금은 UI 확인용 더미.",
   "notifications": [
-    { "id": "n1", "memberId": "pekora", "type": "stream", "status": "live", "title": "신작 게임 첫 플레이", "snippet": "신작 어드벤처 공략", "timestamp": "2026-08-14T12:10:00+09:00", "url": "https://www.youtube.com/@usadapekora", "liveViewers": 24310 },
-    { "id": "n2", "memberId": "suisei", "type": "music", "status": "live", "title": "정기 가창 방송", "snippet": "신청곡 위주", "timestamp": "2026-08-14T11:40:00+09:00", "url": "https://www.youtube.com/@HoshimachiSuisei", "liveViewers": 18902 },
-    { "id": "n3", "memberId": "korone", "type": "stream", "status": "live", "title": "레트로 게임 마라톤", "snippet": "장시간 방송 진행 중", "timestamp": "2026-08-14T09:05:00+09:00", "url": "https://www.youtube.com/@InugamiKorone", "liveViewers": 9431 },
-
-    { "id": "n4", "memberId": "marine", "type": "stream", "status": "upcoming", "title": "잡담 방송", "snippet": "리스너 사연 소개", "timestamp": "2026-08-15T21:00:00+09:00", "url": "https://www.youtube.com/@HoushouMarine" },
-    { "id": "n5", "memberId": "kanade", "type": "music", "status": "upcoming", "title": "ReGLOSS 합동 라이브", "snippet": "유닛 합동 무대", "timestamp": "2026-08-15T20:00:00+09:00", "url": "https://www.youtube.com/@OtonoseKanade" },
-    { "id": "n6", "memberId": "fubuki", "type": "stream", "status": "upcoming", "title": "협동 게임 합방", "snippet": "미오·오카유와 함께", "timestamp": "2026-08-16T19:30:00+09:00", "url": "https://www.youtube.com/@ShirakamiFubuki" },
-    { "id": "n7", "memberId": "botan", "type": "stream", "status": "upcoming", "title": "FPS 랭크 도전", "snippet": "시청자 참여 가능", "timestamp": "2026-08-16T22:00:00+09:00", "url": "https://www.youtube.com/@ShishiroBotan" },
-
-    { "id": "n8", "memberId": "raden", "type": "music", "status": "past", "title": "커버곡 '夜行' 공개", "snippet": "신규 커버 MV", "timestamp": "2026-08-14T07:30:00+09:00", "url": "https://www.youtube.com/@JuufuuteiRaden" },
-    { "id": "n9", "memberId": "iroha", "type": "stream", "status": "past", "title": "ASMR 잡담 방송", "snippet": "심야 잡담", "timestamp": "2026-08-13T23:10:00+09:00", "url": "https://www.youtube.com/@KazamaIroha" },
-    { "id": "n10", "memberId": "azki", "type": "music", "status": "past", "title": "오리지널 신곡 MV", "snippet": "신곡 뮤직비디오 공개", "timestamp": "2026-08-13T20:00:00+09:00", "url": "https://www.youtube.com/@AZKi" },
-    { "id": "n11", "memberId": "okayu", "type": "video", "status": "past", "title": "방송 다시보기 하이라이트", "snippet": "편집 영상 업로드", "timestamp": "2026-08-13T15:20:00+09:00", "url": "https://www.youtube.com/@nekomataokayu" },
-    { "id": "n12", "memberId": "lamy", "type": "music", "status": "past", "title": "노래방 방송 아카이브", "snippet": "신청곡 모음", "timestamp": "2026-08-13T13:00:00+09:00", "url": "https://www.youtube.com/@YukuhanaLamy" },
-    { "id": "n13", "memberId": "subaru", "type": "video", "status": "past", "title": "기획 영상 업로드", "snippet": "멤버 참여 기획", "timestamp": "2026-08-12T20:30:00+09:00", "url": "https://www.youtube.com/@OozoraSubaru" },
-    { "id": "n14", "memberId": "mio", "type": "stream", "status": "past", "title": "타로 점 방송", "snippet": "월간 운세 코너", "timestamp": "2026-08-12T18:00:00+09:00", "url": "https://www.youtube.com/@OokamiMio" }
+    {
+      "id": "n1",
+      "memberId": "pekora",
+      "type": "stream",
+      "status": "live",
+      "title": "신작 게임 첫 플레이",
+      "snippet": "신작 어드벤처 공략",
+      "timestamp": "2026-08-14T12:10:00+09:00",
+      "url": "https://www.youtube.com/@usadapekora",
+      "liveViewers": 24310
+    },
+    {
+      "id": "n2",
+      "memberId": "suisei",
+      "type": "music",
+      "status": "live",
+      "title": "정기 가창 방송",
+      "snippet": "신청곡 위주",
+      "timestamp": "2026-08-14T11:40:00+09:00",
+      "url": "https://www.youtube.com/@HoshimachiSuisei",
+      "liveViewers": 18902
+    },
+    {
+      "id": "n3",
+      "memberId": "korone",
+      "type": "stream",
+      "status": "live",
+      "title": "레트로 게임 마라톤",
+      "snippet": "장시간 방송 진행 중",
+      "timestamp": "2026-08-14T09:05:00+09:00",
+      "url": "https://www.youtube.com/@InugamiKorone",
+      "liveViewers": 9431
+    },
+    {
+      "id": "n4",
+      "memberId": "marine",
+      "type": "stream",
+      "status": "upcoming",
+      "title": "잡담 방송",
+      "snippet": "리스너 사연 소개",
+      "timestamp": "2026-08-15T21:00:00+09:00",
+      "url": "https://www.youtube.com/@HoushouMarine"
+    },
+    {
+      "id": "n5",
+      "memberId": "kanade",
+      "type": "music",
+      "status": "upcoming",
+      "title": "ReGLOSS 합동 라이브",
+      "snippet": "유닛 합동 무대",
+      "timestamp": "2026-08-15T20:00:00+09:00",
+      "url": "https://www.youtube.com/@OtonoseKanade"
+    },
+    {
+      "id": "n6",
+      "memberId": "fubuki",
+      "type": "stream",
+      "status": "upcoming",
+      "title": "협동 게임 합방",
+      "snippet": "미오·오카유와 함께",
+      "timestamp": "2026-08-16T19:30:00+09:00",
+      "url": "https://www.youtube.com/@ShirakamiFubuki"
+    },
+    {
+      "id": "n7",
+      "memberId": "botan",
+      "type": "stream",
+      "status": "upcoming",
+      "title": "FPS 랭크 도전",
+      "snippet": "시청자 참여 가능",
+      "timestamp": "2026-08-16T22:00:00+09:00",
+      "url": "https://www.youtube.com/@ShishiroBotan"
+    },
+    {
+      "id": "n8",
+      "memberId": "raden",
+      "type": "music",
+      "status": "past",
+      "title": "커버곡 '夜行' 공개",
+      "snippet": "신규 커버 MV",
+      "timestamp": "2026-08-14T07:30:00+09:00",
+      "url": "https://www.youtube.com/@JuufuuteiRaden"
+    },
+    {
+      "id": "n9",
+      "memberId": "iroha",
+      "type": "stream",
+      "status": "past",
+      "title": "ASMR 잡담 방송",
+      "snippet": "심야 잡담",
+      "timestamp": "2026-08-13T23:10:00+09:00",
+      "url": "https://www.youtube.com/@KazamaIroha"
+    },
+    {
+      "id": "n10",
+      "memberId": "azki",
+      "type": "music",
+      "status": "past",
+      "title": "오리지널 신곡 MV",
+      "snippet": "신곡 뮤직비디오 공개",
+      "timestamp": "2026-08-13T20:00:00+09:00",
+      "url": "https://www.youtube.com/@AZKi"
+    },
+    {
+      "id": "n11",
+      "memberId": "okayu",
+      "type": "video",
+      "status": "past",
+      "title": "방송 다시보기 하이라이트",
+      "snippet": "편집 영상 업로드",
+      "timestamp": "2026-08-13T15:20:00+09:00",
+      "url": "https://www.youtube.com/@nekomataokayu"
+    },
+    {
+      "id": "n12",
+      "memberId": "lamy",
+      "type": "music",
+      "status": "past",
+      "title": "노래방 방송 아카이브",
+      "snippet": "신청곡 모음",
+      "timestamp": "2026-08-13T13:00:00+09:00",
+      "url": "https://www.youtube.com/@YukuhanaLamy"
+    },
+    {
+      "id": "n13",
+      "memberId": "subaru",
+      "type": "video",
+      "status": "past",
+      "title": "기획 영상 업로드",
+      "snippet": "멤버 참여 기획",
+      "timestamp": "2026-08-12T20:30:00+09:00",
+      "url": "https://www.youtube.com/@OozoraSubaru"
+    },
+    {
+      "id": "n14",
+      "memberId": "mio",
+      "type": "stream",
+      "status": "past",
+      "title": "타로 점 방송",
+      "snippet": "월간 운세 코너",
+      "timestamp": "2026-08-12T18:00:00+09:00",
+      "url": "https://www.youtube.com/@OokamiMio"
+    }
   ]
 }
