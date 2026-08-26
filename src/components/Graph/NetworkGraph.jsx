@@ -61,15 +61,35 @@ const LINK_DISTANCE_MIN = 180;
 const LINK_DISTANCE_MAX = 1500;
 
 /*
- * 화면에 실제로 그리는 선: 각 멤버의 상위 몇 명까지만.
+ * 화면에 실제로 그리는 선: "서로가 서로를 상위 N명으로 꼽는" 쌍만.
  *
  * 물리 계산에는 모든 쌍이 들어가므로(아래 physicsLinks) 선을 줄여도 배치는
  * 전혀 달라지지 않는다 — 순수하게 시각적 정리다.
- * 기준(3회 이상)대로 다 그리면 491개, 노드당 평균 25개라 화면이 거미줄이 된다.
- * top4면 117개 / 노드당 6개로 줄고, 전역 임곗값과 달리 활동이 적은 멤버도
- * 자기 핵심 관계선은 유지한다.
+ *
+ * 예전엔 "합방 횟수 상위 N명"을 한쪽 기준으로만 뽑아 합집합을 썼는데, 그러면
+ * 인기 많은 멤버는 남들의 상위권에 계속 뽑혀 선이 19개까지 붙었다. 그 노드가
+ * 사방으로 긴 선을 뻗어 별 모양이 되고, 주변에 맞물리는 노드가 없어 읽히지 않았다.
+ * 게다가 선을 고르는 기준(횟수)과 거리를 정하는 기준(상호 순위)이 달라서,
+ * 배치가 "먼 사이"로 판정한 쌍에 선을 긋는 모순도 있었다.
+ *
+ * 이제 거리와 같은 기준(distScore)으로, 양쪽 모두의 상위 N에 든 쌍만 그린다.
+ * 실측: 최대 차수 19 -> 7, 선 8개 이상인 노드 5개 -> 0개, 최장 선 1586 -> 1076.
  */
-const DRAWN_TOP_N = 4;
+const DRAWN_TOP_N = 6;
+
+/*
+ * 양쪽 조건만 걸면 선이 1~2개뿐인 노드가 생겨 주변에 맞물리는 구조가 사라진다
+ * (삼각형을 이루는 선 비율 85% -> 58%). 최소 이만큼은 채워서 국소적으로
+ * 다각형 형태가 유지되게 한다. 실측: 차수 4~19 -> 4~8, 삼각형 68%.
+ */
+const DRAWN_MIN_DEGREE = 4;
+
+/*
+ * 최소 차수를 채울 때 인기 많은 멤버만 계속 뽑히면(다들 그 사람이 최고 상대라)
+ * 그 노드에 선이 다시 몰려 별 모양이 된다(실측: 채우기 후 후부키 11개).
+ * 이 수를 이미 넘긴 상대는 채우기 후보에서 미뤄 둔다.
+ */
+const DRAWN_MAX_DEGREE = 7;
 
 // 함께한 기록이 없는 쌍을 서로 밀어내는 스프링 세기.
 // 이게 없으면 무관계 쌍이 충돌 하한까지 붙는다(실측 거리 96).
@@ -297,28 +317,6 @@ export default function NetworkGraph({
     const relatedLinks = physicsLinks.filter((l) => l.count >= MIN_EDGE_EVENTS);
 
     /*
-     * 화면에 그리는 링크는 각 멤버의 상위 DRAWN_TOP_N 파트너만 추린 합집합.
-     * physicsLinks와 같은 객체를 공유해야 forceLink가 source/target을 노드 객체로
-     * 바꿔줄 때 그리기 쪽도 함께 해석된다. (물리는 여전히 모든 쌍을 쓰므로
-     * 선을 줄여도 배치는 그대로다 — DRAWN_TOP_N 주석 참고)
-     */
-    const neighborsByNode = new Map();
-    for (const l of relatedLinks) {
-      if (!neighborsByNode.has(l.source)) neighborsByNode.set(l.source, []);
-      if (!neighborsByNode.has(l.target)) neighborsByNode.set(l.target, []);
-      neighborsByNode.get(l.source).push(l);
-      neighborsByNode.get(l.target).push(l);
-    }
-    const drawnKeys = new Set();
-    for (const ls of neighborsByNode.values()) {
-      [...ls]
-        .sort((a, b) => b.count - a.count)
-        .slice(0, DRAWN_TOP_N)
-        .forEach((l) => drawnKeys.add(l.key));
-    }
-    const baseLinks = relatedLinks.filter((l) => drawnKeys.has(l.key));
-
-    /*
      * distRank: "이 노드에게 이 상대가 몇 등 파트너인가"(노드별 상대 순위).
      * visRank: LOCAL_MIN_COUNT 이상만 후보로 삼은 같은 순위 계산(선 굵기/진하기용).
      *
@@ -341,6 +339,72 @@ export default function NetworkGraph({
       l.distScore = mutualScore(distRank, l.source, l.target);
       l.visScore = localScore(visRank, l.source, l.target);
     }
+
+    /*
+     * 그리는 선 고르기 (거리와 같은 distScore 기준, 양쪽 모두의 상위 N에 든 쌍만).
+     * physicsLinks와 같은 객체를 공유해야 forceLink가 source/target을 노드 객체로
+     * 바꿔줄 때 그리기 쪽도 함께 해석된다. 자세한 근거는 DRAWN_TOP_N 주석 참고.
+     */
+    const neighborsByNode = new Map();
+    for (const l of relatedLinks) {
+      if (!neighborsByNode.has(l.source)) neighborsByNode.set(l.source, []);
+      if (!neighborsByNode.has(l.target)) neighborsByNode.set(l.target, []);
+      neighborsByNode.get(l.source).push(l);
+      neighborsByNode.get(l.target).push(l);
+    }
+    const topOf = new Map();
+    for (const [node, ls] of neighborsByNode) {
+      const best = [...ls].sort((a, b) => b.distScore - a.distScore).slice(0, DRAWN_TOP_N);
+      topOf.set(node, new Set(best.map((l) => l.key)));
+    }
+
+    const drawnKeys = new Set();
+    for (const l of relatedLinks) {
+      if (topOf.get(l.source)?.has(l.key) && topOf.get(l.target)?.has(l.key)) drawnKeys.add(l.key);
+    }
+
+    /*
+     * 양쪽 조건만 걸면 선이 거의 없는 노드가 생겨 주변과 맞물리는 구조가 사라진다.
+     * 부족한 노드는 점수 높은 상대부터 채워 최소 차수를 맞춘다.
+     * 채우다 보면 다른 노드의 차수도 같이 올라가므로 몇 번 반복해 수렴시킨다.
+     */
+    const degree = new Map();
+    for (const l of relatedLinks) {
+      if (!drawnKeys.has(l.key)) continue;
+      degree.set(l.source, (degree.get(l.source) ?? 0) + 1);
+      degree.set(l.target, (degree.get(l.target) ?? 0) + 1);
+    }
+    const degreeOf = (id) => degree.get(id) ?? 0;
+    const addLink = (l) => {
+      drawnKeys.add(l.key);
+      degree.set(l.source, degreeOf(l.source) + 1);
+      degree.set(l.target, degreeOf(l.target) + 1);
+    };
+
+    // 차수가 적은 노드부터 채워야 인기 멤버에게 쏠리지 않는다
+    const needy = [...neighborsByNode.keys()].sort((a, b) => degreeOf(a) - degreeOf(b));
+    for (const node of needy) {
+      if (degreeOf(node) >= DRAWN_MIN_DEGREE) continue;
+      const candidates = [...neighborsByNode.get(node)]
+        .filter((l) => !drawnKeys.has(l.key))
+        .sort((a, b) => b.distScore - a.distScore);
+
+      // 1순위: 아직 여유 있는 상대. 그런 상대가 없을 때만 이미 많은 쪽에 붙인다.
+      const partnerOf = (l) => (l.source === node ? l.target : l.source);
+      for (const pool of [
+        candidates.filter((l) => degreeOf(partnerOf(l)) < DRAWN_MAX_DEGREE),
+        candidates,
+      ]) {
+        for (const l of pool) {
+          if (degreeOf(node) >= DRAWN_MIN_DEGREE) break;
+          if (drawnKeys.has(l.key)) continue;
+          addLink(l);
+        }
+        if (degreeOf(node) >= DRAWN_MIN_DEGREE) break;
+      }
+    }
+
+    const baseLinks = relatedLinks.filter((l) => drawnKeys.has(l.key));
 
     // distScore(0~1, 1=가장 가까운 사이)를 거리로 환산.
     // 범위는 배치 전체 크기가 예전과 비슷하게 유지되도록 실측으로 맞췄다
