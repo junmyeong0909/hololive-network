@@ -357,7 +357,8 @@
       "nameEn": "Mori Calliope",
       "unit": "Myth",
       "color": "#d64161",
-      "initials": "Ca"
+      "initials": "Ca",
+      "profileImg": "/profile_img/calli.jpg"
     },
     {
       "id": "kiara",
@@ -365,7 +366,8 @@
       "nameEn": "Takanashi Kiara",
       "unit": "Myth",
       "color": "#f5821f",
-      "initials": "Ki"
+      "initials": "Ki",
+      "profileImg": "/profile_img/kiara.jpg"
     },
     {
       "id": "ina",
@@ -373,15 +375,17 @@
       "nameEn": "Ninomae Ina'nis",
       "unit": "Myth",
       "color": "#6f5bd4",
-      "initials": "In"
+      "initials": "In",
+      "profileImg": "/profile_img/ina.jpg"
     },
     {
       "id": "irys",
-      "name": "이리스",
+      "name": "아이리스",
       "nameEn": "IRyS",
       "unit": "Promise",
       "color": "#c2456e",
-      "initials": "Iry"
+      "initials": "Iry",
+      "profileImg": "/profile_img/irys.jpg"
     },
     {
       "id": "kronii",
@@ -389,15 +393,8 @@
       "nameEn": "Ouro Kronii",
       "unit": "Promise",
       "color": "#4a6fa5",
-      "initials": "Kr"
-    },
-    {
-      "id": "mumei",
-      "name": "나나시 무메이",
-      "nameEn": "Nanashi Mumei",
-      "unit": "Promise",
-      "color": "#a68a64",
-      "initials": "Mu"
+      "initials": "Kr",
+      "profileImg": "/profile_img/kronii.jpg"
     },
     {
       "id": "bae",
@@ -405,7 +402,8 @@
       "nameEn": "Hakos Baelz",
       "unit": "Promise",
       "color": "#d64550",
-      "initials": "Ba"
+      "initials": "Ba",
+      "profileImg": "/profile_img/bae.jpg"
     },
     {
       "id": "shiori",
@@ -413,7 +411,8 @@
       "nameEn": "Shiori Novella",
       "unit": "Advent",
       "color": "#8e6bbf",
-      "initials": "Sh"
+      "initials": "Sh",
+      "profileImg": "/profile_img/shiori.jpg"
     },
     {
       "id": "bijou",
@@ -421,7 +420,8 @@
       "nameEn": "Koseki Bijou",
       "unit": "Advent",
       "color": "#b06ab3",
-      "initials": "Bi"
+      "initials": "Bi",
+      "profileImg": "/profile_img/bijou.jpg"
     },
     {
       "id": "nerissa",
@@ -429,23 +429,8 @@
       "nameEn": "Nerissa Ravencroft",
       "unit": "Advent",
       "color": "#4a5aa8",
-      "initials": "Ne"
-    },
-    {
-      "id": "fuwawa",
-      "name": "후와와 어비스가드",
-      "nameEn": "Fuwawa Abyssgard",
-      "unit": "Advent",
-      "color": "#ff9ec4",
-      "initials": "Fu"
-    },
-    {
-      "id": "mococo",
-      "name": "모코코 어비스가드",
-      "nameEn": "Mococo Abyssgard",
-      "unit": "Advent",
-      "color": "#7ec8e3",
-      "initials": "Mo"
+      "initials": "Ne",
+      "profileImg": "/profile_img/nerissa.jpg"
     },
     {
       "id": "erb",
@@ -453,7 +438,8 @@
       "nameEn": "Elizabeth Rose Bloodflame",
       "unit": "Justice",
       "color": "#c9a227",
-      "initials": "ER"
+      "initials": "ER",
+      "profileImg": "/profile_img/erb.jpg"
     },
     {
       "id": "gigi",
@@ -461,7 +447,8 @@
       "nameEn": "Gigi Murin",
       "unit": "Justice",
       "color": "#f2a65a",
-      "initials": "Gi"
+      "initials": "Gi",
+      "profileImg": "/profile_img/gigi.jpg"
     },
     {
       "id": "cecilia",
@@ -469,7 +456,8 @@
       "nameEn": "Cecilia Immergreen",
       "unit": "Justice",
       "color": "#9db4c0",
-      "initials": "Ce"
+      "initials": "Ce",
+      "profileImg": "/profile_img/cecilia.jpg"
     },
     {
       "id": "raora",
@@ -477,7 +465,17 @@
       "nameEn": "Raora Panthera",
       "unit": "Justice",
       "color": "#ef8354",
-      "initials": "Ra"
+      "initials": "Ra",
+      "profileImg": "/profile_img/raora.jpg"
+    },
+    {
+      "id": "fuwamoco",
+      "name": "후와모코",
+      "nameEn": "FUWAMOCO",
+      "unit": "Advent",
+      "color": "#ff9ec4",
+      "initials": "FM",
+      "profileImg": "/profile_img/fuwamoco.jpg"
     }
   ],
   "_interactionsNote": "더미 데이터 제거됨. 실제 합방 기록으로 채우는 로직은 아직 없어서, 지금은 그래프에 연결선 없이 노드만 표시된다.",
