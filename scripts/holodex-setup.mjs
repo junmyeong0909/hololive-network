@@ -105,10 +105,22 @@ async function main() {
 
   console.log(`매칭 성공 ${Object.keys(mapping).length}명`);
   if (unmatched.length) {
-    console.log(`\n매칭 실패 ${unmatched.length}명 — 수동으로 채워야 합니다:`);
-    for (const m of unmatched) console.log(`  - ${m.id} (${m.nameEn})`);
-    console.log('\n참고: Holodex에 있는 이름 목록 일부');
-    for (const ch of channels.slice(0, 40)) console.log(`  ${ch.english_name ?? ch.name}  →  ${ch.id}`);
+    console.log(`\n매칭 실패 ${unmatched.length}명 — 이름이 정확히 안 맞는 경우다`);
+    console.log('(예: FUWAMOCO처럼 두 사람이 채널 하나를 공유하면 표기가 달라 자동 매칭이 안 될 수 있다)\n');
+    for (const m of unmatched) {
+      console.log(`  - ${m.id} (${m.nameEn})`);
+      // 이름의 앞 4글자를 포함하는 후보를 찾아 같이 보여준다 (수동 확인용)
+      const needle = norm(m.nameEn).slice(0, 4);
+      const guesses = channels.filter((ch) => {
+        const n = norm(ch.english_name ?? '');
+        const n2 = norm(ch.name ?? '');
+        return needle.length >= 3 && (n.includes(needle) || n2.includes(needle));
+      });
+      if (guesses.length) {
+        console.log('      후보:');
+        for (const g of guesses.slice(0, 5)) console.log(`        ${g.english_name ?? g.name}  →  ${g.id}`);
+      }
+    }
   }
 
   writeFileSync(OUT_PATH, JSON.stringify(mapping, null, 2) + '\n', 'utf-8');
