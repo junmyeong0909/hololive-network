@@ -25,40 +25,29 @@ const HUB_SPOKE_DISTANCE = 78;
 const LIVE_LINK_STRENGTH = 0.9;
 
 /*
- * 첫 화면은 "전부 한 화면에"가 아니라 "읽을 수 있는 배율"로 시작한다.
- *
- * 관계가 거리로 제대로 드러나려면 배치를 넓게 써야 하는데(LINK_DISTANCE_* 주석 참고),
- * 그러면 배치가 화면보다 훨씬 커진다. 이걸 억지로 다 담으면 배율이 0.11~0.25까지
- * 떨어져 라벨이 1~3px이 되어 아무것도 못 읽는다.
- * 그래서 읽히는 배율로 시작하고 팬·핀치로 탐색하게 한다.
- * 전체 조망이 필요하면 리셋 버튼이 맞춤 배율로 되돌린다.
+ * 배치 크기(=거리 범위/초기 배율/줌 하한)는 0.4.3 시점 값으로 되돌렸다.
+ * 0.4.4~0.4.9에서 "관계 충실도" 문제(관계 없는 멤버가 더 가까이 보이던 문제)를
+ * 풀려고 배치를 계속 넓혔는데, 그 대가로 팬 이동이 과해지고 초기 화면이 헐렁해졌다.
+ * 충실도 개선 자체(전체 쌍 물리, 상호 점수, 선 정리)는 그대로 두고 "크기"만 되돌린다.
  */
 const MOBILE_MAX_WIDTH = 768;
-const INITIAL_SCALE = 0.85;
+
+// 모바일 첫 화면 배율. 데스크톱은 이 상수를 안 쓰고 fitToView()로 전체를 맞춘다
+// (배치가 다시 작아졌으니 전체 맞춤이 헐렁하지 않다).
+const MOBILE_INITIAL_SCALE = 0.9;
 
 // 모바일 배치 배율의 하한. 화면이 좁다고 배치까지 좁히면 관계 표현이 뭉개진다.
 const MOBILE_SPREAD_FLOOR = 1.2;
 
-// 배치가 화면보다 훨씬 커서, 리셋(전체 맞춤)이 0.11까지 내려갈 수 있어야 한다.
-const MIN_ZOOM = 0.08;
+const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 2.5;
 
 // 노드를 탭했을 때 이웃까지 담되, 최소한 이 배율(=라벨이 읽히는 크기)은 지킨다.
 const FOCUS_MIN_SCALE = 0.9;
 
-/*
- * 링크 목표 거리 범위(가장 가까운 사이 ~ 무관계). spread가 곱해진다.
- *
- * 배치를 좁게 잡으면 거리들이 충돌 하한(96)에 눌려 관계가 뭉개진다.
- * 넓힐수록 거리가 관계로만 정해지는데, 실측상 이렇게 움직인다:
- *   70~580   역전 4.8%  충돌하한에 눌린 쌍 44.2개
- *   180~1500 역전 3.6%  눌린 쌍  1.4개   <- 채택
- *   250~2000 역전 3.0%  눌린 쌍  0.2개
- * 250~2000이 수치는 가장 좋지만 배치가 3800px까지 커져 팬 이동이 과하다.
- * 180~1500이면 충실도는 거의 그대로면서 배치가 30% 작아진다.
- */
-const LINK_DISTANCE_MIN = 180;
-const LINK_DISTANCE_MAX = 1500;
+// 링크 목표 거리 범위(가장 가까운 사이 ~ 무관계). spread가 곱해진다.
+const LINK_DISTANCE_MIN = 70;
+const LINK_DISTANCE_MAX = 580;
 
 /*
  * 화면에 실제로 그리는 선: "서로가 서로를 상위 N명으로 꼽는" 쌍만.
@@ -974,14 +963,18 @@ export default function NetworkGraph({
     fitToViewRef.current = fitToView;
 
     /**
-     * 첫 화면. 데스크톱·모바일 모두 그래프 중앙에서 읽을 수 있는 배율로 시작한다.
-     * 관계가 거리로 드러나도록 배치를 넓게 쓰기 때문에(LINK_DISTANCE_* 참고)
-     * 전체를 맞추면 배율이 0.11~0.25까지 떨어져 라벨이 사라진다.
+     * 첫 화면. 배치가 다시 작아져서(0.4.3 크기) 데스크톱은 전체 맞춤이 헐렁하지
+     * 않다 — fitToView()를 그대로 쓴다. 모바일은 화면이 좁아 전체 맞춤이면
+     * 여전히 라벨이 작아지므로(3.9.x 때 실측한 문제) 읽을 수 있는 배율로 고정한다.
      */
     function applyInitialView() {
+      if (!isMobile) {
+        fitToView();
+        return;
+      }
       const b = nodeBounds(nodes);
       if (!b) return;
-      applyCamera(cameraAt(b.cx, b.cy, INITIAL_SCALE));
+      applyCamera(cameraAt(b.cx, b.cy, MOBILE_INITIAL_SCALE));
     }
 
     /**
